@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+
 
 import CheckboxGroup from "./CheckboxGroup";
 import RadioRangeGroup from "./RadioRangeGroup";
 import BrandIconGrid from "./BrandIconGrid";
+import axiosClient from "../../../service/axiosClient";
 
 import {
   brandLogos,
@@ -28,8 +29,8 @@ export default function SidebarFilter({ filters, onChange }) {
 
   // ===== LOAD BRAND =====
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/products/brands")
+    axiosClient
+    .get("/api/products/brands")
       .then((res) => setBrands(res.data || []))
       .catch(() => {});
   }, []);

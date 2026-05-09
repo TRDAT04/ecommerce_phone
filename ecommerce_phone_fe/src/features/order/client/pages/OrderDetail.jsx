@@ -145,7 +145,7 @@ export default function OrderDetail() {
           >
             <div className="flex items-center gap-4">
               <img
-                src={`http://localhost:8080${item.image}`}
+                src={`${import.meta.env.VITE_API_URL}${item.image}`}
                 className="w-20 h-20 object-contain border rounded-xl p-1 shadow-sm"
               />
 

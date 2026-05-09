@@ -6,7 +6,7 @@ import { ShoppingCart, Trash2, Plus, Minus, ArrowRight } from "lucide-react";
 export default function Cart() {
   const [cart, setCart] = useState({ items: [] });
   const navigate = useNavigate();
-  const BASE_URL = "http://localhost:8080";
+  const BASE_URL = import.meta.env.VITE_API_URL;
 
   // ================= LOAD =================
   useEffect(() => {

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const getImageUrl = (url) => {
   if (!url) return "";
@@ -6,6 +6,6 @@ export const getImageUrl = (url) => {
   // nếu là link full rồi thì giữ nguyên
   if (url.startsWith("http")) return url;
 
-  // nếu là path từ BE thì nối domain
+  // nếu là path từ backend thì nối domain
   return `${API_URL}${url}`;
 };

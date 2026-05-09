@@ -170,7 +170,7 @@ export default function AdminOrderDetail() {
           >
             <div className="flex gap-4 items-center">
               <img
-                src={`http://localhost:8080${item.image}`}
+               src={`${import.meta.env.VITE_API_URL}${item.image}`}
                 className="w-16 h-16 object-contain border rounded"
               />
 

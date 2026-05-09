@@ -3,7 +3,7 @@ import { useAuthStore } from "../store/authStore";
 import { refreshToken as refreshApi } from "../features/auth/api/authService";
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 // ================= REQUEST =================
