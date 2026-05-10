@@ -8,10 +8,9 @@ import com.ecommerce.product.mapper.*;
 import com.ecommerce.product.repository.ProductRepository;
 import com.ecommerce.product.service.helper.JsonParserService;
 import com.ecommerce.product.service.helper.SlugService;
-import com.ecommerce.product.service.business.ProductCalculationService;
+import com.ecommerce.product.service.helper.ProductCalculationService;
 import com.ecommerce.product.service.image.ProductImageAssembler;
 import com.ecommerce.product.service.query.ProductDetailBuilder;
-import com.ecommerce.product.service.image.ProductImageService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,7 +36,7 @@ public class ProductCreateService {
             SlugService slugService,
             JsonParserService jsonParserService,
             ProductCalculationService calculationService,
-            ProductImageService productImageService,
+
             ProductDetailBuilder productDetailBuilder,
             ProductBasicMapper basicMapper,
             ProductSpecMapper specMapper,

@@ -35,13 +35,12 @@ public class ProductSearchService {
                         p.getImageUrl(),
                         p.getMinPrice()
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Page<ProductHomeDTO> search(ProductFilterRequest filter) {
 
         Sort sort = buildSort(filter.getSort());
-
         Pageable pageable = PageRequest.of(
                 filter.getPage(),
                 filter.getSize(),
@@ -52,7 +51,6 @@ public class ProductSearchService {
                 ProductSpecs.withFilter(filter),
                 pageable
         );
-
         return products.map(basicMapper::toHomeDTO);
     }
 
@@ -61,7 +59,6 @@ public class ProductSearchService {
         if (sort == null || sort.isBlank()) {
             return Sort.by("id").descending();
         }
-
         return switch (sort) {
             case "price_asc" -> Sort.by("minPrice").ascending();
             case "price_desc" -> Sort.by("minPrice").descending();

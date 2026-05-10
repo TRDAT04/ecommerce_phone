@@ -7,7 +7,7 @@ import com.ecommerce.product.entity.*;
 import com.ecommerce.product.mapper.*;
 import com.ecommerce.product.repository.ProductRepository;
 import com.ecommerce.product.service.helper.JsonParserService;
-import com.ecommerce.product.service.business.ProductCalculationService;
+import com.ecommerce.product.service.helper.ProductCalculationService;
 import com.ecommerce.product.service.image.ProductImageAssembler;
 import com.ecommerce.product.service.query.ProductDetailBuilder;
 import org.springframework.stereotype.Service;

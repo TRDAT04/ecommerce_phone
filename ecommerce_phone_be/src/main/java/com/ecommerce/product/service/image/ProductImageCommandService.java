@@ -95,7 +95,6 @@ public class ProductImageCommandService {
         ProductImage img = productImageRepository.findById(imageId)
                 .orElseThrow(() -> new RuntimeException("Image not found"));
 
-        // ===== QUAN TRỌNG: XÓA TRÊN CLOUDINARY =====
         if (img.getImageUrl() != null && !img.getImageUrl().isBlank()) {
             imageStorageService.deleteFileIfExists(img.getImageUrl());
         }

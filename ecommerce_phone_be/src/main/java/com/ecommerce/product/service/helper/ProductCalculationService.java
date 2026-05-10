@@ -1,4 +1,4 @@
-package com.ecommerce.product.service.business;
+package com.ecommerce.product.service.helper;
 
 import com.ecommerce.product.entity.Product;
 import com.ecommerce.product.entity.ProductSpecification;

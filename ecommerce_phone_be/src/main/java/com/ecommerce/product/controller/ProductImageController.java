@@ -1,7 +1,8 @@
 package com.ecommerce.product.controller;
 
 import com.ecommerce.product.entity.ProductImage;
-import com.ecommerce.product.service.image.ProductImageService;
+import com.ecommerce.product.service.image.ProductImageCommandService;
+import com.ecommerce.product.service.image.ProductImageQueryService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,44 +13,43 @@ import java.util.*;
 @CrossOrigin("*")
 public class ProductImageController {
 
-    private final ProductImageService productImageService;
+    private final ProductImageQueryService queryService;
+    private final ProductImageCommandService commandService;
 
-    public ProductImageController(ProductImageService productImageService) {
-        this.productImageService = productImageService;
+    public ProductImageController(ProductImageQueryService queryService,
+                                  ProductImageCommandService commandService) {
+        this.queryService = queryService;
+        this.commandService = commandService;
     }
 
-    // ===== GET =====
     @GetMapping
     public List<ProductImage> getImages(
             @RequestParam Long productId,
             @RequestParam String color
     ) {
-        return productImageService.getImages(productId, color);
+        return queryService.getImages(productId, color);
     }
 
-    // ===== UPLOAD =====
     @PostMapping
     public List<ProductImage> upload(
             @RequestParam Long productId,
             @RequestParam String color,
             @RequestParam MultipartFile[] files
     ) {
-        return productImageService.uploadImages(productId, color, files);
+        return commandService.uploadImages(productId, color, files);
     }
 
-    // ===== DELETE =====
     @DeleteMapping("/{imageId}")
     public void delete(@PathVariable Long imageId) {
-        productImageService.deleteImage(imageId);
+        commandService.deleteImage(imageId);
     }
 
-    // ===== SORT =====
     @PutMapping("/sort")
     public void sort(
             @RequestParam Long productId,
             @RequestParam String color,
             @RequestBody List<Long> imageIds
     ) {
-        productImageService.updateSortOrder(productId, color, imageIds);
+        commandService.updateSortOrder(productId, color, imageIds);
     }
 }
