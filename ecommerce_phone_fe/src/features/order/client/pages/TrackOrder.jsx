@@ -1,41 +1,17 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosClient from "../../../../service/axiosClient";
+import { useTrackOrder } from "../hooks/useTrackOrder";
+
+const STATUS_CLASSES = {
+  PENDING: "bg-yellow-100 text-yellow-700",
+  CONFIRMED: "bg-blue-100 text-blue-700",
+  SHIPPING: "bg-purple-100 text-purple-700",
+  DONE: "bg-green-100 text-green-700",
+  CANCELLED: "bg-red-100 text-red-700",
+};
 
 export default function TrackOrder() {
-  const [phone, setPhone] = useState("");
-  const [orders, setOrders] = useState([]);
-  const [error, setError] = useState("");
+  const { phone, setPhone, orders, error, setError, handleSearch } = useTrackOrder();
   const navigate = useNavigate();
-
-  const handleSearch = async () => {
-    if (!phone.trim()) {
-      setError("Vui lòng nhập số điện thoại");
-      return;
-    }
-
-    try {
-      setError("");
-      const res = await axiosClient.get(`/api/orders/phone/${phone}`);
-      const list = Array.isArray(res.data) ? res.data : [];
-      setOrders(list);
-
-      if (list.length === 0) {
-        setError("Không tìm thấy đơn hàng");
-      }
-    } catch {
-      setError("Có lỗi xảy ra khi tra cứu");
-    }
-  };
-
-  // ========= STATUS BADGE =============
-  const statusClasses = {
-    PENDING: "bg-yellow-100 text-yellow-700",
-    CONFIRMED: "bg-blue-100 text-blue-700",
-    SHIPPING: "bg-purple-100 text-purple-700",
-    DONE: "bg-green-100 text-green-700",
-    CANCELLED: "bg-red-100 text-red-700",
-  };
 
   return (
     <div className="mx-auto max-w-3xl p-6">
@@ -52,9 +28,10 @@ export default function TrackOrder() {
             setError("");
           }}
           placeholder="Nhập số điện thoại"
-          className={`flex-1 rounded-2xl border px-4 py-3 shadow-sm ${error ? "border-red-500" : "border-gray-300"} text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none`}
+          className={`flex-1 rounded-2xl border px-4 py-3 shadow-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+            error ? "border-red-500" : "border-gray-300"
+          }`}
         />
-
         <button
           onClick={handleSearch}
           className="rounded-2xl bg-blue-600 px-7 py-3 font-semibold text-white shadow transition hover:bg-blue-700 active:scale-95"
@@ -80,17 +57,14 @@ export default function TrackOrder() {
           >
             <div className="mb-1 flex items-center justify-between">
               <p className="text-lg font-bold text-gray-800">🧾 Đơn #{o.id}</p>
-
-              {/* STATUS BADGE */}
               <span
                 className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                  statusClasses[o.status] || "bg-gray-200 text-gray-700"
+                  STATUS_CLASSES[o.status] || "bg-gray-200 text-gray-700"
                 }`}
               >
                 {o.status}
               </span>
             </div>
-
             <p className="mt-1 text-sm text-gray-700">
               Tổng tiền:{" "}
               <span className="text-base font-semibold text-red-600">

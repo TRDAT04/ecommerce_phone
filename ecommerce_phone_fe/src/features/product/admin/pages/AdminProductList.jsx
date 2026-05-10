@@ -12,7 +12,10 @@ export default function ProductList() {
     const fetchProducts = async () => {
       try {
         const res = await axiosClient.get("/api/products");
-        setProducts(res.data);
+
+        // 🔥 SỬA TẠI ĐÂY — backend trả về { content: [...] }
+        setProducts(res.data.content);
+
       } catch (err) {
         console.error("Lỗi load products:", err);
       }

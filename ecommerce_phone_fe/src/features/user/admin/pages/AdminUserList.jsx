@@ -1,73 +1,39 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axiosClient from "../../../../service/axiosClient";
+import { Search } from "lucide-react";
+import { useAdminUsers } from "../hooks/useAdminUsers";
 
-export default function AdminUsers() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
-
-  const currentUser = JSON.parse(localStorage.getItem("user"));
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const res = await axiosClient.get("/api/admin/users");
-      setUsers(res.data || []);
-    } catch (err) {
-      console.error(err);
-     
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const handleDelete = async (user) => {
-    if (!window.confirm("Bạn có chắc muốn xoá user này?")) return;
-
-    try {
-      await axiosClient.delete(`/api/admin/users/${user.id}`);
-      setUsers((prev) => prev.filter((u) => u.id !== user.id));
-    } catch (err) {
-      console.error(err);
-      alert("Xóa thất bại");
-    }
-  };
-
-  const handleChangeRole = async (user, newRole) => {
-    if (!window.confirm("Bạn có chắc muốn đổi role?")) return;
-
-    try {
-      await axiosClient.put(`/api/admin/users/${user.id}`, {
-        ...user,
-        role: newRole,
-      });
-
-      setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, role: newRole } : u))
-      );
-    } catch (err) {
-      console.error(err);
-      alert("Không đổi được role");
-    }
-  };
+export default function AdminUserList() {
+  const {
+    filteredUsers,
+    loading,
+    search,
+    setSearch,
+    isCurrentSuper,
+    handleDelete,
+    handleChangeRole,
+    navigate,
+  } = useAdminUsers();
 
   const isSuperAdmin = (u) => u.role === "ROLE_SUPER_ADMIN";
-  const isCurrentSuper = currentUser?.role === "ROLE_SUPER_ADMIN";
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">👤 Quản lý tài khoản</h1>
+    <div className="mx-auto max-w-6xl p-6">
+      <h1 className="mb-6 text-2xl font-bold">👤 Quản lý tài khoản</h1>
+
+      {/* SEARCH */}
+      <div className="relative mb-5 max-w-md">
+        <Search className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Tìm theo tên, email, số điện thoại..."
+          className="w-full rounded-xl border py-2.5 pr-4 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
 
       {loading ? (
         <p>Đang tải...</p>
       ) : (
-        <div className="bg-white shadow rounded-xl overflow-hidden">
+        <div className="overflow-hidden rounded-xl bg-white shadow">
           <table className="w-full text-sm">
             <thead className="bg-gray-100 text-left">
               <tr>
@@ -82,15 +48,13 @@ export default function AdminUsers() {
             </thead>
 
             <tbody>
-              {users.map((u) => {
+              {filteredUsers.map((u) => {
                 const targetIsSuper = isSuperAdmin(u);
 
                 return (
                   <tr
                     key={u.id}
-                    className={`border-t hover:bg-gray-50 ${
-                      targetIsSuper ? "bg-red-50" : ""
-                    }`}
+                    className={`border-t hover:bg-gray-50 ${targetIsSuper ? "bg-red-50" : ""}`}
                   >
                     <td className="p-3">{u.id}</td>
                     <td>{u.email}</td>
@@ -102,23 +66,17 @@ export default function AdminUsers() {
                     <td>
                       <select
                         value={u.role}
-                        disabled={targetIsSuper} // SUPER ADMIN luôn khóa
+                        disabled={targetIsSuper}
                         onChange={(e) => handleChangeRole(u, e.target.value)}
-                        className={`border px-2 py-1 rounded ${
-                          targetIsSuper
-                            ? "bg-red-100 text-red-600 font-semibold"
-                            : ""
+                        className={`rounded border px-2 py-1 ${
+                          targetIsSuper ? "bg-red-100 font-semibold text-red-600" : ""
                         }`}
                       >
                         <option value="ROLE_USER">USER</option>
                         <option value="ROLE_ADMIN">ADMIN</option>
-
-                        {/* nếu user đang là super admin thì phải hiển thị option */}
                         {targetIsSuper && (
                           <option value="ROLE_SUPER_ADMIN">SUPER ADMIN</option>
                         )}
-
-                        {/* nếu người đăng nhập là super admin */}
                         {!targetIsSuper && isCurrentSuper && (
                           <option value="ROLE_SUPER_ADMIN">SUPER ADMIN</option>
                         )}
@@ -126,43 +84,32 @@ export default function AdminUsers() {
                     </td>
 
                     {/* ACTION BUTTONS */}
-                    <td className="text-center space-x-2">
-                      {/* EDIT BUTTON */}
+                    <td className="space-x-2 text-center">
                       <button
-                        className={`px-3 py-1 rounded text-white 
-                          ${
-                            isCurrentSuper
-                              ? "bg-yellow-600 hover:bg-yellow-700" 
-                              : !targetIsSuper
-                              ? "bg-blue-600 hover:bg-blue-700" 
-                              : "bg-gray-400 cursor-not-allowed" 
-                          }`}
-                        disabled={
-                          isCurrentSuper ? false : targetIsSuper 
-                        }
+                        disabled={isCurrentSuper ? false : targetIsSuper}
                         onClick={() => {
-                          if (!targetIsSuper || isCurrentSuper) {
+                          if (!targetIsSuper || isCurrentSuper)
                             navigate(`/admin/users/${u.id}`);
-                          }
                         }}
+                        className={`rounded px-3 py-1 text-white ${
+                          isCurrentSuper
+                            ? "bg-yellow-600 hover:bg-yellow-700"
+                            : !targetIsSuper
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "cursor-not-allowed bg-gray-400"
+                        }`}
                       >
                         Sửa
                       </button>
 
-                      {/* DELETE BUTTON */}
                       <button
-                        className={`
-                          px-3 py-1 rounded text-white
-                          ${
-                            targetIsSuper
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-red-500 hover:bg-red-600"
-                          }
-                        `}
                         disabled={targetIsSuper}
-                        onClick={() => {
-                          if (!targetIsSuper) handleDelete(u);
-                        }}
+                        onClick={() => { if (!targetIsSuper) handleDelete(u); }}
+                        className={`rounded px-3 py-1 text-white ${
+                          targetIsSuper
+                            ? "cursor-not-allowed bg-gray-400"
+                            : "bg-red-500 hover:bg-red-600"
+                        }`}
                       >
                         Xoá
                       </button>
@@ -173,8 +120,10 @@ export default function AdminUsers() {
             </tbody>
           </table>
 
-          {users.length === 0 && (
-            <p className="p-4 text-gray-500 text-center">Không có user nào</p>
+          {filteredUsers.length === 0 && (
+            <p className="p-4 text-center text-gray-500">
+              {search ? "Không tìm thấy kết quả" : "Không có user nào"}
+            </p>
           )}
         </div>
       )}

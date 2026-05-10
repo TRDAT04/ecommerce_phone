@@ -5,29 +5,27 @@ export default function Success() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="bg-white shadow-xl rounded-2xl p-8 max-w-lg w-full text-center">
-
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-8 text-center shadow-xl">
         {/* ICON */}
-        <div className="text-6xl mb-4">🎉</div>
+        <div className="mb-4 text-6xl">🎉</div>
 
         {/* TITLE */}
-        <h1 className="text-2xl font-bold text-green-600 mb-2">
+        <h1 className="mb-2 text-2xl font-bold text-green-600">
           Đặt hàng thành công!
         </h1>
-
-        <p className="text-gray-600 mb-4">
-          Cảm ơn bạn đã mua hàng tại <span className="font-semibold">NextMobile</span>
+        <p className="mb-4 text-gray-600">
+          Cảm ơn bạn đã mua hàng tại{" "}
+          <span className="font-semibold">NextMobile</span>
         </p>
 
         {/* ORDER ID */}
-        <div className="bg-gray-100 p-4 rounded-xl mb-4">
+        <div className="mb-4 rounded-xl bg-gray-100 p-4">
           <p className="text-sm text-gray-500">Mã đơn hàng</p>
           <p className="text-xl font-bold text-red-500">#{id}</p>
         </div>
 
-        {/* NOTE */}
-        <p className="text-sm text-gray-500 mb-6">
+        <p className="mb-6 text-sm text-gray-500">
           Vui lòng lưu mã đơn và số điện thoại để tra cứu đơn hàng
         </p>
 
@@ -35,14 +33,13 @@ export default function Success() {
         <div className="flex gap-3">
           <button
             onClick={() => navigate("/track-order")}
-            className="flex-1 border border-gray-300 py-3 rounded-lg hover:bg-gray-100"
+            className="flex-1 rounded-lg border border-gray-300 py-3 hover:bg-gray-100"
           >
             📦 Tra cứu đơn
           </button>
-
           <button
             onClick={() => navigate("/")}
-            className="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600"
+            className="flex-1 rounded-lg bg-red-500 py-3 text-white hover:bg-red-600"
           >
             🛍️ Tiếp tục mua
           </button>

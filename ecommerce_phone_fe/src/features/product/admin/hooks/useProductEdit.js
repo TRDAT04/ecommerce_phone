@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axiosClient from "../../../../service/axiosClient";
+import buildFormData from "../utils/buildFormData";
 
 export const useProductEdit = (id) => {
- 
   const [product, setProduct] = useState(null);
   const [draftColor, setDraftColor] = useState("");
   const [showColorInput, setShowColorInput] = useState(false);
@@ -11,6 +11,7 @@ export const useProductEdit = (id) => {
   useEffect(() => {
     axiosClient.get(`/api/products/${id}`).then((res) => {
       const data = res.data;
+
       setProduct({
         ...data,
         variants: data.variants ?? [],
@@ -22,14 +23,22 @@ export const useProductEdit = (id) => {
 
   // ================= BASIC =================
   const handleChange = (e) => {
-    setProduct({ ...product, [e.target.name]: e.target.value });
+    setProduct((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   // ================= VARIANTS =================
   const handleVariantChange = (index, field, value) => {
-    const updated = [...product.variants];
-    updated[index][field] = value;
-    setProduct({ ...product, variants: updated });
+    setProduct((prev) => ({
+      ...prev,
+      variants: prev.variants.map((variant, i) =>
+        i === index
+          ? { ...variant, [field]: value }
+          : variant
+      ),
+    }));
   };
 
   const addVariant = () => {
@@ -72,6 +81,7 @@ export const useProductEdit = (id) => {
 
     setProduct((prev) => {
       const exists = prev.colors.some((c) => c.key === key);
+
       if (exists) return prev;
 
       return {
@@ -85,7 +95,10 @@ export const useProductEdit = (id) => {
   };
 
   const deleteColor = (colorKey) => {
-    const isUsed = product.variants.some((v) => v.colorKey === colorKey);
+    const isUsed = product.variants.some(
+      (v) => v.colorKey === colorKey
+    );
+
     if (isUsed) return;
 
     setProduct((prev) => ({
@@ -97,6 +110,7 @@ export const useProductEdit = (id) => {
   // ================= IMAGE =================
   const handleSelectImage = (e) => {
     const file = e.target.files[0];
+
     if (!file) return;
 
     const preview = URL.createObjectURL(file);
@@ -110,9 +124,14 @@ export const useProductEdit = (id) => {
 
   // ================= SPEC =================
   const handleSpecChange = (index, field, value) => {
-    const updated = [...product.specifications];
-    updated[index][field] = value;
-    setProduct({ ...product, specifications: updated });
+    setProduct((prev) => ({
+      ...prev,
+      specifications: prev.specifications.map((spec, i) =>
+        i === index
+          ? { ...spec, [field]: value }
+          : spec
+      ),
+    }));
   };
 
   const addSpec = () => {
@@ -120,7 +139,12 @@ export const useProductEdit = (id) => {
       ...prev,
       specifications: [
         ...prev.specifications,
-        { id: null, specKey: "", specName: "", specValue: "" },
+        {
+          id: null,
+          specKey: "",
+          specName: "",
+          specValue: "",
+        },
       ],
     }));
   };
@@ -128,7 +152,9 @@ export const useProductEdit = (id) => {
   const deleteSpec = (index) => {
     setProduct((prev) => ({
       ...prev,
-      specifications: prev.specifications.filter((_, i) => i !== index),
+      specifications: prev.specifications.filter(
+        (_, i) => i !== index
+      ),
     }));
   };
 
@@ -137,41 +163,42 @@ export const useProductEdit = (id) => {
     e.preventDefault();
 
     try {
-      const formData = new FormData();
+      const formData = buildFormData({
+        name: product.name,
+        brand: product.brand,
+        description: product.description,
+        image: product.imageFile,
+        colors: product.colors,
+        variants: product.variants,
+        specifications: product.specifications,
+      });
 
-      formData.append("name", product.name);
-      formData.append("brand", product.brand);
-
-      if (product.imageFile) {
-        formData.append("image", product.imageFile);
-      }
-
-      formData.append("colors", JSON.stringify(product.colors));
-      formData.append("variants", JSON.stringify(product.variants));
-      formData.append("specifications", JSON.stringify(product.specifications));
-
-      await axiosClient.put(`/api/products/${id}`, formData);
+      await axiosClient.put(
+        `/api/products/${id}`,
+        formData
+      );
 
       alert("Cập nhật thành công!");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
     } catch (err) {
       console.error(err);
-    
+
       const res = err.response?.data;
-    
+
       if (res) {
-        // 👉 có message từ BE
         alert(res.message || "Có lỗi xảy ra!");
-    
-        // 👉 nếu muốn xử lý riêng từng loại lỗi
+
         if (res.code === "VARIANT_IN_USE") {
           console.log("Variant đang được dùng");
         }
-    
+
         if (res.code === "COLOR_IN_USE") {
           console.log("Color đang được dùng");
         }
-    
       } else {
         alert("Lỗi server hoặc mất kết nối!");
       }
@@ -185,8 +212,8 @@ export const useProductEdit = (id) => {
 
     setDraftColor,
     setShowColorInput,
-
     handleChange,
+
     handleVariantChange,
     addVariant,
     deleteVariant,
@@ -195,7 +222,6 @@ export const useProductEdit = (id) => {
     deleteColor,
 
     handleSelectImage,
-
     handleSpecChange,
     addSpec,
     deleteSpec,

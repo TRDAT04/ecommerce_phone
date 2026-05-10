@@ -21,6 +21,11 @@ export default function BannerSlider() {
         "https://cdn.hoanghamobile.vn/i/home/Uploads/2026/04/10/note-15-series-web.png",
       productId: 36,
     },
+    {
+      image:
+        "https://cdn.hoanghamobile.vn/i/home/Uploads/2026/04/28/tecno-spark-go-3-1200x375.jpg",
+      productId: 37,
+    },
   ];
 
   const [current, setCurrent] = useState(0);

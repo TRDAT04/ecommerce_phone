@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
-import axiosClient from "../../../../service/axiosClient";
+import { useEffect, useState } from "react";
+import { createProduct } from "../api/productService";
+import buildFormData from "../utils/buildFormData";
 
+// ================= HOOK =================
 export default function useProductCreate(SPEC_OPTIONS = []) {
   const [productInfo, setProductInfo] = useState({
     name: "",
@@ -16,19 +18,34 @@ export default function useProductCreate(SPEC_OPTIONS = []) {
   const [dragIndex, setDragIndex] = useState(null);
   const [errors, setErrors] = useState({});
 
+  // ================= RESET =================
+  const resetForm = () => {
+    setProductInfo({
+      name: "",
+      brand: "",
+      description: "",
+      file: null,
+    });
+
+    setVariants([]);
+    setSpecs([]);
+    setColorImages({});
+    setColors([]);
+  };
+
   // validate variant color khi colors thay đổi
   useEffect(() => {
     setVariants((prev) =>
       prev.map((v) =>
-        colors.some((c) => c.key === v.color) ? v : { ...v, color: "" }
-      )
+        colors.some((c) => c.key === v.color) ? v : { ...v, color: "" },
+      ),
     );
   }, [colors]);
 
   // ================= VARIANT =================
   const addVariant = () => {
-    setVariants([
-      ...variants,
+    setVariants((prev) => [
+      ...prev,
       {
         storage: "",
         color: "",
@@ -46,16 +63,15 @@ export default function useProductCreate(SPEC_OPTIONS = []) {
   };
 
   const removeVariant = (index) => {
-    const newVariants = [...variants];
-    newVariants.splice(index, 1);
-    setVariants(newVariants);
+    setVariants((prev) => prev.filter((_, i) => i !== index));
   };
 
   // ================= COLOR =================
-  const normalize = (c) => c?.trim().toLowerCase();
+  const normalize = (c = "") => c.trim().toLowerCase();
 
   const addColorImages = (colorKey, files) => {
     const key = normalize(colorKey);
+
     if (!key) return;
 
     setColorImages((prev) => ({
@@ -66,17 +82,18 @@ export default function useProductCreate(SPEC_OPTIONS = []) {
 
   const removeColorImage = (colorKey, index) => {
     const key = normalize(colorKey);
-    const newImages = [...(colorImages[key] || [])];
-    newImages.splice(index, 1);
 
     setColorImages((prev) => ({
       ...prev,
-      [key]: newImages,
+      [key]: (prev[key] || []).filter((_, i) => i !== index),
     }));
   };
 
   const handleDragStartImage = (color, index) => {
-    setDragIndex({ color: normalize(color), index });
+    setDragIndex({
+      color: normalize(color),
+      index,
+    });
   };
 
   const handleDropImage = (colorKey, dropIndex) => {
@@ -90,12 +107,10 @@ export default function useProductCreate(SPEC_OPTIONS = []) {
     const newImages = [...(colorImages[key] || [])];
 
     const draggedItem = newImages[dragIndex.index];
+
     newImages.splice(dragIndex.index, 1);
 
-    let insertIndex = dropIndex;
-    if (dragIndex.index < dropIndex) {
-      insertIndex = dropIndex - 1;
-    }
+    const insertIndex = dragIndex.index < dropIndex ? dropIndex - 1 : dropIndex;
 
     newImages.splice(insertIndex, 0, draggedItem);
 
@@ -108,28 +123,38 @@ export default function useProductCreate(SPEC_OPTIONS = []) {
   };
 
   // ================= SPEC =================
-  const addSpec = () =>
-    setSpecs([...specs, { specKey: "", specName: "", specValue: "" }]);
+  const addSpec = () => {
+    setSpecs((prev) => [
+      ...prev,
+      {
+        specKey: "",
+        specName: "",
+        specValue: "",
+      },
+    ]);
+  };
 
   const updateSpec = (index, key, value) => {
     setSpecs((prev) => {
       const updated = [...prev];
-      updated[index] = { ...updated[index], [key]: value };
-  
-      // auto-fill specName khi đổi specKey
+
+      updated[index] = {
+        ...updated[index],
+        [key]: value,
+      };
+
       if (key === "specKey") {
-        const opt = SPEC_OPTIONS.find(o => o.specKey === value);
+        const opt = SPEC_OPTIONS.find((o) => o.specKey === value);
+
         updated[index].specName = opt ? opt.specName : "";
       }
-  
+
       return updated;
     });
   };
 
   const removeSpec = (index) => {
-    const newSpecs = [...specs];
-    newSpecs.splice(index, 1);
-    setSpecs(newSpecs);
+    setSpecs((prev) => prev.filter((_, i) => i !== index));
   };
 
   // ================= VALIDATE =================
@@ -153,6 +178,7 @@ export default function useProductCreate(SPEC_OPTIONS = []) {
     }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -161,58 +187,28 @@ export default function useProductCreate(SPEC_OPTIONS = []) {
     if (!validate()) return;
 
     try {
-      const formData = new FormData();
+      const formData = buildFormData({
+        name: productInfo.name,
+        brand: productInfo.brand,
+        description: productInfo.description,
+        image: productInfo.file,
 
-      formData.append("name", productInfo.name);
-      formData.append("brand", productInfo.brand);
-      formData.append("description", productInfo.description);
-      formData.append("colors", JSON.stringify(colors));
+        colors,
+        variants,
 
-      if (productInfo.file) {
-        formData.append("image", productInfo.file);
-      }
+        specifications: specs,
 
-      formData.append(
-        "variants",
-        JSON.stringify(
-          variants
-            .filter((v) => v.color)
-            .map((v) => ({
-              storage: v.storage,
-              colorKey: v.color,
-              price: v.price,
-              originalPrice: v.originalPrice,
-              stock: v.stock,
-            }))
-        )
-      );
-
-      formData.append("specifications", JSON.stringify(specs));
-
-      Object.keys(colorImages).forEach((color) => {
-        colorImages[color].forEach((file) => {
-          formData.append(`colorImages[${color}]`, file);
-        });
+        colorImages,
       });
 
-      await axiosClient.post("/api/products", formData);
+      await createProduct(formData);
 
       alert("Thêm sản phẩm thành công!");
 
-      // reset
-      setProductInfo({
-        name: "",
-        brand: "",
-        description: "",
-        rating: 5,
-        file: null,
-      });
-      setVariants([]);
-      setSpecs([]);
-      setColorImages({});
-      setColors([]);
+      resetForm();
     } catch (err) {
       console.error("Create failed:", err);
+
       alert("❌ Thêm sản phẩm thất bại!");
     }
   };
@@ -220,11 +216,16 @@ export default function useProductCreate(SPEC_OPTIONS = []) {
   return {
     productInfo,
     setProductInfo,
+
     colors,
     setColors,
+
     colorImages,
+
     variants,
+
     specs,
+
     errors,
 
     addVariant,
@@ -241,7 +242,9 @@ export default function useProductCreate(SPEC_OPTIONS = []) {
     removeSpec,
 
     handleSave,
+
     setErrors,
+
     normalize,
   };
 }

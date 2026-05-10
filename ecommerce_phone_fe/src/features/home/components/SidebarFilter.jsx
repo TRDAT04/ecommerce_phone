@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 
-import CheckboxGroup from "./CheckboxGroup";
-import RadioRangeGroup from "./RadioRangeGroup";
+import CheckboxGroup from "../../../components/common/CheckboxGroup";
+import RadioRangeGroup from "../../../components/common/RadioRangeGroup";
 import BrandIconGrid from "./BrandIconGrid";
 import axiosClient from "../../../service/axiosClient";
 
