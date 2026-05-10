@@ -1,6 +1,7 @@
 package com.ecommerce.order.controller;
 
 import com.ecommerce.order.dto.request.OrderRequest;
+import com.ecommerce.order.dto.response.MyOrderDTO;
 import com.ecommerce.order.dto.response.OrderResponse;
 import com.ecommerce.order.dto.response.TrackOrderMiniDTO;
 import com.ecommerce.order.entity.Order;
@@ -51,8 +52,10 @@ public class OrderController {
     }
 
     @GetMapping("/user/me")
-    public List<Order> getMyOrders(Authentication auth) {
+    public List<MyOrderDTO> getMyOrders(Authentication auth) {
+
         String email = auth.getName();
-        return orderRepository.findByUser_Email(email);
+
+        return orderRepository.findMyOrders(email);
     }
 }

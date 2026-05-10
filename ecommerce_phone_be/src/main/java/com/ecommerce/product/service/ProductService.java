@@ -5,6 +5,7 @@ import com.ecommerce.product.dto.request.ProductFilterRequest;
 import com.ecommerce.product.dto.request.UpdateProductDTO;
 import com.ecommerce.product.dto.response.ProductDetailDTO;
 import com.ecommerce.product.dto.response.ProductHomeDTO;
+import com.ecommerce.product.dto.response.ProductSuggestionDTO;
 import com.ecommerce.product.service.command.ProductCreateService;
 import com.ecommerce.product.service.command.ProductUpdateService;
 import com.ecommerce.product.service.command.ProductDeleteService;
@@ -38,8 +39,12 @@ public class ProductService {
         this.searchService = searchService;
     }
 
-    public List<ProductHomeDTO> getProductsForHome() {
-        return detailService.getProductsForHome();
+    public Page<ProductHomeDTO> getProducts(ProductFilterRequest filter) {
+        return searchService.search(filter);
+    }
+
+    public List<ProductSuggestionDTO> suggestProducts(String keyword) {
+        return searchService.suggest(keyword);
     }
 
     public List<String> getBrands() {
@@ -62,7 +67,5 @@ public class ProductService {
         deleteService.deleteProduct(id);
     }
 
-    public Page<ProductHomeDTO> search(ProductFilterRequest filter) {
-        return searchService.search(filter);
-    }
+
 }

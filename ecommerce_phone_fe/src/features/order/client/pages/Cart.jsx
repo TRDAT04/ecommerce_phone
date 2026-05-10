@@ -6,7 +6,7 @@ import { ShoppingCart, Trash2, Plus, Minus, ArrowRight } from "lucide-react";
 export default function Cart() {
   const [cart, setCart] = useState({ items: [] });
   const navigate = useNavigate();
-  const BASE_URL = import.meta.env.VITE_API_URL;
+  
 
   // ================= LOAD =================
   useEffect(() => {
@@ -14,6 +14,7 @@ export default function Cart() {
       items: [],
     };
 
+    
     setCart(data);
   }, []);
 
@@ -85,13 +86,15 @@ export default function Cart() {
         </div>
 
         {cart.items.map((item, i) => (
+          
+          
           <div
             key={i}
             className="flex items-center gap-4 rounded-xl border-b border-gray-100 px-2 py-4 transition-all hover:bg-gray-50"
           >
             {/* IMAGE */}
             <img
-              src={`${BASE_URL}${item.image}`}
+              src={item.image}
               className="h-24 w-24 object-contain"
             />
 

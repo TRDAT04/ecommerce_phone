@@ -18,6 +18,15 @@ public class ProductSpecs {
 
             query.distinct(true);
             List<Predicate> predicates = new ArrayList<>();
+            
+            // KEYWORD SEARCH
+
+            if (f.getKeyword() != null && !f.getKeyword().isBlank()) {
+                String kw = "%" + f.getKeyword().toLowerCase() + "%";
+                predicates.add(
+                        cb.like(cb.lower(root.get("name")), kw)
+                );
+            }
 
             // ===== BRAND =====
             if (f.getBrands() != null && !f.getBrands().isEmpty()) {

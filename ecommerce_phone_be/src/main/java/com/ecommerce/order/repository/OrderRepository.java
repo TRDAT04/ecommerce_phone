@@ -1,5 +1,6 @@
 package com.ecommerce.order.repository;
 
+import com.ecommerce.order.dto.response.MyOrderDTO;
 import com.ecommerce.order.dto.response.TrackOrderMiniDTO;
 import com.ecommerce.order.entity.Order;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,18 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByPhoneContaining(String phone);
 
-    List<Order> findByUser_Email(String email);
+    @Query("""
+                SELECT new com.ecommerce.order.dto.response.MyOrderDTO(
+                    o.id,
+                    o.status,
+                    o.totalPrice,
+                    o.createdAt
+                )
+                FROM Order o
+                WHERE o.user.email = :email
+                ORDER BY o.createdAt DESC
+            """)
+    List<MyOrderDTO> findMyOrders(String email);
 
     @Query("""
             SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END

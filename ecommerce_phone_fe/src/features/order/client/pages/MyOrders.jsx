@@ -19,15 +19,22 @@ export default function MyOrders() {
   const fetchMyOrders = async () => {
     try {
       const res = await axiosClient.get("/api/orders/user/me");
-
+      console.log(res.data);
+      console.log("RES", res.data);
+  
       const raw = res.data;
+  
       const safeOrders = Array.isArray(raw)
         ? raw
         : raw?.orders || raw?.data || [];
-
+  
+      console.log("SAFE", safeOrders);
+  
       setOrders(safeOrders);
     } catch (err) {
-      console.error(err);
+      console.error("ERR", err);
+      console.error(err.response);
+  
       setOrders([]);
     }
   };

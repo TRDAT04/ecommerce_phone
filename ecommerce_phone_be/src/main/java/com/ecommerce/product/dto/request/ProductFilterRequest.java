@@ -9,7 +9,8 @@ public class ProductFilterRequest {
 
     private int page = 0;
     private int size = 20;
-
+    
+    private String keyword;
     private List<String> brands;
 
     private Double minPrice;

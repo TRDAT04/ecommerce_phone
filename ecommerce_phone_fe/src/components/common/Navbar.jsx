@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-
+import SearchBar from "../../features/search/components/SearchBar";
 import {
   Search,
   ShoppingCart,
@@ -153,15 +153,7 @@ const Navbar = () => {
 
           {/* SEARCH */}
           <div className="hidden max-w-2xl flex-1 md:flex">
-            <div className="group relative w-full">
-              <input
-                type="text"
-                placeholder="Hôm nay bạn muốn tìm kiếm gì?"
-                className="h-11 w-full rounded-2xl border border-black/10 bg-neutral-100 pr-4 pl-12 transition-all outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100"
-              />
-
-              <Search className="absolute top-3 left-4 h-5 w-5 text-gray-400 transition group-focus-within:text-emerald-500" />
-            </div>
+            <SearchBar />
           </div>
 
           {/* RIGHT */}

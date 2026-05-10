@@ -5,6 +5,7 @@ import com.ecommerce.product.dto.request.ProductFilterRequest;
 import com.ecommerce.product.dto.request.UpdateProductDTO;
 import com.ecommerce.product.dto.response.ProductDetailDTO;
 import com.ecommerce.product.dto.response.ProductHomeDTO;
+import com.ecommerce.product.dto.response.ProductSuggestionDTO;
 import com.ecommerce.product.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +24,10 @@ public class ProductController {
         this.productService = productService;
     }
 
+
     @GetMapping
-    public List<ProductHomeDTO> getHome() {
-        return productService.getProductsForHome();
+    public Page<ProductHomeDTO> getProducts(ProductFilterRequest filter) {
+        return productService.getProducts(filter);
     }
 
     @GetMapping("/brands")
@@ -57,8 +59,9 @@ public class ProductController {
         productService.deleteProduct(id);
     }
 
-    @GetMapping("/search")
-    public Page<ProductHomeDTO> search(ProductFilterRequest filter) {
-        return productService.search(filter);
+
+    @GetMapping("/suggest")
+    public List<ProductSuggestionDTO> suggest(@RequestParam String keyword) {
+        return productService.suggestProducts(keyword);
     }
 }

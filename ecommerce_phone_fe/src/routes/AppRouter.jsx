@@ -9,6 +9,7 @@ import ProtectedRouteAdmin from "./ProtectedRouteAdmin";
 
 // Pages
 import Home from "../features/home/pages/Home";
+import SearchPage from "../features/search/pages/SearchPage.jsx";
 import ProductDetail from "../features/product/client/pages/ProductDetail.jsx";
 
 import Dashboard from "../features/dashboard/pages/Dashboard.jsx";
@@ -43,6 +44,7 @@ export default function AppRouter() {
         {/* ==== USER LAYOUT ==== */}
         <Route element={<UserLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />

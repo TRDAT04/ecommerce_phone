@@ -16,7 +16,7 @@ const ProductList = ({ filters }) => {
       // bỏ array rỗng
       if (Array.isArray(value)) {
         if (value.length === 0) return;
-        params[key] = value; // 👈 axios sẽ serialize
+        params[key] = value; 
       } else {
         params[key] = value;
       }
@@ -32,14 +32,7 @@ const ProductList = ({ filters }) => {
 
       const params = buildParams(filters);
 
-      const isFiltered =
-        Object.keys(params).length > 2; 
-
-      const url = isFiltered
-        ? "/api/products/search"
-        : "/api/products";
-
-      const res = await axiosClient.get(url, {
+      const res = await axiosClient.get("/api/products", {
         params,
         paramsSerializer: (params) => {
          

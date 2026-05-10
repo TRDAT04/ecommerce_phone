@@ -1,13 +1,26 @@
 import { useEffect, useState, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 export default function BannerSlider() {
+  const navigate = useNavigate();
   const banners = [
-    "https://cdn.hoanghamobile.vn/i/home/Uploads/2026/04/21/iphone-16e-lock-viettel-web.png",
+    {
+      image:
+        "https://cdn.hoanghamobile.vn/i/home/Uploads/2026/04/21/iphone-16e-lock-viettel-web.png",
+      productId: 26,
+    },
 
-    "https://cdn.hoanghamobile.vn/i/home/Uploads/2026/04/01/s26-ultra-1200x375-0104.png",
+    {
+      image:
+        "https://cdn.hoanghamobile.vn/i/home/Uploads/2026/04/01/s26-ultra-1200x375-0104.png",
+      productId: 27,
+    },
 
-    "https://cdn.hoanghamobile.vn/i/home/Uploads/2026/04/10/note-15-series-web.png",
+    {
+      image:
+        "https://cdn.hoanghamobile.vn/i/home/Uploads/2026/04/10/note-15-series-web.png",
+      productId: 36,
+    },
   ];
 
   const [current, setCurrent] = useState(0);
@@ -46,14 +59,17 @@ export default function BannerSlider() {
 
   return (
     <div
-      className="group relative overflow-hidden rounded-3xl border border-black/5 bg-white "
+      className="group relative overflow-hidden rounded-3xl border border-black/5 bg-white"
       onMouseEnter={stopAuto}
       onMouseLeave={startAuto}
     >
       {/* IMAGE */}
-      <div className="overflow-hidden">
+      <div
+        className="cursor-pointer overflow-hidden"
+        onClick={() => navigate(`/product/${banners[current].productId}`)}
+      >
         <img
-          src={banners[current]}
+          src={banners[current].image}
           alt="banner"
           className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
         />
