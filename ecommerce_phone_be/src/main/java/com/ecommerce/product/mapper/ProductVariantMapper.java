@@ -4,6 +4,7 @@ import com.ecommerce.common.exception.AppException;
 import com.ecommerce.product.dto.common.VariantDTO;
 import com.ecommerce.product.entity.Product;
 import com.ecommerce.product.entity.ProductColor;
+import com.ecommerce.product.entity.ProductImage;
 import com.ecommerce.product.entity.ProductVariant;
 import com.ecommerce.product.service.helper.SlugService;
 import org.springframework.stereotype.Component;
@@ -20,50 +21,71 @@ public class ProductVariantMapper {
         this.slugService = slugService;
     }
 
-    public void mapVariants(Product product,
-                            List<VariantDTO> variantsDTO,
-                            Map<String, ProductColor> colorMap) {
+    // ── Read ──────────────────────────────────────────────────────────────────
 
-        Map<String, ProductVariant> existingMap = product.getVariants()
-                .stream()
-                .collect(Collectors.toMap(
-                        v -> v.getColor().getColorKey() + "_" + v.getStorage(),
-                        v -> v
-                ));
+    public VariantDTO toDTO(Product product, ProductVariant v) {
+        List<String> images = getImages(product, v.getColor().getColorKey());
+
+        VariantDTO d = new VariantDTO();
+        d.setId(v.getId());
+        d.setStorage(v.getStorage());
+        d.setColorName(v.getColor().getName());
+        d.setColorKey(v.getColor().getColorKey());
+        d.setPrice(v.getPrice());
+        d.setOriginalPrice(v.getOriginalPrice());
+        d.setStock(v.getStock());
+        d.setImages(images);
+        d.setImageUrl(images.isEmpty() ? null : images.get(0));
+        return d;
+    }
+
+    // ── Write ─────────────────────────────────────────────────────────────────
+
+    public void mapVariants(Product product, List<VariantDTO> variantsDTO, Map<String, ProductColor> colorMap) {
+        Map<String, ProductVariant> existingMap = product.getVariants().stream()
+                .collect(Collectors.toMap(v -> variantKey(v.getColor().getColorKey(), v.getStorage()), v -> v));
 
         Set<String> newKeys = new HashSet<>();
 
-        for (VariantDTO v : variantsDTO) {
-
-            String colorKey = slugService.slugify(v.getColorKey());
-            String key = colorKey + "_" + v.getStorage();
+        for (VariantDTO dto : variantsDTO) {
+            String colorKey = slugService.slugify(dto.getColorKey());
+            String key = variantKey(colorKey, dto.getStorage());
             newKeys.add(key);
 
-            ProductVariant variant = existingMap.get(key);
+            ProductVariant variant = existingMap.computeIfAbsent(key,
+                    k -> createVariant(product, colorKey, dto.getStorage(), colorMap));
 
-            if (variant == null) {
-                variant = new ProductVariant();
-                variant.setProduct(product);
-
-                ProductColor pc = colorMap.get(colorKey);
-                if (pc == null) {
-                    throw new AppException("COLOR_NOT_FOUND", "Màu không tồn tại: " + v.getColorKey());
-                }
-
-                variant.setColor(pc);
-                variant.setStorage(v.getStorage());
-
-                product.getVariants().add(variant);
-            }
-
-            variant.setPrice(v.getPrice());
-            variant.setOriginalPrice(v.getOriginalPrice());
-            variant.setStock(v.getStock());
+            variant.setPrice(dto.getPrice());
+            variant.setOriginalPrice(dto.getOriginalPrice());
+            variant.setStock(dto.getStock());
         }
 
-        product.getVariants().removeIf(v -> {
-            String key = v.getColor().getColorKey() + "_" + v.getStorage();
-            return !newKeys.contains(key);
-        });
+        product.getVariants().removeIf(v -> !newKeys.contains(variantKey(v.getColor().getColorKey(), v.getStorage())));
+    }
+
+    // ── Private helpers ───────────────────────────────────────────────────────
+
+    private ProductVariant createVariant(Product product, String colorKey, String storage, Map<String, ProductColor> colorMap) {
+        ProductColor pc = Optional.ofNullable(colorMap.get(colorKey))
+                .orElseThrow(() -> new AppException("COLOR_NOT_FOUND", "Màu không tồn tại: " + colorKey));
+
+        ProductVariant variant = new ProductVariant();
+        variant.setProduct(product);
+        variant.setColor(pc);
+        variant.setStorage(storage);
+        product.getVariants().add(variant);
+        return variant;
+    }
+
+    private String variantKey(String colorKey, String storage) {
+        return colorKey + "_" + storage;
+    }
+
+    private List<String> getImages(Product product, String colorKey) {
+        return product.getImages().stream()
+                .filter(img -> img.getColor().getColorKey().equals(colorKey))
+                .sorted(Comparator.comparingInt(ProductImage::getSortOrder))
+                .map(ProductImage::getImageUrl)
+                .toList();
     }
 }

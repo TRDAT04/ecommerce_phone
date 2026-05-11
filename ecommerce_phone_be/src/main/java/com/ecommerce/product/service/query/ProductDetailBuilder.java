@@ -5,7 +5,7 @@ import com.ecommerce.product.dto.common.SpecDTO;
 import com.ecommerce.product.dto.common.VariantDTO;
 import com.ecommerce.product.dto.response.ProductDetailDTO;
 import com.ecommerce.product.entity.*;
-import com.ecommerce.product.mapper.ProductVariantViewMapper;
+import com.ecommerce.product.mapper.ProductVariantMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductDetailBuilder {
 
-    private final ProductVariantViewMapper variantViewMapper;
+    private final ProductVariantMapper variantViewMapper;
 
     public ProductDetailDTO build(Product product) {
 

@@ -25,32 +25,7 @@ public class AuthService {
     private final AuthenticationManager authManager;
 
     // ===================== LOGIN =====================
-    public AuthResponse createAdmin(RegisterRequest req) {
 
-        if (userRepo.findByEmail(req.getEmail()).isPresent()) {
-            throw new AppException("Email already exists");
-        }
-
-        User user = new User();
-        user.setEmail(req.getEmail());
-        user.setName(req.getName());
-        user.setPassword(passwordEncoder.encode(req.getPassword()));
-        user.setPhone(req.getPhone());
-        user.setAddress(req.getAddress());
-        user.setRole(RoleEnum.ROLE_ADMIN);
-
-        userRepo.save(user);
-
-        String access = jwtUtil.generateToken(user);
-        String refresh = jwtUtil.generateRefreshToken(user);
-
-        return new AuthResponse(
-                access,
-                refresh,
-                user.getEmail(),
-                user.getRole().name()
-        );
-    }
 
     public AuthResponse login(AuthRequest request) {
         authManager.authenticate(
@@ -77,7 +52,6 @@ public class AuthService {
     // ===================== REGISTER =====================
     public AuthResponse register(RegisterRequest req) {
 
-        // Nếu email đã tồn tại → chặn
         if (userRepo.findByEmail(req.getEmail()).isPresent()) {
             throw new AppException("Email already exists");
         }

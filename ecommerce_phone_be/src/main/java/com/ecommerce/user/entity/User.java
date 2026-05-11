@@ -1,11 +1,13 @@
 package com.ecommerce.user.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
 @Entity
 @Data
 @Table(name = "users")
+
 public class User {
 
     @Id
@@ -16,7 +18,7 @@ public class User {
     private String name;
 
     @Column(unique = true, nullable = false)
-    private String email;   // Dùng email để login
+    private String email;
 
     @Column(nullable = false)
     private String password;

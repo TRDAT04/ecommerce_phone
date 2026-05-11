@@ -9,85 +9,75 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ProductSpecs {
+
+    private ProductSpecs() {
+    }
 
     public static Specification<Product> withFilter(ProductFilterRequest f) {
         return (root, query, cb) -> {
 
             query.distinct(true);
             List<Predicate> predicates = new ArrayList<>();
-            
-            // KEYWORD SEARCH
 
-            if (f.getKeyword() != null && !f.getKeyword().isBlank()) {
+            // ===== KEYWORD =====
+            if (hasText(f.getKeyword())) {
                 String kw = "%" + f.getKeyword().toLowerCase() + "%";
-                predicates.add(
-                        cb.like(cb.lower(root.get("name")), kw)
-                );
+                predicates.add(cb.like(cb.lower(root.get("name")), kw));
             }
 
             // ===== BRAND =====
-            if (f.getBrands() != null && !f.getBrands().isEmpty()) {
+            if (notEmpty(f.getBrands())) {
                 predicates.add(root.get("brand").in(f.getBrands()));
             }
 
             // ===== PRICE =====
             if (f.getMinPrice() != null) {
-                predicates.add(
-                        cb.greaterThanOrEqualTo(root.get("minPrice"), f.getMinPrice())
-                );
+                predicates.add(cb.greaterThanOrEqualTo(root.get("minPrice"), f.getMinPrice()));
             }
-
             if (f.getMaxPrice() != null) {
-                predicates.add(
-                        cb.lessThanOrEqualTo(root.get("minPrice"), f.getMaxPrice())
-                );
+                predicates.add(cb.lessThanOrEqualTo(root.get("minPrice"), f.getMaxPrice()));
             }
 
-            // ===== JOIN VARIANTS =====
-            Join<Product, ProductVariant> variantJoin = null;
-            if (
-                    (f.getStorage() != null && !f.getStorage().isEmpty())
-            ) {
-                variantJoin = root.join("variants", JoinType.INNER);
-            }
-
-            // ===== STORAGE =====
-            if (variantJoin != null && f.getStorage() != null && !f.getStorage().isEmpty()) {
+            // ===== STORAGE (join variant ) =====
+            if (notEmpty(f.getStorage())) {
+                Join<Product, ProductVariant> variantJoin = root.join("variants", JoinType.INNER);
                 predicates.add(variantJoin.get("storage").in(f.getStorage()));
             }
 
             // ===== RAM =====
-            if (f.getRam() != null && !f.getRam().isEmpty()) {
-                predicates.add(
-                        root.get("ram").in(f.getRam())
-                );
+            if (notEmpty(f.getRam())) {
+                predicates.add(root.get("ram").in(f.getRam()));
             }
 
-
+            // ===== BATTERY RANGE =====
             if (f.getBatteryMin() != null && f.getBatteryMax() != null) {
-                predicates.add(
-                        cb.between(root.get("battery"), f.getBatteryMin(), f.getBatteryMax())
-                );
+                predicates.add(cb.between(root.get("battery"), f.getBatteryMin(), f.getBatteryMax()));
             }
-
 
             // ===== REFRESH RATE =====
-            if (f.getRefreshRate() != null && !f.getRefreshRate().isEmpty()) {
-                predicates.add(
-                        root.get("refreshRate").in(f.getRefreshRate())
-                );
-            }
-            // ===== SCREEN RANGE =====
-            if (f.getScreenMin() != null && f.getScreenMax() != null) {
-                predicates.add(
-                        cb.between(root.get("screenSize"), f.getScreenMin(), f.getScreenMax())
-                );
+            if (notEmpty(f.getRefreshRate())) {
+                predicates.add(root.get("refreshRate").in(f.getRefreshRate()));
             }
 
-            return cb.and(predicates.toArray(new Predicate[0]));
+            // ===== SCREEN RANGE =====
+            if (f.getScreenMin() != null && f.getScreenMax() != null) {
+                predicates.add(cb.between(root.get("screenSize"), f.getScreenMin(), f.getScreenMax()));
+            }
+
+            return cb.and(predicates.toArray(Predicate[]::new));
         };
+    }
+
+    // ===== GUARDS =====
+    private static boolean hasText(String s) {
+        return s != null && !s.isBlank();
+    }
+
+    private static boolean notEmpty(Collection<?> c) {
+        return c != null && !c.isEmpty();
     }
 }

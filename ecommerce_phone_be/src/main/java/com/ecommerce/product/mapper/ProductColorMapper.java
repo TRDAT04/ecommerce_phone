@@ -19,18 +19,11 @@ public class ProductColorMapper {
     }
 
     public Map<String, ProductColor> mapColors(Product product, List<ColorDTO> colorsDTO) {
-
         Map<String, ProductColor> colorMap = new HashMap<>();
 
         for (ColorDTO c : colorsDTO) {
-
             String key = slugService.slugify(c.getKey());
-
-            ProductColor pc = new ProductColor();
-            pc.setName(c.getName().trim());
-            pc.setColorKey(key);
-            pc.setProduct(product);
-
+            ProductColor pc = buildColor(c.getName(), key, product);
             product.getColors().add(pc);
             colorMap.put(key, pc);
         }
@@ -39,52 +32,41 @@ public class ProductColorMapper {
     }
 
     public Map<String, ProductColor> syncColors(Product product, List<ColorDTO> colorsDTO) {
+        Map<String, ProductColor> currentMap = toColorMap(product);
 
-        Map<String, ProductColor> currentMap = product.getColors()
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductColor::getColorKey,
-                        c -> c
-                ));
+        Set<String> newKeys = colorsDTO.stream()
+                .filter(c -> c.getKey() != null && !c.getKey().isBlank())
+                .map(c -> {
+                    String key = slugService.slugify(c.getKey());
+                    ProductColor existing = currentMap.get(key);
+                    if (existing != null) {
+                        existing.setName(c.getName().trim());
+                    } else {
+                        product.getColors().add(buildColor(c.getName(), key, product));
+                    }
+                    return key;
+                })
+                .collect(Collectors.toSet());
 
-        Set<String> newKeys = new HashSet<>();
+        Set<String> usedKeys = product.getVariants().stream()
+                .map(v -> v.getColor().getColorKey())
+                .collect(Collectors.toSet());
 
-        for (ColorDTO c : colorsDTO) {
+        product.getColors().removeIf(c -> !newKeys.contains(c.getColorKey()) && !usedKeys.contains(c.getColorKey()));
 
-            if (c.getKey() == null || c.getKey().isBlank()) continue;
+        return toColorMap(product);
+    }
 
-            String key = slugService.slugify(c.getKey());
-            newKeys.add(key);
+    private ProductColor buildColor(String name, String key, Product product) {
+        ProductColor pc = new ProductColor();
+        pc.setName(name.trim());
+        pc.setColorKey(key);
+        pc.setProduct(product);
+        return pc;
+    }
 
-            ProductColor existing = currentMap.get(key);
-
-            if (existing != null) {
-                existing.setName(c.getName().trim());
-            } else {
-                ProductColor pc = new ProductColor();
-                pc.setName(c.getName().trim());
-                pc.setColorKey(key);
-                pc.setProduct(product);
-
-                product.getColors().add(pc);
-            }
-        }
-
-        product.getColors().removeIf(color -> {
-
-            if (newKeys.contains(color.getColorKey())) return false;
-
-            boolean isUsed = product.getVariants().stream()
-                    .anyMatch(v -> v.getColor().getColorKey().equals(color.getColorKey()));
-
-            return !isUsed;
-        });
-
-        return product.getColors()
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductColor::getColorKey,
-                        c -> c
-                ));
+    private Map<String, ProductColor> toColorMap(Product product) {
+        return product.getColors().stream()
+                .collect(Collectors.toMap(ProductColor::getColorKey, c -> c));
     }
 }

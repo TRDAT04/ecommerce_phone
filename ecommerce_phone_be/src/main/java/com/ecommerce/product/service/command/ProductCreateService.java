@@ -37,16 +37,16 @@ public class ProductCreateService {
     public ProductDetailDTO createProduct(CreateProductDTO dto) {
 
         ParsedProductData parsed = parseInput(dto);
-        // ④ Tính slug 1 lần, tái sử dụng
+
         String brandSlug = slugService.slugify(dto.getBrand());
         String productSlug = slugService.slugify(dto.getName());
 
         Product product = buildProduct(dto, parsed, brandSlug, productSlug);
 
-        // ⑥ Save lần 1: cần ID để map children
+        //  Save lần 1: cần ID để map children
         product = productRepository.save(product);
 
-        // ⑦ Map các entity con sau khi có ID
+        // Map các entity con sau khi có ID
         attachChildren(dto, product, parsed, brandSlug, productSlug);
 
         calculationService.recalculate(product);
