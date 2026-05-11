@@ -87,7 +87,6 @@ public class ProductCreateService {
         productImageAssembler.handleColorImages(dto, product, colorMap, brandSlug, productSlug);
     }
 
-    // ─── Inner record ─────────────────────────────────────────────
 
     private record ParsedProductData(
             List<VariantDTO> variants,

@@ -26,7 +26,6 @@ public class AuthService {
 
     // ===================== LOGIN =====================
 
-
     public AuthResponse login(AuthRequest request) {
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

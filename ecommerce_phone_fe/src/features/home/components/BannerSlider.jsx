@@ -35,7 +35,6 @@ export default function BannerSlider() {
   // ===== AUTO SLIDE =====
   useEffect(() => {
     startAuto();
-
     return stopAuto;
   }, []);
 
@@ -44,7 +43,7 @@ export default function BannerSlider() {
 
     intervalRef.current = setInterval(() => {
       setCurrent((prev) => (prev + 1) % banners.length);
-    }, 3500);
+    }, 3000);
   };
 
   const stopAuto = () => {

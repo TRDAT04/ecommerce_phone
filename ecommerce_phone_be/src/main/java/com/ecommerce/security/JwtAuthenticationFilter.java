@@ -4,7 +4,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,14 +18,18 @@ import com.ecommerce.user.service.CustomUserDetailsService;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService) {
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -31,12 +37,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-
+        // Bỏ qua OPTIONS request (CORS preflight)
         if (request.getMethod().equals("OPTIONS")) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        // Bỏ qua các endpoint auth
         String path = request.getServletPath();
         if (path.startsWith("/api/auth")) {
             filterChain.doFilter(request, response);
@@ -56,7 +63,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             email = jwtUtil.extractUsername(token);
-        } catch (Exception e) {
+        } catch (ExpiredJwtException e) {
+
+            log.warn("Token expired: {}", e.getMessage());
+            filterChain.doFilter(request, response);
+            return;
+        } catch (JwtException e) {
+
+            log.warn("Invalid token: {}", e.getMessage());
             filterChain.doFilter(request, response);
             return;
         }

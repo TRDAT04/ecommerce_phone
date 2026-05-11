@@ -3,18 +3,27 @@ package com.ecommerce.security;
 import com.ecommerce.user.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "your-secret-key-your-secret-key-your-secret-key";
-    private final long ACCESS_EXPIRATION = 1000 * 60 * 60 * 24; // 24h
-    private final long REFRESH_EXPIRATION = 1000L * 60 * 60 * 24 * 7; // 7 ngày
+
+    @Value("${jwt.secret}")
+    private String SECRET;
+
+    @Value("${jwt.access-expiration}")
+    private long ACCESS_EXPIRATION;
+
+    @Value("${jwt.refresh-expiration}")
+    private long REFRESH_EXPIRATION;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
@@ -25,6 +34,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("role", user.getRole().name())
+                .claim("type", "access")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -35,6 +45,7 @@ public class JwtUtil {
     public String generateRefreshToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getEmail())
+                .claim("type", "refresh")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -50,6 +61,10 @@ public class JwtUtil {
         return getClaims(token).get("role", String.class);
     }
 
+    public String extractTokenType(String token) {
+        return getClaims(token).get("type", String.class);
+    }
+
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -60,14 +75,36 @@ public class JwtUtil {
 
     // ===== VALIDATE ACCESS TOKEN =====
     public boolean validateAccessToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        try {
+            final String username = extractUsername(token);
+            final String type = extractTokenType(token);
+            return username.equals(userDetails.getUsername())
+                    && "access".equals(type)   // ✅ Kiểm tra đúng loại token
+                    && !isTokenExpired(token);
+        } catch (ExpiredJwtException e) {
+            log.warn("Access token expired: {}", e.getMessage());
+            return false;
+        } catch (JwtException e) {
+            log.warn("Invalid access token: {}", e.getMessage());
+            return false;
+        }
     }
 
     // ===== VALIDATE REFRESH TOKEN =====
     public boolean isRefreshTokenValid(String token, User user) {
-        final String username = extractUsername(token);
-        return username.equals(user.getEmail()) && !isTokenExpired(token);
+        try {
+            final String username = extractUsername(token);
+            final String type = extractTokenType(token);
+            return username.equals(user.getEmail())
+                    && "refresh".equals(type)  // ✅ Kiểm tra đúng loại token
+                    && !isTokenExpired(token);
+        } catch (ExpiredJwtException e) {
+            log.warn("Refresh token expired: {}", e.getMessage());
+            return false;
+        } catch (JwtException e) {
+            log.warn("Invalid refresh token: {}", e.getMessage());
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {
