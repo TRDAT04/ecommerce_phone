@@ -1,6 +1,7 @@
 package com.ecommerce.user.controller;
 
 
+import com.ecommerce.common.exception.AppException;
 import com.ecommerce.user.dto.ChangePasswordRequest;
 import com.ecommerce.user.entity.User;
 import com.ecommerce.user.repository.UserRepository;
@@ -24,7 +25,7 @@ public class UserProfileController {
         String email = principal.getName();
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AppException("User not found"));
     }
 
     // ================= UPDATE PROFILE =================

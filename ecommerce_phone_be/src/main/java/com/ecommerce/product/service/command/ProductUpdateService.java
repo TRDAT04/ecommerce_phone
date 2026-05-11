@@ -1,5 +1,6 @@
 package com.ecommerce.product.service.command;
 
+import com.ecommerce.common.exception.AppException;
 import com.ecommerce.product.dto.common.*;
 import com.ecommerce.product.dto.request.UpdateProductDTO;
 import com.ecommerce.product.dto.response.ProductDetailDTO;
@@ -10,12 +11,16 @@ import com.ecommerce.product.service.helper.JsonParserService;
 import com.ecommerce.product.service.helper.ProductCalculationService;
 import com.ecommerce.product.service.image.ProductImageAssembler;
 import com.ecommerce.product.service.query.ProductDetailBuilder;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class ProductUpdateService {
 
     private final ProductRepository productRepository;
@@ -28,49 +33,52 @@ public class ProductUpdateService {
     private final ProductVariantMapper variantMapper;
     private final ProductImageAssembler productImageAssembler;
 
-    public ProductUpdateService(ProductRepository productRepository,
-                                JsonParserService jsonParserService,
-                                ProductCalculationService calculationService,
-                                ProductDetailBuilder productDetailBuilder,
-                                ProductBasicMapper basicMapper,
-                                ProductSpecMapper specMapper,
-                                ProductColorMapper colorMapper,
-                                ProductVariantMapper variantMapper,
-                                ProductImageAssembler productImageAssembler) {
-        this.productRepository = productRepository;
-        this.jsonParserService = jsonParserService;
-        this.calculationService = calculationService;
-        this.productDetailBuilder = productDetailBuilder;
-        this.basicMapper = basicMapper;
-        this.specMapper = specMapper;
-        this.colorMapper = colorMapper;
-        this.variantMapper = variantMapper;
-        this.productImageAssembler = productImageAssembler;
-    }
-
     public ProductDetailDTO updateProduct(Long id, UpdateProductDTO dto) {
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        List<VariantDTO> variants = jsonParserService.parseVariants(dto.getVariants());
-        List<SpecDTO> specs = jsonParserService.parseSpecs(dto.getSpecifications());
-        List<ColorDTO> colors = jsonParserService.parseColors(dto.getColors());
-
-        basicMapper.mapBasic(product, dto.getName(), dto.getBrand());
-
-        productImageAssembler.updateImage(product, dto.getImage(), dto.getBrand(), dto.getName());
-
-        Map<String, ProductColor> colorMap = colorMapper.syncColors(product, colors);
-
-        variantMapper.mapVariants(product, variants, colorMap);
-
-        specMapper.mapSpecs(product, specs);
+        Product product = findOrThrow(id);
+        ParsedProductData parsed = parseInput(dto);
+        applyUpdates(product, dto, parsed);
 
         calculationService.recalculate(product);
-
         product = productRepository.save(product);
 
         return productDetailBuilder.build(product);
+    }
+
+    // ─── Private helpers ──────────────────────────────────────────
+
+    private Product findOrThrow(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new AppException("Product not found: " + id));
+
+    }
+
+    private ParsedProductData parseInput(UpdateProductDTO dto) {
+        return new ParsedProductData(
+                jsonParserService.parseVariants(dto.getVariants()),
+                jsonParserService.parseSpecs(dto.getSpecifications()),
+                jsonParserService.parseColors(dto.getColors())
+        );
+    }
+
+    private void applyUpdates(Product product,
+                              UpdateProductDTO dto,
+                              ParsedProductData parsed) {
+        basicMapper.mapBasic(product, dto.getName(), dto.getBrand());
+        productImageAssembler.updateImage(
+                product, dto.getImage(), dto.getBrand(), dto.getName()
+        );
+        Map<String, ProductColor> colorMap =
+                colorMapper.syncColors(product, parsed.colors());
+        variantMapper.mapVariants(product, parsed.variants(), colorMap);
+        specMapper.mapSpecs(product, parsed.specs());
+    }
+
+
+    private record ParsedProductData(
+            List<VariantDTO> variants,
+            List<SpecDTO> specs,
+            List<ColorDTO> colors
+    ) {
     }
 }

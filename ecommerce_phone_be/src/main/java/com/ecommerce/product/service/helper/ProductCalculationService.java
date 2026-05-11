@@ -5,103 +5,86 @@ import com.ecommerce.product.entity.ProductSpecification;
 import com.ecommerce.product.entity.ProductVariant;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
 
 @Service
 public class ProductCalculationService {
 
     public void recalculate(Product product) {
+        recalculatePrices(product);
+        recalculateSpecs(product);
+    }
 
-        // ===== 1) MIN PRICE =====
-        Double minPrice = product.getVariants()
-                .stream()
-                .map(ProductVariant::getPrice)
+    // ===== PRICES =====
+    private void recalculatePrices(Product product) {
+        List<ProductVariant> variants = product.getVariants();
+
+        product.setMinPrice(minVariantDouble(variants, ProductVariant::getPrice));
+        product.setMinOriginalPrice(minVariantDouble(variants, ProductVariant::getOriginalPrice));
+    }
+
+    private Double minVariantDouble(List<ProductVariant> variants,
+                                    java.util.function.Function<ProductVariant, Double> getter) {
+        return variants.stream()
+                .map(getter)
                 .filter(Objects::nonNull)
-                .min(Double::compareTo)
+                .min(Comparator.naturalOrder())
                 .orElse(null);
+    }
 
-        product.setMinPrice(minPrice);
-
-        Double minOriginalPrice = product.getVariants()
-                .stream()
-                .map(ProductVariant::getOriginalPrice)
-                .filter(Objects::nonNull)
-                .min(Double::compareTo)
-                .orElse(null);
-
-        product.setMinOriginalPrice(minOriginalPrice);
-        // ===== 2) SPEC AGGREGATE =====
-        Integer ram = null;
-        Integer battery = null;
-        Double screenSize = null;
-        String chip = null;
-        Integer refreshRate = null;
+    // ===== SPECS =====
+    private void recalculateSpecs(Product product) {
+        int ram = 0, battery = 0, refreshRate = 0;
+        double screenSize = 0;
 
         for (ProductSpecification spec : product.getSpecifications()) {
-
             String key = spec.getSpecKey();
             String value = spec.getSpecValue();
-
             if (key == null || value == null) continue;
 
             switch (key) {
-
-                case "ram": {
-                    Integer parsed = parseIntSafe(value);
-                    if (parsed != null)
-                        ram = (ram == null) ? parsed : Math.max(ram, parsed);
-                    break;
-                }
-
-                case "battery": {
-                    Integer parsed = parseIntSafe(value);
-                    if (parsed != null)
-                        battery = (battery == null) ? parsed : Math.max(battery, parsed);
-                    break;
-                }
-
-                case "screen_size": {
-                    Double parsed = parseDoubleSafe(value);
-                    if (parsed != null)
-                        screenSize = (screenSize == null) ? parsed : Math.max(screenSize, parsed);
-                    break;
-                }
-
-
-                case "refresh_rate": {
-                    Integer parsed = parseIntSafe(value);
-                    if (parsed != null)
-                        refreshRate = (refreshRate == null) ? parsed : Math.max(refreshRate, parsed);
-                    break;
-                }
-
-                default:
-                    // không làm gì
-                    break;
+                case "ram" -> ram = maxInt(ram, parseIntSafe(value));
+                case "battery" -> battery = maxInt(battery, parseIntSafe(value));
+                case "screen_size" -> screenSize = maxDouble(screenSize, parseDoubleSafe(value));
+                case "refresh_rate" -> refreshRate = maxInt(refreshRate, parseIntSafe(value));
             }
         }
 
-        // ===== 3) UPDATE PRODUCT =====
-        product.setRam(ram);
-        product.setBattery(battery);
-        product.setScreenSize(screenSize);
-        product.setRefreshRate(refreshRate);
+        product.setRam(ram == 0 ? null : ram);
+        product.setBattery(battery == 0 ? null : battery);
+        product.setScreenSize(screenSize == 0 ? null : screenSize);
+        product.setRefreshRate(refreshRate == 0 ? null : refreshRate);
     }
 
-    // ===== SUPPORT PARSE =====
+    private int maxInt(int current, Integer parsed) {
+        return (parsed != null) ? Math.max(current, parsed) : current;
+    }
+
+    private double maxDouble(double current, Double parsed) {
+        return (parsed != null) ? Math.max(current, parsed) : current;
+    }
+
+    // ===== PARSE =====
     private Integer parseIntSafe(String value) {
+        String cleaned = value.replaceAll("[^0-9]", "");
+        if (cleaned.isEmpty()) return null;
         try {
-            return Integer.parseInt(value.replaceAll("[^0-9]", ""));
-        } catch (Exception e) {
+            return Integer.parseInt(cleaned);
+        } catch (NumberFormatException e) {
             return null;
         }
     }
 
     private Double parseDoubleSafe(String value) {
+        String cleaned = value.replaceAll("[^0-9.]", "");
+        if (cleaned.isEmpty()) return null;
         try {
-            String cleaned = value.replaceAll("[^0-9.]", "");
             return Double.parseDouble(cleaned);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             return null;
         }
     }

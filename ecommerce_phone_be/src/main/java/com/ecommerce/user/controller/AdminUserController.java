@@ -1,5 +1,6 @@
 package com.ecommerce.user.controller;
 
+import com.ecommerce.common.exception.AppException;
 import com.ecommerce.user.entity.User;
 import com.ecommerce.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -48,12 +49,6 @@ public class AdminUserController {
             @PathVariable Long id,
             @RequestBody Map<String, String> body
     ) {
-        String newPassword = body.get("password");
-
-        if (newPassword == null || newPassword.isBlank()) {
-            throw new RuntimeException("Password không được để trống");
-        }
-
-        userService.adminChangePassword(id, newPassword);
+        userService.adminChangePassword(id, body.get("password"));
     }
 }

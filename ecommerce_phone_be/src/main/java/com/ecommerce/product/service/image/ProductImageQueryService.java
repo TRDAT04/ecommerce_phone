@@ -1,5 +1,6 @@
 package com.ecommerce.product.service.image;
 
+import com.ecommerce.common.exception.AppException;
 import com.ecommerce.product.entity.Product;
 import com.ecommerce.product.entity.ProductImage;
 import com.ecommerce.product.repository.ProductRepository;
@@ -20,7 +21,7 @@ public class ProductImageQueryService {
     public List<ProductImage> getImages(Long productId, String color) {
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new AppException("Product not found"));
 
         String colorKey = color.trim().toLowerCase();
 

@@ -11,12 +11,14 @@ import com.ecommerce.product.service.command.ProductUpdateService;
 import com.ecommerce.product.service.command.ProductDeleteService;
 import com.ecommerce.product.service.query.ProductDetailService;
 import com.ecommerce.product.service.query.ProductSearchService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductDetailService detailService;
@@ -25,19 +27,6 @@ public class ProductService {
     private final ProductDeleteService deleteService;
     private final ProductSearchService searchService;
 
-    public ProductService(
-            ProductDetailService detailService,
-            ProductCreateService createService,
-            ProductUpdateService updateService,
-            ProductDeleteService deleteService,
-            ProductSearchService searchService
-    ) {
-        this.detailService = detailService;
-        this.createService = createService;
-        this.updateService = updateService;
-        this.deleteService = deleteService;
-        this.searchService = searchService;
-    }
 
     public Page<ProductHomeDTO> getProducts(ProductFilterRequest filter) {
         return searchService.search(filter);

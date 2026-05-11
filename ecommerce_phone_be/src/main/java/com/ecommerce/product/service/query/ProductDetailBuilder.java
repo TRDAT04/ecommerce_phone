@@ -6,18 +6,18 @@ import com.ecommerce.product.dto.common.VariantDTO;
 import com.ecommerce.product.dto.response.ProductDetailDTO;
 import com.ecommerce.product.entity.*;
 import com.ecommerce.product.mapper.ProductVariantViewMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class ProductDetailBuilder {
 
     private final ProductVariantViewMapper variantViewMapper;
-
-    public ProductDetailBuilder(ProductVariantViewMapper variantViewMapper) {
-        this.variantViewMapper = variantViewMapper;
-    }
 
     public ProductDetailDTO build(Product product) {
 
@@ -28,51 +28,63 @@ public class ProductDetailBuilder {
         dto.setBrand(product.getBrand());
         dto.setImageUrl(product.getImageUrl());
         dto.setDescription(product.getDescription());
+        dto.setVariants(buildVariants(product));
+        dto.setVariantMap(buildVariantMap(product));
+        dto.setSpecifications(buildSpecs(product));
+        dto.setStorages(buildStorages(product));
+        dto.setColors(buildColors(product));
 
-        // ================= VARIANTS + VARIANT MAP =================
-        List<VariantDTO> variants = new ArrayList<>();
-        Map<String, VariantDTO> variantMap = new HashMap<>();
+        return dto;
+    }
 
-        for (ProductVariant v : product.getVariants()) {
-            VariantDTO d = variantViewMapper.toDTO(product, v);
-            variants.add(d);
-            String key = v.getStorage() + "|" + v.getColor().getColorKey();
-            variantMap.put(key, d);
-        }
+    // ================= PRIVATE BUILDERS =================
 
-        dto.setVariants(variants);
-        dto.setVariantMap(variantMap);
+    private List<VariantDTO> buildVariants(Product product) {
+        return product.getVariants().stream()
+                .map(v -> variantViewMapper.toDTO(product, v))
+                .toList();
+    }
 
-        // ================= SPECS =================
-        dto.setSpecifications(
-                product.getSpecifications().stream().map(s -> {
-                    SpecDTO d = new SpecDTO();
-                    d.setId(s.getId());
-                    d.setSpecKey(s.getSpecKey());
-                    d.setSpecName(s.getSpecName());
-                    d.setSpecValue(s.getSpecValue());
-                    return d;
-                }).toList()
-        );
+    private Map<String, VariantDTO> buildVariantMap(Product product) {
+        return product.getVariants().stream()
+                .collect(Collectors.toMap(
+                        v -> v.getStorage() + "|" + v.getColor().getColorKey(),
+                        v -> variantViewMapper.toDTO(product, v)
+                ));
+    }
 
-        // ================= STORAGE =================
-        dto.setStorages(
-                product.getVariants().stream()
-                        .map(ProductVariant::getStorage)
-                        .distinct()
-                        .toList()
-        );
+    private List<SpecDTO> buildSpecs(Product product) {
+        return product.getSpecifications().stream()
+                .map(this::toSpecDTO)
+                .toList();
+    }
 
-        // ================= COLORS =================
-        dto.setColors(
-                product.getColors().stream().map(c -> {
-                    ColorDTO d = new ColorDTO();
-                    d.setName(c.getName());
-                    d.setKey(c.getColorKey());
-                    return d;
-                }).toList()
-        );
+    private List<String> buildStorages(Product product) {
+        return product.getVariants().stream()
+                .map(ProductVariant::getStorage)
+                .distinct()
+                .toList();
+    }
 
+    private List<ColorDTO> buildColors(Product product) {
+        return product.getColors().stream()
+                .map(this::toColorDTO)
+                .toList();
+    }
+
+    private SpecDTO toSpecDTO(ProductSpecification s) {
+        SpecDTO dto = new SpecDTO();
+        dto.setId(s.getId());
+        dto.setSpecKey(s.getSpecKey());
+        dto.setSpecName(s.getSpecName());
+        dto.setSpecValue(s.getSpecValue());
+        return dto;
+    }
+
+    private ColorDTO toColorDTO(ProductColor c) {
+        ColorDTO dto = new ColorDTO();
+        dto.setName(c.getName());
+        dto.setKey(c.getColorKey());
         return dto;
     }
 }

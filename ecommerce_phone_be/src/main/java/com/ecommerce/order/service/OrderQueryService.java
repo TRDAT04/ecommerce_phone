@@ -1,5 +1,6 @@
 package com.ecommerce.order.service;
 
+import com.ecommerce.common.exception.AppException;
 import com.ecommerce.order.dto.response.OrderItemResponse;
 import com.ecommerce.order.dto.response.OrderResponse;
 import com.ecommerce.order.dto.response.TrackOrderMiniDTO;
@@ -24,7 +25,7 @@ public class OrderQueryService {
     public OrderResponse getById(Long id) {
 
         Order order = orderRepository.findFullById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new AppException("Order not found"));
 
         OrderResponse res = new OrderResponse();
         res.setId(order.getId());

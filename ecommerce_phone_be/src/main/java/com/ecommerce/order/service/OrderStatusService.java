@@ -1,5 +1,6 @@
 package com.ecommerce.order.service;
 
+import com.ecommerce.common.exception.AppException;
 import com.ecommerce.order.entity.Order;
 import com.ecommerce.order.entity.OrderDetail;
 import com.ecommerce.order.repository.OrderRepository;
@@ -18,7 +19,7 @@ public class OrderStatusService {
     public void updateStatus(Long id, String newStatus) {
 
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new AppException("Order not found"));
 
         String current = order.getStatus();
 
@@ -51,7 +52,7 @@ public class OrderStatusService {
             order.setStatus("CANCELLED");
 
         } else {
-            throw new RuntimeException("Invalid status flow");
+            throw new AppException("Invalid status flow");
         }
 
         orderRepository.save(order);

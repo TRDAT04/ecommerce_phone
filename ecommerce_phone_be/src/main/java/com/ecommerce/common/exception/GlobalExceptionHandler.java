@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(res);
     }
 
-  
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception ex) {
 

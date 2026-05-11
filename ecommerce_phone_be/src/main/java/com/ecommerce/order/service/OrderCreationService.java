@@ -1,5 +1,6 @@
 package com.ecommerce.order.service;
 
+import com.ecommerce.common.exception.AppException;
 import com.ecommerce.order.dto.request.OrderItemRequest;
 import com.ecommerce.order.dto.request.OrderRequest;
 import com.ecommerce.order.entity.Order;
@@ -57,10 +58,10 @@ public class OrderCreationService {
         for (OrderItemRequest item : req.getItems()) {
 
             ProductVariant variant = variantRepository.findById(item.getVariantId())
-                    .orElseThrow(() -> new RuntimeException("Variant not found"));
+                    .orElseThrow(() -> new AppException("Variant not found"));
 
             if (variant.getStock() < item.getQuantity()) {
-                throw new RuntimeException("Sản phẩm không đủ hàng");
+                throw new AppException("Sản phẩm không đủ hàng");
             }
 
             OrderDetail detail = new OrderDetail();

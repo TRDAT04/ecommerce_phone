@@ -11,12 +11,15 @@ import com.ecommerce.product.service.helper.SlugService;
 import com.ecommerce.product.service.helper.ProductCalculationService;
 import com.ecommerce.product.service.image.ProductImageAssembler;
 import com.ecommerce.product.service.query.ProductDetailBuilder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class ProductCreateService {
 
     private final ProductRepository productRepository;
@@ -24,66 +27,72 @@ public class ProductCreateService {
     private final JsonParserService jsonParserService;
     private final ProductCalculationService calculationService;
     private final ProductDetailBuilder productDetailBuilder;
-
     private final ProductBasicMapper basicMapper;
     private final ProductSpecMapper specMapper;
     private final ProductColorMapper colorMapper;
     private final ProductVariantMapper variantMapper;
     private final ProductImageAssembler productImageAssembler;
 
-    public ProductCreateService(
-            ProductRepository productRepository,
-            SlugService slugService,
-            JsonParserService jsonParserService,
-            ProductCalculationService calculationService,
-
-            ProductDetailBuilder productDetailBuilder,
-            ProductBasicMapper basicMapper,
-            ProductSpecMapper specMapper,
-            ProductColorMapper colorMapper,
-            ProductVariantMapper variantMapper,
-            ProductImageAssembler productImageAssembler) {
-
-        this.productRepository = productRepository;
-        this.slugService = slugService;
-        this.jsonParserService = jsonParserService;
-        this.calculationService = calculationService;
-        this.productDetailBuilder = productDetailBuilder;
-        this.basicMapper = basicMapper;
-        this.specMapper = specMapper;
-        this.colorMapper = colorMapper;
-        this.variantMapper = variantMapper;
-        this.productImageAssembler = productImageAssembler;
-    }
-
+    @Transactional
     public ProductDetailDTO createProduct(CreateProductDTO dto) {
 
-        List<VariantDTO> variants = jsonParserService.parseVariants(dto.getVariants());
-        List<SpecDTO> specs = jsonParserService.parseSpecs(dto.getSpecifications());
-        List<ColorDTO> colors = jsonParserService.parseColors(dto.getColors());
-
-        Product product = new Product();
-        basicMapper.mapBasic(product, dto.getName(), dto.getBrand());
-
+        ParsedProductData parsed = parseInput(dto);
+        // ④ Tính slug 1 lần, tái sử dụng
         String brandSlug = slugService.slugify(dto.getBrand());
         String productSlug = slugService.slugify(dto.getName());
 
-        productImageAssembler.handleAvatar(product, dto.getImage(), dto.getBrand(), dto.getName());
+        Product product = buildProduct(dto, parsed, brandSlug, productSlug);
 
+        // ⑥ Save lần 1: cần ID để map children
         product = productRepository.save(product);
 
-        specMapper.mapSpecs(product, specs);
-
-        Map<String, ProductColor> colorMap = colorMapper.mapColors(product, colors);
-
-        variantMapper.mapVariants(product, variants, colorMap);
-
-        productImageAssembler.handleColorImages(dto, product, colorMap, brandSlug, productSlug);
+        // ⑦ Map các entity con sau khi có ID
+        attachChildren(dto, product, parsed, brandSlug, productSlug);
 
         calculationService.recalculate(product);
-
         product = productRepository.save(product);
 
         return productDetailBuilder.build(product);
+    }
+
+
+    private ParsedProductData parseInput(CreateProductDTO dto) {
+        return new ParsedProductData(
+                jsonParserService.parseVariants(dto.getVariants()),
+                jsonParserService.parseSpecs(dto.getSpecifications()),
+                jsonParserService.parseColors(dto.getColors())
+        );
+    }
+
+    private Product buildProduct(CreateProductDTO dto,
+                                 ParsedProductData parsed,
+                                 String brandSlug,
+                                 String productSlug) {
+        Product product = new Product();
+        basicMapper.mapBasic(product, dto.getName(), dto.getBrand());
+        productImageAssembler.handleAvatar(
+                product, dto.getImage(), dto.getBrand(), dto.getName()
+        );
+        return product;
+    }
+
+    private void attachChildren(CreateProductDTO dto,
+                                Product product,
+                                ParsedProductData parsed,
+                                String brandSlug,
+                                String productSlug) {
+        specMapper.mapSpecs(product, parsed.specs());
+        Map<String, ProductColor> colorMap = colorMapper.mapColors(product, parsed.colors());
+        variantMapper.mapVariants(product, parsed.variants(), colorMap);
+        productImageAssembler.handleColorImages(dto, product, colorMap, brandSlug, productSlug);
+    }
+
+    // ─── Inner record ─────────────────────────────────────────────
+
+    private record ParsedProductData(
+            List<VariantDTO> variants,
+            List<SpecDTO> specs,
+            List<ColorDTO> colors
+    ) {
     }
 }

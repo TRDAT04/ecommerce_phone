@@ -1,5 +1,6 @@
 package com.ecommerce.order.service;
 
+import com.ecommerce.common.exception.AppException;
 import com.ecommerce.order.entity.Order;
 import com.ecommerce.order.repository.OrderRepository;
 import jakarta.transaction.Transactional;
@@ -16,10 +17,10 @@ public class OrderCancelService {
     public void cancelOrderForUser(Long id) {
 
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+                .orElseThrow(() -> new AppException("Not found"));
 
         if (!order.getStatus().equals("PENDING")) {
-            throw new RuntimeException("Cannot cancel this order");
+            throw new AppException("Cannot cancel this order");
         }
 
         order.setStatus("CANCELLED");

@@ -23,8 +23,5 @@ public class SlugService {
         return slug;
     }
 
-    public String normalizeColor(String color) {
-        if (color == null) return "";
-        return color.trim().toLowerCase();
-    }
+
 }

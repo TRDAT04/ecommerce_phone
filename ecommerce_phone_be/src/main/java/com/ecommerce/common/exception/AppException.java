@@ -1,9 +1,9 @@
 package com.ecommerce.common.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
-@Data
+import lombok.Getter;
+
+@Getter
 public class AppException extends RuntimeException {
 
     private final String code;

@@ -2,103 +2,52 @@ package com.ecommerce.product.service.storage;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.ecommerce.common.exception.AppException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.nio.file.*;
 
 @Service
 @RequiredArgsConstructor
 public class ImageStorageService {
     private final Cloudinary cloudinary;
+    private static final String ROOT = "products";
 
-    private final String ROOT = "products";
-
-    // ================= AVATAR =================
     public String saveAvatar(MultipartFile file, String brandSlug, String productSlug) {
-
-        try {
-            String folder = ROOT + "/" + brandSlug + "/" + productSlug;
-
-            // upload
-            var result = cloudinary.uploader().upload(
-                    file.getBytes(),
-                    ObjectUtils.asMap(
-                            "folder", folder,
-                            "public_id", "avatar"      // giống tên file cũ
-                    )
-            );
-
-            return result.get("secure_url").toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to upload avatar image", e);
-        }
+        return upload(file, ROOT + "/" + brandSlug + "/" + productSlug, "avatar", "avatar image");
     }
 
-    // ================= VARIANT IMAGE =================
-    public String saveVariantImage(MultipartFile file,
-                                   String brandSlug,
-                                   String productSlug,
-                                   String colorSlug,
-                                   int index) {
+    public String saveVariantImage(MultipartFile file, String brandSlug, String productSlug, String colorSlug, int index) {
+        return upload(file, ROOT + "/" + brandSlug + "/" + productSlug + "/" + colorSlug, String.valueOf(index), "variant image");
+    }
 
+    private String upload(MultipartFile file, String folder, String publicId, String label) {
         try {
-            String folder = ROOT + "/" + brandSlug + "/" + productSlug + "/" + colorSlug;
-
             var result = cloudinary.uploader().upload(
                     file.getBytes(),
-                    ObjectUtils.asMap(
-                            "folder", folder,
-                            "public_id", String.valueOf(index)  // giữ nguyên số index
-                    )
+                    ObjectUtils.asMap("folder", folder, "public_id", publicId)
             );
-
             return result.get("secure_url").toString();
-
         } catch (Exception e) {
-            throw new RuntimeException("Failed to upload variant image", e);
+            throw new AppException("Failed to upload " + label);
         }
     }
 
     public void deleteFileIfExists(String fullUrl) {
+        if (fullUrl == null || fullUrl.isBlank()) return;
+
+        int uploadIndex = fullUrl.indexOf("/upload/");
+        if (uploadIndex == -1) return;
+
         try {
-            if (fullUrl == null || fullUrl.isBlank()) return;
-
-            // Ví dụ URL:
-            // https://res.cloudinary.com/dcvkq98gc/image/upload/v1736142412/products/apple/iphone-16/color/1.webp
-
-            // 1️⃣ Tách phần sau "/upload/"
-            int uploadIndex = fullUrl.indexOf("/upload/");
-            if (uploadIndex == -1) return;
-
             String afterUpload = fullUrl.substring(uploadIndex + "/upload/".length());
+            if (afterUpload.matches("^v\\d+/.+")) afterUpload = afterUpload.substring(afterUpload.indexOf("/") + 1);
 
-            // Nếu có version v123123/, loại bỏ luôn
-            // /v1736142412/products/... => remove v1736142412/
-            if (afterUpload.matches("^v\\d+/.+")) {
-                afterUpload = afterUpload.substring(afterUpload.indexOf("/") + 1);
-            }
-
-            // 2️⃣ Loại bỏ extension (jpg, png, webp…)
             String publicId = afterUpload.replaceFirst("\\.[^.]+$", "");
-
-            // 3️⃣ Gọi Cloudinary để xoá
             cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-
-            System.out.println("✔ Deleted Cloudinary image: " + publicId);
-
+            System.out.println("✔ Deleted: " + publicId);
         } catch (Exception e) {
-            System.out.println("❌ Failed to delete Cloudinary image: " + e.getMessage());
+            System.out.println("❌ Failed to delete: " + e.getMessage());
         }
-    }
-
-    // ================= HELPER =================
-    private String getExtension(String filename) {
-        if (filename != null && filename.contains(".")) {
-            return filename.substring(filename.lastIndexOf("."));
-        }
-        return "";
     }
 }
