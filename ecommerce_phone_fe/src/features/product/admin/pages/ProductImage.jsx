@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosClient from "../../../../service/axiosClient";
 import { getImageUrl } from "../../../../utils/image";
+import { ArrowLeft, Save, UploadCloud, X, GripHorizontal } from "lucide-react";
 
 export default function ProductImage() {
   const { id, color } = useParams();
@@ -170,33 +171,46 @@ export default function ProductImage() {
     };
   }, []); 
   // ================= UI =================
+  const fileInputRef = useRef(null);
+
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-white shadow rounded">
+    <div className="max-w-5xl mx-auto p-8 bg-white shadow-sm rounded-2xl border border-gray-100 my-6">
       <button
         onClick={() => navigate(`/admin/products/edit/${productId}`)}
-        className="mb-4 bg-gray-600 text-white px-4 py-2 rounded"
+        className="mb-6 flex items-center gap-2 text-gray-500 hover:text-gray-800 transition-colors font-medium"
       >
-        ← Quay lại
+        <ArrowLeft className="w-4 h-4" /> Quay lại
       </button>
 
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Ảnh màu: {selectedColor}</h2>
+      <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
+        <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Ảnh màu: <span className="text-emerald-600">{selectedColor}</span></h2>
 
         {changed && (
           <button
             onClick={handleSave}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium transition-colors shadow-sm shadow-emerald-600/20"
           >
-            💾 Lưu tất cả
+            <Save className="w-5 h-5" /> Lưu tất cả
           </button>
         )}
       </div>
 
-      <input type="file" multiple onChange={handleUpload} />
+      {/* Dropzone */}
+      <div 
+        className="mb-8 border-2 border-dashed border-gray-300 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/50 transition-all group"
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <div className="bg-emerald-100 p-3 rounded-full mb-4 group-hover:scale-110 transition-transform">
+          <UploadCloud className="w-8 h-8 text-emerald-600" />
+        </div>
+        <p className="text-gray-700 font-medium text-lg">Click để chọn ảnh hoặc kéo thả vào đây</p>
+        <p className="text-gray-400 text-sm mt-1">Hỗ trợ JPG, PNG, WEBP</p>
+        <input type="file" multiple onChange={handleUpload} className="hidden" ref={fileInputRef} />
+      </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && <div className="text-center py-4 text-gray-500">Đang tải...</div>}
 
-      <div className="grid grid-cols-4 gap-4 mt-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {images.map((img, idx) => (
           <div
             key={img.id}
@@ -204,22 +218,25 @@ export default function ProductImage() {
             onDragStart={() => handleDragStart(idx)}
             onDragOver={(e) => e.preventDefault()}
             onDrop={() => handleDrop(idx)}
-            className="relative border rounded-lg overflow-hidden cursor-move"
+            className="group relative border border-gray-200 rounded-2xl overflow-hidden cursor-move bg-white shadow-sm hover:shadow-md hover:border-emerald-300 transition-all"
           >
-            <div className="w-full aspect-square bg-gray-100">
+            <div className="absolute top-2 left-2 bg-black/40 text-white p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10 pointer-events-none">
+              <GripHorizontal className="w-4 h-4" />
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleDelete(img); }}
+              className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110 shadow-sm z-10"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="w-full aspect-square bg-gray-50 p-2">
               <img
                 src={img.isTemp ? img.imageUrl : getImageUrl(img.imageUrl)}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain mix-blend-multiply"
                 alt=""
               />
             </div>
-
-            <button
-              onClick={() => handleDelete(img)}
-              className="absolute top-1 right-1 bg-red-500 text-white text-xs px-2"
-            >
-              X
-            </button>
           </div>
         ))}
       </div>

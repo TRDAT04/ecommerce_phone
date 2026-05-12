@@ -39,13 +39,13 @@ const SearchBar = () => {
           className="absolute top-1.5 right-2 flex items-center gap-1 px-2 py-1.5 text-emerald-600 transition hover:text-emerald-700"
         >
           <Search className="h-4 w-4" />
-          <span className="text-sm font-medium">Tìm kiếm</span>
+          <span className="hidden md:inline text-sm font-medium">Tìm kiếm</span>
         </button>
       </div>
 
       {/* SUGGESTIONS BOX */}
       {showSuggest && (
-        <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-white/20 bg-white shadow-xl">
+        <div className="absolute z-[200] mt-2 w-full overflow-hidden rounded-xl border border-white/20 bg-white shadow-xl">
           {/* LOADING */}
           {loading && (
             <div className="flex items-center gap-2 px-4 py-3 text-sm text-gray-500">

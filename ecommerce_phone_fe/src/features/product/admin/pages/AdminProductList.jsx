@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../../../utils/image";
 import axiosClient from "../../../../service/axiosClient";
+import { Plus, Search, Edit, Trash2, Star } from "lucide-react";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -12,8 +13,6 @@ export default function ProductList() {
     const fetchProducts = async () => {
       try {
         const res = await axiosClient.get("/api/products");
-
-        // 🔥 SỬA TẠI ĐÂY — backend trả về { content: [...] }
         setProducts(res.data.content);
 
       } catch (err) {
@@ -45,98 +44,122 @@ export default function ProductList() {
   );
 
   return (
-    <div className="p-6">
+    <div className="p-8 max-w-[1400px] mx-auto">
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-4 ">
-        <h2 className="text-2xl font-bold">Quản lý sản phẩm</h2>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Quản lý sản phẩm</h2>
+          <p className="text-sm text-gray-500 mt-1">Danh sách tất cả sản phẩm trong hệ thống</p>
+        </div>
 
         <button
           onClick={() => navigate("/admin/products/create")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow"
+          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium transition-colors shadow-sm shadow-emerald-600/20"
         >
-          + Thêm sản phẩm
+          <Plus className="w-5 h-5" />
+          Thêm sản phẩm
         </button>
       </div>
 
       {/* 🔍 SEARCH */}
-      <div className="mb-4">
+      <div className="mb-6 relative max-w-md">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
         <input
           type="text"
-          placeholder="🔍 Tìm theo tên sản phẩm..."
+          placeholder="Tìm theo tên sản phẩm..."
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          className="w-full border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
         />
       </div>
 
       {/* TABLE */}
-      <div className="bg-white shadow rounded overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3">ID</th>
-              <th>Ảnh</th>
-              <th>Tên</th>
-              <th>Hãng</th>
-              <th>Giá</th>
-              <th>Rating</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredProducts.map((p) => (
-              <tr key={p.id} className="border-t text-center hover:bg-gray-50">
-                <td>{p.id}</td>
-
-                <td className="p-2">
-                  <img
-                    src={getImageUrl(p.imageUrl)}
-                    alt={p.name}
-                    className="w-16 h-16 object-cover mx-auto rounded"
-                  />
-                </td>
-
-                <td className="font-medium">{p.name}</td>
-
-                <td>
-                  <span className="bg-gray-200 px-2 py-1 rounded text-xs">
-                    {p.brand || "N/A"}
-                  </span>
-                </td>
-                <td className="text-red-500 font-semibold">
-                  {formatPrice(p.minPrice)}
-                </td>
-
-                <td>⭐ {p.rating}</td>
-
-                <td className="space-x-2">
-                  <button
-                    onClick={() => navigate(`/admin/products/edit/${p.id}`)}
-                    className="bg-yellow-400 hover:bg-yellow-500 px-3 py-1 rounded"
-                  >
-                    Sửa
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(p.id)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                  >
-                    Xóa
-                  </button>
-                </td>
-              </tr>
-            ))}
-
-            {filteredProducts.length === 0 && (
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-gray-50/80 text-gray-500 font-medium uppercase tracking-wider text-xs">
               <tr>
-                <td colSpan="7" className="py-6 text-gray-500">
-                  Không tìm thấy sản phẩm
-                </td>
+                <th className="px-6 py-4">Sản phẩm</th>
+                <th className="px-6 py-4">Hãng</th>
+                <th className="px-6 py-4">Giá</th>
+                <th className="px-6 py-4 text-center">Rating</th>
+                <th className="px-6 py-4 text-right">Hành động</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody className="divide-y divide-gray-100">
+              {filteredProducts.map((p) => (
+                <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className="h-16 w-16 shrink-0 rounded-xl border border-gray-100 bg-white p-2">
+                        <img
+                          src={getImageUrl(p.imageUrl)}
+                          alt={p.name}
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">{p.name}</div>
+                        <div className="text-gray-500 text-xs mt-1">ID: {p.id}</div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+                      {p.brand || "N/A"}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <span className="font-semibold text-gray-900">
+                      {formatPrice(p.minPrice)}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="flex justify-center items-center gap-1 bg-yellow-50 text-yellow-700 w-max mx-auto px-2 py-1 rounded-lg text-xs font-semibold">
+                      <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
+                      {p.rating}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 text-right space-x-2">
+                    <button
+                      onClick={() => navigate(`/admin/products/edit/${p.id}`)}
+                      className="inline-flex items-center justify-center p-2 text-gray-500 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm"
+                      title="Sửa sản phẩm"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      className="inline-flex items-center justify-center p-2 text-gray-500 bg-white border border-gray-200 rounded-xl hover:bg-red-50 hover:text-red-600 transition-colors shadow-sm"
+                      title="Xóa sản phẩm"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {filteredProducts.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="py-12 text-center text-gray-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <Search className="h-10 w-10 text-gray-300 mb-3" />
+                      <p>Không tìm thấy sản phẩm nào</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

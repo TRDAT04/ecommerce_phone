@@ -17,27 +17,33 @@ export default function ProductDetail() {
   if (!data.product) return <div className="p-10">Loading...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 px-8">
+    <div className="max-w-7xl mx-auto py-4 px-2 md:px-8">
       <Breadcrumb product={data.product} />
 
       <h1 className="text-xl font-semibold mb-4">
-        {data.product.name} {data.variant ? ` ${data.variant.storage}` : "" } {"Chính hãng"}
+        {data.product.name} {data.variant ? ` ${data.variant.storage}` : ""} {"Chính hãng"}
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-14 gap-6">
-        {/* LEFT */}
-        <div className="bg-neutral-50 md:col-span-8 flex flex-col gap-4">
+      <div className="flex flex-col md:grid md:grid-cols-14 gap-4 md:gap-6">
+        {/* Gallery */}
+        <div className="order-1 md:order-none md:col-start-1 md:col-span-8">
           <ProductGallery {...data} />
-          <ProductCommit brand={data.product.brand} />
-          <ProductSpecs specs={data.product.specifications} />
-          {/* <ProductDescription description={data.product.description} /> */}
         </div>
 
-        {/* RIGHT */}
-        <div className="md:col-span-6 sticky top-4 flex flex-col ">
+        {/* RIGHT: Info & Promotions */}
+        <div className="order-2 md:order-none md:col-start-9 md:col-span-6 md:row-span-3 md:sticky md:top-4 flex flex-col md:self-start md:row-start-1">
           <ProductInfo {...data} />
-          <div className="pt-4"> <ProductPromotions /></div>
-         
+          <div className="pt-4"><ProductPromotions /></div>
+        </div>
+
+        {/* Commit */}
+        <div className="order-3 md:order-none md:col-start-1 md:col-span-8">
+          <ProductCommit brand={data.product.brand} />
+        </div>
+
+        {/* Specs */}
+        <div className="order-4 md:order-none md:col-start-1 md:col-span-8">
+          <ProductSpecs specs={data.product.specifications} />
         </div>
       </div>
 

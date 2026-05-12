@@ -21,7 +21,7 @@ const TopBar = () => {
   ];
 
   return (
-    <div className="w-full border-b border-white/10 bg-gradient-to-r from-emerald-600 to-teal-700 text-sm text-white">
+    <div className="hidden w-full border-b border-white/10 bg-gradient-to-r from-emerald-600 to-teal-700 text-sm text-white md:block">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div className="scrollbar-none flex items-center justify-between gap-6 overflow-x-auto py-2">
           {items.map((item, i) => {

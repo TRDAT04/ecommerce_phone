@@ -30,7 +30,7 @@ export default function ProductInfo({
       <div className="mt-2">
         <p className="mb-2 font-semibold">Lựa chọn phiên bản</p>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {product.storages.map((s) => {
             const isActive = selectedStorage === s;
 
@@ -42,11 +42,10 @@ export default function ProductInfo({
               <button
                 key={s}
                 onClick={() => changeStorage(s)}
-                className={`relative flex w-35 flex-col items-center justify-center rounded-lg border bg-white px-2 py-1 transition-all duration-200 ${
-                  isActive
-                    ? "border-green-600 shadow-sm ring-1 ring-green-100"
-                    : "border-gray-300 hover:border-gray-400"
-                } `}
+                className={`relative flex w-full flex-col items-center justify-center rounded-lg border bg-white px-2 py-1 transition-all duration-200 md:min-w-[140px]  ${isActive
+                  ? "border-green-600 shadow-sm ring-1 ring-green-100"
+                  : "border-gray-300 hover:border-gray-400"
+                  } `}
               >
                 {isActive && (
                   <Check
@@ -70,7 +69,7 @@ export default function ProductInfo({
       <div className="mt-6">
         <p className="mb-2 font-semibold">Màu sắc</p>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           {availableColors.map((color) => {
             const colorVariant =
               product.variantMap[`${selectedStorage}|${color.key}`];
@@ -79,11 +78,10 @@ export default function ProductInfo({
               <button
                 key={color.key}
                 onClick={() => changeColor(color.key)}
-                className={`flex items-center gap-2 rounded-lg border bg-white transition-all duration-200 ${
-                  selectedColor === color.key
-                    ? "border-green-600 shadow-sm ring-1 ring-green-100"
-                    : "border-gray-300 hover:border-gray-400"
-                } `}
+                className={`flex items-center  gap-2  rounded-lg border bg-white transition-all duration-200  ${selectedColor === color.key
+                  ? "border-green-600 shadow-sm ring-1 ring-green-100"
+                  : "border-gray-300 hover:border-gray-400"
+                  } `}
               >
                 <img
                   src={
@@ -91,7 +89,7 @@ export default function ProductInfo({
                       ? getImageUrl(colorVariant.images[0])
                       : getImageUrl(product.imageUrl)
                   }
-                  className="h-12 w-8 object-contain"
+                  className="h-12 w-8 ml-3 object-contain "
                 />
 
                 <div className="flex flex-col text-left">

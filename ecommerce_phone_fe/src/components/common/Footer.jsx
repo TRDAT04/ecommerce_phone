@@ -12,9 +12,9 @@ import { FaFacebookF, FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="mt-10 bg-gradient-to-b from-[#00584b] to-[#003d34] text-gray-300">
+    <footer className="hidden md:block mt-10 bg-gradient-to-b from-[#00584b] to-[#003d34] text-gray-300">
       {/* TOP */}
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 py-8 md:gap-10 md:py-14 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
         {/* COLUMN 1 */}
         <div>
           <h3 className="relative mb-6 inline-block text-xl font-bold text-white">

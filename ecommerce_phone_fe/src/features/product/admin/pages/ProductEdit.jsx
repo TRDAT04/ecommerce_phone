@@ -17,8 +17,8 @@ export default function ProductEdit() {
   if (!edit.product) return <p>Loading...</p>;
 
   return (
-    <div className="max-w-6xl mx-auto bg-white p-8 shadow-lg rounded-xl">
-      <h2 className="text-3xl font-bold mb-6">Sản phẩm</h2>
+    <div className="max-w-6xl mx-auto p-8 space-y-8 bg-white shadow-sm rounded-2xl border border-gray-100 my-6">
+      <h2 className="text-3xl font-bold text-gray-800 tracking-tight border-b border-gray-100 pb-4">Sửa sản phẩm</h2>
 
       <form onSubmit={edit.handleSubmit} className="space-y-8">
 
@@ -56,9 +56,11 @@ export default function ProductEdit() {
           deleteSpec={edit.deleteSpec}
         />
 
-        <button className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg">
-          Lưu thay đổi
-        </button>
+        <div className="pt-6 border-t border-gray-100">
+          <button className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-medium transition-colors shadow-sm shadow-emerald-600/20 text-lg">
+            Lưu thay đổi
+          </button>
+        </div>
       </form>
     </div>
   );

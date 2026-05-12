@@ -63,7 +63,7 @@ export default function BannerSlider() {
 
   return (
     <div
-      className="group relative overflow-hidden rounded-3xl border border-black/5 bg-white"
+      className="group relative overflow-hidden rounded-lg border border-black/5 bg-white px-2"
       onMouseEnter={stopAuto}
       onMouseLeave={startAuto}
     >
@@ -75,7 +75,7 @@ export default function BannerSlider() {
         <img
           src={banners[current].image}
           alt="banner"
-          className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          className="w-full min-h-[160px] md:min-h-0 object-contain transition-transform duration-500 group-hover:scale-[1.02]"
         />
       </div>
 
@@ -101,11 +101,10 @@ export default function BannerSlider() {
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`h-2.5 rounded-full transition-all duration-300 ${
-              i === current
-                ? "w-6 bg-white"
-                : "w-2.5 bg-white/60 hover:bg-white"
-            } `}
+            className={`h-2.5 rounded-full transition-all duration-300 ${i === current
+              ? "w-6 bg-white"
+              : "w-2.5 bg-white/60 hover:bg-white"
+              } `}
           />
         ))}
       </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import SearchBar from "../../features/search/components/SearchBar";
 import {
@@ -11,13 +11,23 @@ import {
   Settings,
   Menu,
   X,
+  Filter,
 } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileKeyword, setMobileKeyword] = useState("");
+
+  const handleMobileSearch = () => {
+    const kw = mobileKeyword.trim();
+    if (!kw) return;
+    navigate(`/search?keyword=${encodeURIComponent(kw)}`);
+    setMobileKeyword("");
+  };
 
   const menuRef = useRef();
 
@@ -130,22 +140,10 @@ const Navbar = () => {
         <div className="flex h-16 items-center justify-between gap-4">
           {/* LEFT */}
           <div className="flex items-center gap-10">
-            {/* MOBILE MENU */}
-            <button
-              className="lg:hidden"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              {mobileOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-
             {/* LOGO */}
             <div
               onClick={() => navigate("/")}
-              className="cursor-pointer bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text text-2xl font-black tracking-tight text-transparent"
+              className="cursor-pointer bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text text-xl md:text-2xl font-black tracking-tight text-transparent"
             >
               NextMobile
             </div>
@@ -244,17 +242,19 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* MOBILE SEARCH */}
-        <div className="pb-4 md:hidden">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Tìm kiếm sản phẩm..."
-              className="h-11 w-full rounded-2xl border border-black/10 bg-neutral-100 pr-4 pl-12 transition-all outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100"
-            />
-
-            <Search className="absolute top-3 left-4 h-5 w-5 text-gray-400" />
+        {/* MOBILE SEARCH & FILTER */}
+        <div className="pb-3 md:hidden flex gap-3 px-1">
+          <div className="relative flex-1">
+            <SearchBar />
           </div>
+          {(location.pathname === "/" || location.pathname === "/search") && (
+            <button
+              onClick={() => window.dispatchEvent(new Event("toggleMobileFilter"))}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-black/10 bg-neutral-100 transition hover:bg-emerald-50 hover:text-emerald-600 text-gray-600"
+            >
+              <Filter className="h-5 w-5" />
+            </button>
+          )}
         </div>
       </div>
     </nav>

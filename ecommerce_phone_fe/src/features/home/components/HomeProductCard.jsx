@@ -13,10 +13,10 @@ const ProductCard = ({ product }) => {
   const discountPercent =
     product.minOriginalPrice && product.minPrice
       ? Math.round(
-          ((product.minOriginalPrice - product.minPrice) /
-            product.minOriginalPrice) *
-            100,
-        )
+        ((product.minOriginalPrice - product.minPrice) /
+          product.minOriginalPrice) *
+        100,
+      )
       : 0;
 
   return (
@@ -32,7 +32,7 @@ const ProductCard = ({ product }) => {
       <div className="relative flex h-52 items-center justify-center bg-neutral-50 p-5">
         {/* DISCOUNT */}
         {discountPercent > 0 && (
-          <div className="absolute top-3 left-3 rounded-lg bg-red-500 px-2 py-1 text-xs font-semibold text-white">
+          <div className="absolute top-3 left-3 z-10 rounded-lg bg-red-500 px-2 py-1 text-xs font-semibold text-white">
             -{discountPercent}%
           </div>
         )}
@@ -46,9 +46,8 @@ const ProductCard = ({ product }) => {
           className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm transition hover:scale-110"
         >
           <Heart
-            className={`h-4 w-4 ${
-              liked ? "fill-red-500 text-red-500" : "text-gray-400"
-            } `}
+            className={`h-4 w-4 ${liked ? "fill-red-500 text-red-500" : "text-gray-400"
+              } `}
           />
         </button>
 
@@ -118,9 +117,9 @@ const ProductCard = ({ product }) => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-          
+
               window.scrollTo(0, 0);
-          
+
               navigate(`/product/${product.id}`);
             }}
             className="flex h-9 items-center gap-2 rounded-xl bg-emerald-500 px-3 text-sm font-medium text-white transition hover:bg-emerald-600"
