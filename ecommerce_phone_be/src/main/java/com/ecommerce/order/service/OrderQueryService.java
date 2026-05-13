@@ -9,7 +9,6 @@ import com.ecommerce.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -54,22 +53,19 @@ public class OrderQueryService {
         return res;
     }
 
-    public List<OrderResponse> getAll(String status, String phone) {
+    public org.springframework.data.domain.Page<OrderResponse> getAll(String status, String phone, org.springframework.data.domain.Pageable pageable) {
 
-        List<Order> orders;
+        org.springframework.data.domain.Page<Order> orders;
 
         if (status != null) {
-            orders = orderRepository.findByStatus(status);
+            orders = orderRepository.findByStatus(status, pageable);
         } else if (phone != null) {
-            orders = orderRepository.findByPhoneContaining(phone);
+            orders = orderRepository.findByPhoneContaining(phone, pageable);
         } else {
-            orders = orderRepository.findAll();
+            orders = orderRepository.findAll(pageable);
         }
 
-        return orders.stream()
-                .sorted(Comparator.comparing(Order::getCreatedAt).reversed())
-                .map(this::mapToResponse)
-                .toList();
+        return orders.map(this::mapToResponse);
     }
 
     private OrderResponse mapToResponse(Order order) {

@@ -5,7 +5,7 @@ import com.ecommerce.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 import java.util.Map;
 
 @RestController
@@ -18,11 +18,12 @@ public class AdminOrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public List<OrderResponse> getAll(
+    public org.springframework.data.domain.Page<OrderResponse> getAll(
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String phone
+            @RequestParam(required = false) String phone,
+            @org.springframework.data.web.PageableDefault(sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) org.springframework.data.domain.Pageable pageable
     ) {
-        return orderService.getAll(status, phone);
+        return orderService.getAll(status, phone, pageable);
     }
 
 

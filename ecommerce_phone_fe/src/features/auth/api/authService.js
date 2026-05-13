@@ -1,18 +1,16 @@
-import axios from "axios";
-
-const API_URL = `${import.meta.env.VITE_API_URL}/api/auth`;
+import axiosClient from "../../../service/axiosClient";
 
 export const login = async (email, password) => {
-  const res = await axios.post(`${API_URL}/login`, { email, password });
+  const res = await axiosClient.post(`/api/auth/login`, { email, password });
   return res.data;
 };
 
 export const register = async (data) => {
-  const res = await axios.post(`${API_URL}/register`, data);
+  const res = await axiosClient.post(`/api/auth/register`, data);
   return res.data;
 };
 
 export const refreshToken = async (refreshToken) => {
-  const res = await axios.post(`${API_URL}/refresh`, { refreshToken });
+  const res = await axiosClient.post(`/api/auth/refresh`, { refreshToken });
   return res.data;
 };

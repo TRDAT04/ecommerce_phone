@@ -2,9 +2,9 @@ package com.ecommerce.product.service.query;
 
 import com.ecommerce.common.exception.AppException;
 import com.ecommerce.product.dto.response.ProductDetailDTO;
-import com.ecommerce.product.dto.response.ProductHomeDTO;
+
 import com.ecommerce.product.entity.Product;
-import com.ecommerce.product.mapper.ProductBasicMapper;
+
 import com.ecommerce.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

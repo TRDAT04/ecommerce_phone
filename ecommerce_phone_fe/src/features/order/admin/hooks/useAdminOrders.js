@@ -9,7 +9,8 @@ export const useAdminOrders = () => {
   const fetchOrders = async () => {
     try {
       const res = await getAdminOrders({ status, phone });
-      setOrders(res.data);
+      const data = res.data.content ? res.data.content : res.data;
+      setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Lỗi load orders:", err);
     }

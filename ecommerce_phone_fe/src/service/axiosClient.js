@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
-import { refreshToken as refreshApi } from "../features/auth/api/authService";
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -30,7 +29,13 @@ const processQueue = (error, token = null) => {
 };
 
 axiosClient.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    // Unwrap ApiResponse from backend automatically
+    if (res.data && res.data.status !== undefined && res.data.data !== undefined) {
+      res.data = res.data.data;
+    }
+    return res;
+  },
   async (error) => {
     const originalRequest = error.config;
     const store = useAuthStore.getState();
@@ -59,9 +64,13 @@ axiosClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await refreshApi(store.refreshToken);
-        const newAccessToken = res.accessToken;
-        const newRefreshToken = res.refreshToken;
+        const refreshRes = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/refresh`, {
+          refreshToken: store.refreshToken
+        });
+        const data = refreshRes.data.data ? refreshRes.data.data : refreshRes.data;
+        
+        const newAccessToken = data.accessToken;
+        const newRefreshToken = data.refreshToken;
 
         // Lưu token mới
         useAuthStore.getState().setTokens({

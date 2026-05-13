@@ -10,24 +10,32 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<?> handleAppException(AppException ex) {
-
-        Map<String, Object> res = new HashMap<>();
-        res.put("message", ex.getMessage());
-        res.put("errorCode", ex.getCode());
-        res.put("status", 400);
-
-        return ResponseEntity.badRequest().body(res);
+    public ResponseEntity<com.ecommerce.common.response.ApiResponse<?>> handleAppException(AppException ex) {
+        return ResponseEntity.badRequest().body(com.ecommerce.common.response.ApiResponse.builder()
+                .status(400)
+                .message(ex.getMessage())
+                .build());
     }
 
 
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<com.ecommerce.common.response.ApiResponse<?>> handleValidationException(org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+
+        return ResponseEntity.badRequest().body(com.ecommerce.common.response.ApiResponse.builder()
+                .status(400)
+                .message("Validation failed")
+                .errors(errors)
+                .build());
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception ex) {
-
-        Map<String, Object> res = new HashMap<>();
-        res.put("message", "Internal server error");
-        res.put("status", 500);
-
-        return ResponseEntity.status(500).body(res);
+    public ResponseEntity<com.ecommerce.common.response.ApiResponse<?>> handleException(Exception ex) {
+        return ResponseEntity.status(500).body(com.ecommerce.common.response.ApiResponse.builder()
+                .status(500)
+                .message("Internal server error")
+                .build());
     }
 }

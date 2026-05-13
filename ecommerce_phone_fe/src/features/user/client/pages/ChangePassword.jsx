@@ -53,7 +53,8 @@ export default function ChangePassword() {
       navigate("/login");
     } catch (err) {
       console.error(err);
-      setError(err.response?.data || "Đổi mật khẩu thất bại");
+      const msg = err.response?.data?.message || err.response?.data;
+      setError(typeof msg === "string" ? msg : "Đổi mật khẩu thất bại");
     } finally {
       setLoading(false);
     }

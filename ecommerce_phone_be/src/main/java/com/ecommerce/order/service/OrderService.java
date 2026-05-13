@@ -27,8 +27,8 @@ public class OrderService {
         return queryService.getById(id);
     }
 
-    public List<OrderResponse> getAll(String status, String phone) {
-        return queryService.getAll(status, phone);
+    public org.springframework.data.domain.Page<OrderResponse> getAll(String status, String phone, org.springframework.data.domain.Pageable pageable) {
+        return queryService.getAll(status, phone, pageable);
     }
 
     public void updateStatus(Long id, String newStatus) {

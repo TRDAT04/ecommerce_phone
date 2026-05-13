@@ -41,7 +41,7 @@ public class ProductController {
     }
 
     @PostMapping(value = "", consumes = "multipart/form-data")
-    public ProductDetailDTO createProduct(@ModelAttribute CreateProductDTO dto) throws IOException {
+    public ProductDetailDTO createProduct(@jakarta.validation.Valid @ModelAttribute CreateProductDTO dto) throws IOException {
 
         return productService.createProduct(dto);
     }
@@ -49,7 +49,7 @@ public class ProductController {
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
     public ProductDetailDTO updateProduct(
             @PathVariable Long id,
-            @ModelAttribute UpdateProductDTO dto
+            @jakarta.validation.Valid @ModelAttribute UpdateProductDTO dto
     ) throws IOException {
         return productService.updateProduct(id, dto);
     }

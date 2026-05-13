@@ -22,13 +22,10 @@ public class OrderController {
     private final OrderRepository orderRepository;
     private final OrderService orderService;
 
-    @GetMapping
-    public List<Order> getAll() {
-        return orderRepository.findAll();
-    }
+
 
     @PostMapping
-    public Map<String, Object> createOrder(@RequestBody OrderRequest req) {
+    public Map<String, Object> createOrder(@jakarta.validation.Valid @RequestBody OrderRequest req) {
         Order order = orderService.createOrder(req);
 
         return Map.of(

@@ -23,6 +23,11 @@ public class OrderCancelService {
             throw new AppException("Cannot cancel this order");
         }
 
+        for (com.ecommerce.order.entity.OrderDetail d : order.getOrderDetails()) {
+            com.ecommerce.product.entity.ProductVariant v = d.getVariant();
+            v.setStock(v.getStock() + d.getQuantity());
+        }
+
         order.setStatus("CANCELLED");
         orderRepository.save(order);
     }

@@ -23,9 +23,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             """)
     Optional<Order> findFullById(Long id);
 
-    List<Order> findByStatus(String status);
+    org.springframework.data.domain.Page<Order> findByStatus(String status, Pageable pageable);
 
-    List<Order> findByPhoneContaining(String phone);
+    org.springframework.data.domain.Page<Order> findByPhoneContaining(String phone, Pageable pageable);
 
     @Query("""
                 SELECT new com.ecommerce.order.dto.response.MyOrderDTO(
