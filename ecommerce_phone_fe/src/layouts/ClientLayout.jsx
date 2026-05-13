@@ -1,29 +1,49 @@
+import { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
 import TopBar from "../components/common/TopBar";
-import { Outlet } from "react-router-dom";
+import { ArrowUp } from "lucide-react";
 
-export default function UserLayout() {
+export default function ClientLayout() {
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 400);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-neutral-50 to-neutral-100 text-gray-800">
-
+    <div className="flex min-h-screen flex-col bg-gray-50 text-gray-800">
       {/* Header */}
-      <header className=" top-0 z-50 backdrop-blur bg-white/80 shadow-sm">
+      <header className="relative z-50">
         <TopBar />
         <Navbar />
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-1 md:px-6 lg:px-8 py-2">
+      {/* Page Content */}
+      <main className="flex-1 w-full">
         <div className="min-h-[60vh]">
           <Outlet />
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t mt-10">
-        <Footer />
-      </footer>
+      <Footer />
+
+      {/* Scroll-to-top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          aria-label="Lên đầu trang"
+          className="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg shadow-red-200 transition-all hover:scale-110 hover:shadow-xl active:scale-95"
+        >
+          <ArrowUp size={20} />
+        </button>
+      )}
     </div>
   );
 }

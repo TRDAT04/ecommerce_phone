@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAdminUsers, deleteAdminUser, updateAdminUser } from "../api/adminUserService";
+import { useAuthStore } from "../../../../store/authStore";
 
 export const useAdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -8,7 +9,8 @@ export const useAdminUsers = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  const currentUser = JSON.parse(localStorage.getItem("user"));
+  // Lấy user từ Zustand store (persist key là "auth-store", KHÔNG phải "user")
+  const currentUser = useAuthStore((s) => s.user);
   const isCurrentSuper = currentUser?.role === "ROLE_SUPER_ADMIN";
 
   useEffect(() => {

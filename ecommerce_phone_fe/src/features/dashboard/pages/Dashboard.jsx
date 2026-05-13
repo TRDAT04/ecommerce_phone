@@ -3,70 +3,59 @@ import RevenueChart from "../components/RevenueChart";
 import RecentOrdersTable from "../components/RecentOrdersTable";
 import OrderStatusPieChart from "../components/OrderStatusPieChart";
 import TopProducts from "../components/TopProducts";
-
-import {
-  LayoutDashboard,
-  ShoppingBag,
-  Package,
-  PieChart,
-  BarChart3,
-} from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 
 export default function Dashboard() {
+  const now = new Date().toLocaleDateString("vi-VN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
   return (
-    <div className="p-6 space-y-6 bg-gray-100 min-h-screen">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-xl bg-green-100 flex items-center justify-center">
-          <LayoutDashboard
-            size={22}
-            className="text-green-600"
-          />
+    <div className="min-h-screen bg-gray-50/60 p-6 space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-md">
+            <LayoutDashboard size={20} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Tổng quan hệ thống</h1>
+            <p className="text-sm text-gray-500">Cập nhật realtime – {now}</p>
+          </div>
         </div>
 
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            Trang quản trị hệ thống
-          </h1>
-
-          <p className="text-sm text-gray-500 mt-0.5">
-            Tổng quan hoạt động cửa hàng
-          </p>
+        {/* Live badge */}
+        <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 ring-1 ring-emerald-200">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          </span>
+          <span className="text-xs font-semibold text-emerald-700">Live</span>
         </div>
       </div>
 
       {/* Overview Cards */}
       <OverviewCards />
 
-      {/* Revenue + Pie */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Revenue */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        
+      {/* Revenue Chart + Pie Chart */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 lg:col-span-2">
           <RevenueChart />
         </div>
-
-        {/* Pie */}
-        <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-       
-
+        <div className="overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
           <OrderStatusPieChart />
         </div>
       </div>
 
       {/* Recent Orders + Top Products */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Orders */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-    
-
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 lg:col-span-2">
           <RecentOrdersTable />
         </div>
-
-        {/* Top Products */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-    
-
+        <div className="overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
           <TopProducts />
         </div>
       </div>

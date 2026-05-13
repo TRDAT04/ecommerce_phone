@@ -135,7 +135,7 @@ const Navbar = () => {
 
   // ================= UI =================
   return (
-    <nav className="sticky top-0 z-50 border-b border-black/5 bg-white/90 shadow-sm backdrop-blur">
+    <nav className="relative z-50 border-b border-black/5 bg-white/90 shadow-sm backdrop-blur">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* LEFT */}

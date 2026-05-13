@@ -1,65 +1,102 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../api/authService";
-import axiosClient from "../../../service/axiosClient";
 import { useAuthStore } from "../../../store/authStore";
+import axiosClient from "../../../service/axiosClient";
+
+const validateEmail = (email) => {
+  if (!email) return "Email không được để trống";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Email không đúng định dạng";
+  return "";
+};
+
+const validatePassword = (password) => {
+  if (!password) return "Mật khẩu không được để trống";
+  if (password.length < 6) return "Mật khẩu tối thiểu 6 ký tự";
+  return "";
+};
 
 export const useLogin = () => {
-  const navigate = useNavigate();
-
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const setTokens = useAuthStore((state) => state.setTokens);
-
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [touched, setTouched] = useState({ email: false, password: false });
+  const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  const navigate = useNavigate();
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const setTokens = useAuthStore((s) => s.setTokens);
 
-  const handleLogin = async (email, password) => {
-    if (!email || !password) {
-      setError("Vui lòng nhập đầy đủ thông tin!");
-      return false;
-    }
+  const fieldErrors = {
+    email: touched.email ? validateEmail(form.email) : "",
+    password: touched.password ? validatePassword(form.password) : "",
+  };
+
+  const hasFieldError = (name) => Boolean(fieldErrors[name]);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    if (error) setError("");
+  };
+
+  const handleBlur = (e) => {
+    setTouched({ ...touched, [e.target.name]: true });
+  };
+
+  const toggleShowPass = () => setShowPass((v) => !v);
+
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+    setTouched({ email: true, password: true });
+    
+    const emailErr = validateEmail(form.email);
+    const passErr = validatePassword(form.password);
+    if (emailErr || passErr) return;
 
     try {
       setLoading(true);
       setError("");
 
-      // ================= 1. LOGIN =================
-      const res = await login(email, password);
-      const { accessToken, refreshToken } = res;
-
-      // ================= 2. SET TOKEN TẠM =================
-      // 👉 để axios interceptor có token khi gọi /me
-      setTokens({
-        accessToken,
-        refreshToken,
+      const res = await axiosClient.post("/api/auth/login", {
+        email: form.email,
+        password: form.password,
       });
 
-      // ================= 3. GET USER =================
-      const userRes = await axiosClient.get("/api/users/me");
+      const { accessToken, refreshToken } = res.data;
+      setTokens({ accessToken, refreshToken });
 
-      // ================= 4. LƯU AUTH ĐẦY ĐỦ =================
+      const userRes = await axiosClient.get("/api/users/me");
+      
       setAuth({
         user: userRes.data,
         accessToken,
         refreshToken,
       });
 
-      // ================= 5. REDIRECT =================
-      navigate("/");
-
-      return true;
+      const role = userRes.data.role;
+      if (role === "ROLE_ADMIN" || role === "ROLE_SUPER_ADMIN") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       console.error(err);
       setError("Sai tài khoản hoặc mật khẩu!");
-      return false;
     } finally {
       setLoading(false);
     }
   };
 
   return {
-    handleLogin,
+    form,
+    touched,
+    showPass,
     loading,
     error,
+    fieldErrors,
+    hasFieldError,
+    handleChange,
+    handleBlur,
+    toggleShowPass,
+    handleSubmit,
   };
 };

@@ -1,23 +1,13 @@
-import {
-  Outlet,
-  Link,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
-
-import {
-  LayoutDashboard,
-  ChevronRight,
-  LogOut,
-  Bell,
-} from "lucide-react";
-
+import { useState } from "react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { LayoutDashboard, LogOut, Bell, Menu, X, ChevronRight, Home } from "lucide-react";
 import { adminMenu } from "../config/adminMenu";
 import { useAuthStore } from "../store/authStore";
 
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -27,183 +17,174 @@ export default function AdminLayout() {
     navigate("/login");
   };
 
-  return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* SIDEBAR */}
-      <aside
-        className="
-          w-64 bg-gray-900 text-white
-          flex flex-col
-          border-r border-gray-800
-        "
-      >
-        {/* LOGO */}
-        <div className="p-5 border-b border-gray-800">
-          <div className="flex items-center gap-3">
-            <div
-              className="
-                w-11 h-11 rounded-2xl
-                bg-green-500
-                flex items-center justify-center
-              "
-            >
-              <LayoutDashboard size={22} />
-            </div>
+  // Current page label
+  const currentPage = adminMenu.find((item) =>
+    item.path !== "/logout" && location.pathname.startsWith(item.path)
+  );
 
-            <div>
-              <h2 className="text-lg font-bold">
-                Admin Panel
-              </h2>
+  // Avatar initials
+  const initials = (user?.name || user?.email || "A")
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
-              <p className="text-xs text-gray-400">
-                Ecommerce Dashboard
-              </p>
-            </div>
-          </div>
-
-          
+  const SidebarContent = () => (
+    <div className="flex h-full flex-col">
+      {/* Logo */}
+      <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
+        <Link
+          to="/"
+          title="Quay lại cửa hàng"
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-green-600 shadow-lg transition-transform hover:scale-105 hover:shadow-emerald-500/30 active:scale-95"
+        >
+          <Home size={20} className="text-white" />
+        </Link>
+        <div>
+          <h2 className="text-base font-bold text-white leading-tight">Admin Panel</h2>
+          <p className="text-[11px] text-gray-400">NextMobile Dashboard</p>
         </div>
+      </div>
 
-        {/* MENU */}
-        <nav className="space-y-2 flex-1 p-4">
-          {adminMenu.map((item) => {
-            const isActive =
-              location.pathname.startsWith(item.path);
+      {/* Nav Menu */}
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+        {adminMenu.map((item) => {
+          const Icon = item.icon;
+          const isActive = item.path !== "/logout" && location.pathname.startsWith(item.path);
 
-            const Icon = item.icon;
-
-            // Logout
-            if (item.path === "/logout") {
-              return (
-                <button
-                  key={item.path}
-                  onClick={handleLogout}
-                  className="
-                    w-full flex items-center justify-between
-                    px-4 py-3 rounded-2xl
-                    text-red-400
-                    hover:bg-red-500/10
-                    transition-all
-                  "
-                >
-                  <div className="flex items-center gap-3">
-                    <LogOut size={18} />
-                    <span>{item.label}</span>
-                  </div>
-                </button>
-              );
-            }
-
+          if (item.path === "/logout") {
             return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`
-                  flex items-center justify-between
-                  px-4 py-3 rounded-2xl
-                  transition-all duration-200
-                  group
-
-                  ${
-                    isActive
-                      ? "bg-green-500 text-white shadow-lg"
-                      : "text-gray-300 hover:bg-white/10 hover:text-white"
-                  }
-                `}
+              <button
+                key="logout"
+                onClick={handleLogout}
+                className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-400 transition-all hover:bg-red-500/10 hover:text-red-300"
               >
-                <div className="flex items-center gap-3">
-                  {Icon && <Icon size={18} />}
-
-                  <span className="font-medium">
-                    {item.label}
-                  </span>
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-red-500/10 group-hover:bg-red-500/20">
+                  <LogOut size={16} />
                 </div>
-
-                <ChevronRight
-                  size={16}
-                  className={`
-                    transition-all
-                    ${
-                      isActive
-                        ? "opacity-100"
-                        : "opacity-0 group-hover:opacity-100"
-                    }
-                  `}
-                />
-              </Link>
+                {item.label}
+              </button>
             );
-          })}
-        </nav>
+          }
+
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={() => setSidebarOpen(false)}
+              className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                isActive
+                  ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-md shadow-emerald-900/30"
+                  : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
+              }`}
+            >
+              {Icon && (
+                <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-colors ${
+                  isActive ? "bg-white/20" : "bg-white/5 group-hover:bg-white/10"
+                }`}>
+                  <Icon size={16} />
+                </div>
+              )}
+              <span className="flex-1">{item.label}</span>
+              {isActive && <ChevronRight size={14} className="opacity-70" />}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* User Footer */}
+      <div className="border-t border-white/10 px-4 py-4">
+        <div className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-2.5">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-green-600 text-xs font-bold text-white shadow">
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-semibold text-gray-200">{user?.name || "Admin"}</p>
+            <p className="truncate text-[10px] text-gray-500">{user?.email}</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex-shrink-0 rounded-lg p-1.5 text-gray-500 transition hover:bg-red-500/20 hover:text-red-400"
+            title="Đăng xuất"
+          >
+            <LogOut size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex min-h-screen bg-gray-50/80">
+      {/* === DESKTOP SIDEBAR === */}
+      <aside className="hidden w-60 flex-shrink-0 flex-col overflow-hidden bg-gray-950 lg:flex">
+        <SidebarContent />
       </aside>
 
-      {/* MAIN */}
-      <div className="flex-1 flex flex-col">
-        {/* HEADER */}
-        <header
-          className="
-            bg-white border-b border-gray-200
-            px-6 py-4
-            flex justify-between items-center
-            sticky top-0 z-10
-          "
-        >
-          {/* LEFT */}
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Dashboard
-            </h1>
+      {/* === MOBILE SIDEBAR OVERLAY === */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setSidebarOpen(false)}
+          />
+          {/* Drawer */}
+          <aside className="absolute left-0 top-0 h-full w-60 bg-gray-950">
+            <SidebarContent />
+          </aside>
+        </div>
+      )}
 
-            <p className="text-sm text-gray-500 mt-1">
-              Tổng quan hệ thống
-            </p>
-          </div>
-
-          {/* RIGHT */}
-          <div className="flex items-center gap-4">
-            {/* Notification */}
+      {/* === MAIN CONTENT === */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* TOPBAR */}
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur-sm lg:px-6">
+          {/* Left: hamburger + breadcrumb */}
+          <div className="flex items-center gap-3">
             <button
-              className="
-                relative w-10 h-10
-                rounded-xl border border-gray-200
-                flex items-center justify-center
-                hover:bg-gray-50
-                transition
-              "
+              onClick={() => setSidebarOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:bg-gray-100 lg:hidden"
             >
-              <Bell
-                size={18}
-                className="text-gray-700"
-              />
-
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500" />
+              <Menu size={18} />
             </button>
 
-            {/* User */}
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-semibold text-gray-800">
-                  Admin
-                </p>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-semibold text-gray-400">Admin</span>
+              <ChevronRight size={14} className="text-gray-300" />
+              <span className="font-semibold text-gray-800">
+                {currentPage?.label || "Dashboard"}
+              </span>
+            </div>
+          </div>
 
-                <p className="text-xs text-gray-500">
-                  {user?.email}
-                </p>
+          {/* Right: actions + user */}
+          <div className="flex items-center gap-2">
+            {/* Bell */}
+            <button className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:bg-gray-100">
+              <Bell size={17} />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+            </button>
+
+            {/* User chip */}
+            <div className="flex items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5">
+              <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-green-600 text-[11px] font-bold text-white shadow-sm">
+                {initials}
               </div>
-
-              <img
-                src="https://i.pravatar.cc/40"
-                alt="avatar"
-                className="w-10 h-10 rounded-full border"
-              />
+              <div className="hidden text-right sm:block">
+                <p className="text-xs font-semibold text-gray-800 leading-tight">
+                  {user?.name || "Admin"}
+                </p>
+                <p className="text-[10px] text-gray-500">{user?.email}</p>
+              </div>
             </div>
           </div>
         </header>
 
-        {/* CONTENT */}
-        <main className=" flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto">
-            <Outlet />
-          </div>
+        {/* PAGE CONTENT */}
+        <main className="flex-1 overflow-auto">
+          <Outlet />
         </main>
       </div>
     </div>

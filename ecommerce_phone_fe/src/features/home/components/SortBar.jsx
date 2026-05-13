@@ -42,7 +42,7 @@ const options = [
 
 export default function SortBar({ value, onChange }) {
   return (
-    <div className="scrollbar-none flex items-center gap-2 overflow-x-auto whitespace-nowrap rounded-2xl bg-white/80 p-3">
+    <div className="scrollbar-none flex items-center gap-2 overflow-x-auto whitespace-nowrap rounded-2xl bg-white/20 backdrop-blur-md border border-white/40 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-3">
       {/* LABEL */}
       <span className="mr-1 text-sm font-semibold text-gray-700">Sắp xếp:</span>
 

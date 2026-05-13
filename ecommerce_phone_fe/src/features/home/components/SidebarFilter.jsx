@@ -45,6 +45,8 @@ export default function SidebarFilter({ filters, onChange }) {
         page: 0,
       };
     });
+    // Cuộn lên đầu trang sau khi chọn filter
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // ===== TOGGLE CHECKBOX =====
@@ -67,7 +69,6 @@ export default function SidebarFilter({ filters, onChange }) {
   const SectionTitle = ({ icon: Icon, title }) => (
     <div className="mb-3 flex items-center gap-2">
       <Icon className="h-4 w-4 text-emerald-600" />
-
       <h3 className="font-semibold text-gray-800">{title}</h3>
     </div>
   );
@@ -80,7 +81,6 @@ export default function SidebarFilter({ filters, onChange }) {
       {/* BRAND */}
       <div>
         <SectionTitle icon={Smartphone} title="Hãng" />
-
         <BrandIconGrid
           title=""
           options={brands}
@@ -93,7 +93,6 @@ export default function SidebarFilter({ filters, onChange }) {
       {/* PRICE */}
       <div className="border-t border-neutral-100 pt-4">
         <SectionTitle icon={Wallet} title="Giá" />
-
         <RadioRangeGroup
           title=""
           options={priceOptions}
@@ -108,7 +107,6 @@ export default function SidebarFilter({ filters, onChange }) {
       {/* RAM */}
       <div className="border-t border-neutral-100 pt-4">
         <SectionTitle icon={MemoryStick} title="RAM" />
-
         <CheckboxGroup
           title=""
           options={[4, 6, 8, 12]}
@@ -121,7 +119,6 @@ export default function SidebarFilter({ filters, onChange }) {
       {/* STORAGE */}
       <div className="border-t border-neutral-100 pt-4">
         <SectionTitle icon={HardDrive} title="Bộ nhớ" />
-
         <CheckboxGroup
           title=""
           options={["128GB", "256GB", "512GB"]}
@@ -133,7 +130,6 @@ export default function SidebarFilter({ filters, onChange }) {
       {/* BATTERY */}
       <div className="border-t border-neutral-100 pt-4">
         <SectionTitle icon={Battery} title="Pin" />
-
         <RadioRangeGroup
           title=""
           options={batteryOptions}
@@ -148,7 +144,6 @@ export default function SidebarFilter({ filters, onChange }) {
       {/* SCREEN */}
       <div className="border-t border-neutral-100 pt-4">
         <SectionTitle icon={Monitor} title="Màn hình" />
-
         <RadioRangeGroup
           title=""
           options={screenOptions}
@@ -163,7 +158,6 @@ export default function SidebarFilter({ filters, onChange }) {
       {/* REFRESH RATE */}
       <div className="border-t border-neutral-100 pt-4">
         <SectionTitle icon={Gauge} title="Tần số quét" />
-
         <CheckboxGroup
           title=""
           options={[60, 90, 120]}

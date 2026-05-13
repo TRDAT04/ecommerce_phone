@@ -1,54 +1,60 @@
 import { useEffect, useState } from "react";
 import { getRecentOrders } from "../api/dashboardService";
-
+import { useNavigate } from "react-router-dom";
 import {
-  ShoppingBag,
-  Clock3,
-  CheckCircle2,
-  Truck,
-  XCircle,
-  ShieldCheck,
+  ShoppingBag, Clock3, CheckCircle2,
+  Truck, XCircle, ShieldCheck, ArrowRight,
 } from "lucide-react";
 
 const STATUS = {
   PENDING: {
     label: "Chờ xác nhận",
-    color: "bg-yellow-100 text-yellow-700",
+    color: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+    dot: "bg-amber-400",
     icon: Clock3,
   },
-
   CONFIRMED: {
     label: "Đã xác nhận",
-    color: "bg-purple-100 text-purple-700",
+    color: "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
+    dot: "bg-blue-400",
     icon: ShieldCheck,
   },
-
   SHIPPING: {
     label: "Đang giao",
-    color: "bg-blue-100 text-blue-700",
+    color: "bg-purple-50 text-purple-700 ring-1 ring-purple-200",
+    dot: "bg-purple-400",
     icon: Truck,
   },
-
   DONE: {
     label: "Hoàn thành",
-    color: "bg-green-100 text-green-700",
+    color: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+    dot: "bg-emerald-400",
     icon: CheckCircle2,
   },
-
   CANCELLED: {
     label: "Đã hủy",
-    color: "bg-red-100 text-red-700",
+    color: "bg-red-50 text-red-600 ring-1 ring-red-200",
+    dot: "bg-red-400",
     icon: XCircle,
   },
 };
 
 const formatDate = (date) => new Date(date).toLocaleString("vi-VN");
-
 const formatPrice = (price) => price?.toLocaleString("vi-VN") + "₫";
+
+// Avatar color by name initial
+const AVATAR_COLORS = [
+  "from-blue-400 to-indigo-500",
+  "from-emerald-400 to-green-500",
+  "from-violet-400 to-purple-500",
+  "from-pink-400 to-rose-500",
+  "from-orange-400 to-amber-500",
+];
 
 export default function RecentOrdersTable() {
   const [orders, setOrders] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getRecentOrders()
@@ -63,113 +69,118 @@ export default function RecentOrdersTable() {
       });
   }, []);
 
-  // Loading
   if (loading) {
     return (
-      <div className="animate-pulse rounded-2xl border bg-white p-6 shadow-sm">
-        <div className="mb-4 h-5 w-40 rounded bg-gray-200"></div>
-
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-4 rounded bg-gray-100" />
-          ))}
+      <div className="animate-pulse space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="h-5 w-40 rounded-full bg-gray-200" />
+          <div className="h-4 w-16 rounded-full bg-gray-100" />
         </div>
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-4 border-b border-gray-50 pb-4">
+            <div className="h-9 w-9 flex-shrink-0 rounded-full bg-gray-200" />
+            <div className="flex-1 space-y-1.5">
+              <div className="h-3.5 w-32 rounded-full bg-gray-200" />
+              <div className="h-3 w-20 rounded-full bg-gray-100" />
+            </div>
+            <div className="h-6 w-20 rounded-full bg-gray-200" />
+            <div className="h-3.5 w-24 rounded-full bg-gray-100" />
+          </div>
+        ))}
       </div>
     );
   }
 
-  // Empty
   if (!orders || orders.length === 0) {
     return (
-      <div className="rounded-2xl border bg-white p-6 text-center text-gray-500 shadow-sm">
-        <div className="mb-3 flex justify-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
-            <ShoppingBag size={24} className="text-gray-400" />
-          </div>
+      <div className="flex flex-col items-center justify-center py-14 text-center">
+        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
+          <ShoppingBag size={24} className="text-gray-400" />
         </div>
-        Không có đơn hàng gần đây
+        <p className="font-medium text-gray-400">Không có đơn hàng gần đây</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl  bg-white p-6 ">
+    <div>
       {/* Header */}
       <div className="mb-5 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ShoppingBag size={20} className="text-green-600" />
-
-          <h2 className="text-lg font-semibold text-gray-800">
-            Đơn hàng gần đây
-          </h2>
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm">
+            <ShoppingBag size={17} className="text-white" />
+          </div>
+          <div>
+            <h2 className="font-semibold text-gray-800">Đơn hàng gần đây</h2>
+            <p className="text-xs text-gray-400">{orders.length} đơn mới nhất</p>
+          </div>
         </div>
-
-        <span className="text-sm text-gray-400">{orders.length} đơn</span>
+        <button
+          onClick={() => navigate("/admin/orders")}
+          className="group flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:border-blue-300 hover:text-blue-600"
+        >
+          Xem tất cả
+          <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
+        </button>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 text-gray-500">
-              <th className="py-3 text-left font-medium">Mã đơn</th>
-
-              <th className="text-left font-medium">Khách hàng</th>
-
-              <th className="text-left font-medium">Tổng tiền</th>
-
-              <th className="text-left font-medium">Trạng thái</th>
-
-              <th className="text-left font-medium">Ngày tạo</th>
+            <tr className="border-b border-gray-100">
+              {["Mã đơn", "Khách hàng", "Tổng tiền", "Trạng thái", "Ngày tạo"].map((h) => (
+                <th key={h} className="pb-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
-
           <tbody>
-            {orders.map((o) => {
+            {orders.map((o, idx) => {
               const status = STATUS[o.status] || {
                 label: o.status,
                 color: "bg-gray-100 text-gray-700",
+                dot: "bg-gray-400",
                 icon: Clock3,
               };
-
               const StatusIcon = status.icon;
+              const avatarGradient = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+              const initial = o.customerName?.charAt(0)?.toUpperCase() || "?";
 
               return (
                 <tr
                   key={o.id}
-                  className="border-b border-gray-100 transition-all hover:bg-gray-50"
+                  className="group cursor-pointer border-b border-gray-50 transition-all last:border-0 hover:bg-gray-50/80"
+                  onClick={() => navigate(`/admin/orders/${o.id}`)}
                 >
-                  {/* Order ID */}
-                  <td className="py-4 font-semibold text-gray-800">#{o.id}</td>
+                  {/* ID */}
+                  <td className="py-3.5 font-bold text-gray-700">#{o.id}</td>
 
                   {/* Customer */}
-                  <td className="py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 text-xs font-semibold text-white">
-                        {o.customerName?.charAt(0) || "?"}
+                  <td className="py-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${avatarGradient} text-xs font-bold text-white shadow-sm`}>
+                        {initial}
                       </div>
-
-                      <span className="text-gray-700">{o.customerName}</span>
+                      <span className="font-medium text-gray-700">{o.customerName}</span>
                     </div>
                   </td>
 
                   {/* Price */}
-                  <td className="font-semibold text-gray-800">
-                    {formatPrice(o.totalPrice)}
-                  </td>
+                  <td className="py-3.5 font-semibold text-gray-800">{formatPrice(o.totalPrice)}</td>
 
                   {/* Status */}
-                  <td>
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${status.color} `}
-                    >
-                      <StatusIcon size={13} />
+                  <td className="py-3.5">
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${status.color}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
+                      <StatusIcon size={12} />
                       {status.label}
                     </span>
                   </td>
 
                   {/* Date */}
-                  <td className="whitespace-nowrap text-gray-500">
+                  <td className="whitespace-nowrap py-3.5 text-xs text-gray-400">
                     {formatDate(o.createdAt)}
                   </td>
                 </tr>
