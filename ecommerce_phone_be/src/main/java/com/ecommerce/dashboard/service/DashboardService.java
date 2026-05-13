@@ -73,7 +73,7 @@ public class DashboardService {
     // 3. RECENT ORDERS
     // =============================
     public List<RecentOrderDTO> getRecentOrders() {
-        List<Order> orders = orderRepository.getRecentOrders(PageRequest.of(0, 10));
+        List<Order> orders = orderRepository.getRecentOrders(PageRequest.of(0, 20));
 
         return orders.stream()
                 .map(o -> new RecentOrderDTO(

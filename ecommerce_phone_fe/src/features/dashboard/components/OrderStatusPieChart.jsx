@@ -76,6 +76,7 @@ export default function OrderStatusPieChart() {
   const grouped = Object.values(
     orders.reduce((acc, order) => {
       if (!order.status) return acc;
+
       if (!acc[order.status]) {
         acc[order.status] = {
           name: STATUS_CONFIG[order.status]?.label || order.status,
@@ -84,12 +85,17 @@ export default function OrderStatusPieChart() {
           fill: STATUS_CONFIG[order.status]?.color || "#9ca3af",
         };
       }
+
       acc[order.status].value++;
+
       return acc;
     }, {})
   );
 
   const total = grouped.reduce((sum, item) => sum + item.value, 0);
+
+  // FIX: dùng chung data đã sort cho chart + legend
+  const chartData = [...grouped].sort((a, b) => b.value - a.value);
 
   return (
     <div>
@@ -98,9 +104,15 @@ export default function OrderStatusPieChart() {
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm">
           <PieChartIcon size={17} className="text-white" />
         </div>
+
         <div>
-          <h2 className="font-semibold text-gray-800">Trạng thái đơn hàng</h2>
-          <p className="text-xs text-gray-400">Phân bố {total} đơn gần đây</p>
+          <h2 className="font-semibold text-gray-800">
+            Trạng thái đơn hàng
+          </h2>
+
+          <p className="text-xs text-gray-400">
+            Phân bố {total} đơn gần đây
+          </p>
         </div>
       </div>
 
@@ -109,7 +121,7 @@ export default function OrderStatusPieChart() {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={grouped}
+              data={chartData}
               dataKey="value"
               nameKey="name"
               cx="50%"
@@ -119,50 +131,76 @@ export default function OrderStatusPieChart() {
               paddingAngle={3}
               strokeWidth={0}
             >
-              {grouped.map((entry, i) => (
+              {chartData.map((entry, i) => (
                 <Cell key={i} fill={entry.fill} />
               ))}
             </Pie>
+
             <Tooltip content={<CustomTooltip />} />
           </PieChart>
         </ResponsiveContainer>
 
         {/* Center label */}
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <p className="text-2xl font-extrabold text-gray-800">{total}</p>
-          <p className="text-xs text-gray-400">Tổng đơn</p>
+          <p className="text-2xl font-extrabold text-gray-800">
+            {total}
+          </p>
+
+          <p className="text-xs text-gray-400">
+            Tổng đơn
+          </p>
         </div>
       </div>
 
       {/* Legend list */}
       <div className="mt-4 space-y-2">
-        {grouped
-          .sort((a, b) => b.value - a.value)
-          .map((item) => {
-            const cfg = STATUS_CONFIG[item.raw];
-            const pct = total > 0 ? ((item.value / total) * 100).toFixed(0) : 0;
-            return (
-              <div
-                key={item.raw}
-                className={`flex items-center justify-between rounded-xl px-3 py-2 ${cfg?.bg || "bg-gray-50"}`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className={`h-2 w-2 rounded-full ${cfg?.dot || "bg-gray-400"}`} />
-                  <span className={`text-xs font-medium ${cfg?.text || "text-gray-600"}`}>
-                    {item.name}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs font-bold ${cfg?.text || "text-gray-600"}`}>
-                    {item.value}
-                  </span>
-                  <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] text-gray-400">
-                    {pct}%
-                  </span>
-                </div>
+        {chartData.map((item) => {
+          const cfg = STATUS_CONFIG[item.raw];
+
+          const pct =
+            total > 0
+              ? ((item.value / total) * 100).toFixed(0)
+              : 0;
+
+          return (
+            <div
+              key={item.raw}
+              className={`flex items-center justify-between rounded-xl px-3 py-2 ${
+                cfg?.bg || "bg-gray-50"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    cfg?.dot || "bg-gray-400"
+                  }`}
+                />
+
+                <span
+                  className={`text-xs font-medium ${
+                    cfg?.text || "text-gray-600"
+                  }`}
+                >
+                  {item.name}
+                </span>
               </div>
-            );
-          })}
+
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-xs font-bold ${
+                    cfg?.text || "text-gray-600"
+                  }`}
+                >
+                  {item.value}
+                </span>
+
+                <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] text-gray-400">
+                  {pct}%
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
