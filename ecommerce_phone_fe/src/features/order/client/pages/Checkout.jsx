@@ -95,7 +95,7 @@ export default function Checkout() {
                     value={form.address}
                     onChange={(e) => setForm({ ...form, address: e.target.value })}
                     className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
-                    placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
+                    placeholder="Số nhà, đường, phường, tỉnh/thành"
                   />
                 </div>
 

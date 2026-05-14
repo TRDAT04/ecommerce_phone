@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axiosClient from "../../../../service/axiosClient";
 import buildFormData from "../utils/buildFormData";
+import toast from "react-hot-toast";
 
 export const useProductEdit = (id) => {
   const [product, setProduct] = useState(null);
@@ -178,7 +179,7 @@ export const useProductEdit = (id) => {
         formData
       );
 
-      alert("Cập nhật thành công!");
+      toast.success("Cập nhật thành công!");
 
       window.scrollTo({
         top: 0,
@@ -190,7 +191,7 @@ export const useProductEdit = (id) => {
       const res = err.response?.data;
 
       if (res) {
-        alert(res.message || "Có lỗi xảy ra!");
+        toast.error(res.message || "Có lỗi xảy ra!");
 
         if (res.code === "VARIANT_IN_USE") {
           console.log("Variant đang được dùng");
@@ -200,7 +201,7 @@ export const useProductEdit = (id) => {
           console.log("Color đang được dùng");
         }
       } else {
-        alert("Lỗi server hoặc mất kết nối!");
+        toast.error("Lỗi server hoặc mất kết nối!");
       }
     }
   };

@@ -5,6 +5,7 @@ import {
   User, Phone, MapPin, Mail, KeyRound,
   CheckCircle, Save, ChevronRight,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function UserProfile() {
   const [user, setUser] = useState(null);
@@ -16,7 +17,7 @@ export default function UserProfile() {
     axiosClient
       .get("/api/users/me")
       .then((res) => setUser(res.data))
-      .catch(() => alert("Không tải được thông tin"));
+      .catch(() => toast.error("Không tải được thông tin"));
   }, []);
 
   const handleChange = (e) => {
@@ -33,7 +34,7 @@ export default function UserProfile() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       setTimeout(() => setSuccess(false), 4000);
     } catch {
-      alert("Cập nhật thất bại");
+      toast.error("Cập nhật thất bại");
     } finally {
       setLoading(false);
     }

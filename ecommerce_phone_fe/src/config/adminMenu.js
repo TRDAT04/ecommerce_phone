@@ -4,6 +4,7 @@ import {
   ShoppingCart,
   Users,
   LogOut,
+  MessageSquareText
 } from "lucide-react";
 
 export const adminMenu = [
@@ -26,6 +27,11 @@ export const adminMenu = [
     label: "Quản lý tài khoản",
     path: "/admin/users",
     icon: Users,
+  },
+  {
+    label: "Quản lý đánh giá",
+    path: "/admin/reviews",
+    icon: MessageSquareText,
   },
   {
     label: "Đăng xuất",

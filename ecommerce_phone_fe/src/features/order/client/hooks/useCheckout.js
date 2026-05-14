@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../../store/authStore";
 import { createOrder } from "../api/orderService";
+import toast from "react-hot-toast";
 
 export const useCheckout = () => {
   const [cart, setCart] = useState({ items: [] });
@@ -46,6 +47,10 @@ export const useCheckout = () => {
   const validate = () => {
     if (!form.customerName.trim()) return "Vui lòng nhập họ tên";
     if (!form.phone.trim()) return "Vui lòng nhập số điện thoại";
+     const phoneRegex = /^0\d{9}$/;
+    if (!phoneRegex.test(form.phone.trim())) {
+      return "Số điện thoại không hợp lệ (VD: 0912345678)";
+    }
     if (!form.address.trim()) return "Vui lòng nhập địa chỉ";
     if (cart.items.length === 0) return "Không có sản phẩm để thanh toán";
     return null;
@@ -53,7 +58,7 @@ export const useCheckout = () => {
 
   const handleSubmit = async () => {
     const error = validate();
-    if (error) return alert(error);
+    if (error) return toast.error(error);
 
     try {
       setLoading(true);
@@ -76,7 +81,7 @@ export const useCheckout = () => {
       navigate(`/success/${res.data.orderId}`);
     } catch (err) {
       console.error(err);
-      alert("Có lỗi xảy ra khi tạo đơn hàng!");
+      toast.error("Có lỗi xảy ra khi tạo đơn hàng!");
     } finally {
       setLoading(false);
     }

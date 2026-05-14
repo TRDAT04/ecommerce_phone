@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createProduct } from "../api/productService";
 import buildFormData from "../utils/buildFormData";
+import toast from "react-hot-toast";
 
 // ================= HOOK =================
 export default function useProductCreate(SPEC_OPTIONS = []) {
@@ -203,13 +204,13 @@ export default function useProductCreate(SPEC_OPTIONS = []) {
 
       await createProduct(formData);
 
-      alert("Thêm sản phẩm thành công!");
+      toast.success("Thêm sản phẩm thành công!");
 
       resetForm();
     } catch (err) {
       console.error("Create failed:", err);
 
-      alert("❌ Thêm sản phẩm thất bại!");
+      toast.error("Thêm sản phẩm thất bại!");
     }
   };
 

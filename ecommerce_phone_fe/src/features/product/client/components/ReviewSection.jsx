@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axiosClient from "../../../../service/axiosClient";
 import { useAuthStore } from "../../../../store/authStore";
 import { Star, MessageSquareText, PencilLine, X } from "lucide-react";
+import toast from "react-hot-toast";
 
 const defaultStats = {
   average: 0,
@@ -41,21 +42,21 @@ export default function ReviewSection({ productId }) {
   const submitReview = async () => {
     try {
       await axiosClient.post(`/api/reviews`, { productId, rating, content });
-      alert("Đánh giá thành công!");
+      toast.success("Đánh giá thành công!");
       setShowForm(false);
       setRating(5);
       setContent("");
       fetchReviews();
     } catch (e) {
       const msg = e.response?.data?.message;
-      if (msg === "Bạn chưa mua sản phẩm này") alert("❌ Bạn cần mua sản phẩm trước khi đánh giá");
-      else if (msg === "Bạn đã đánh giá sản phẩm này rồi") alert("⚠️ Bạn đã đánh giá rồi");
-      else alert("Lỗi gửi đánh giá");
+      if (msg === "Bạn chưa mua sản phẩm này") toast.error("❌ Bạn cần mua sản phẩm trước khi đánh giá");
+      else if (msg === "Bạn đã đánh giá sản phẩm này rồi") toast.error("⚠️ Bạn đã đánh giá rồi");
+      else toast.error("Lỗi gửi đánh giá");
     }
   };
 
   const handleWriteReview = () => {
-    if (!isLoggedIn) { alert("🔒 Vui lòng đăng nhập để đánh giá"); return; }
+    if (!isLoggedIn) { toast.error("🔒 Vui lòng đăng nhập để đánh giá"); return; }
     setShowForm(true);
   };
 

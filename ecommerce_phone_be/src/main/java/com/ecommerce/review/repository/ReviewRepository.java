@@ -4,6 +4,10 @@ import com.ecommerce.review.entity.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
@@ -14,4 +18,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     boolean existsByUserIdAndProductId(Long userId, Long productId);
 
     List<Review> findByProductIdOrderByCreatedAtDesc(Long productId);
+
+    @Query("SELECT r FROM Review r WHERE " +
+            "(:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(r.product.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(r.user.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(r.user.email) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Review> searchAdminReviews(@Param("keyword") String keyword, Pageable pageable);
 }

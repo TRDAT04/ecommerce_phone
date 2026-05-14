@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axiosClient from "../../../../service/axiosClient";
 import { getImageUrl } from "../../../../utils/image";
 import { ArrowLeft, Save, UploadCloud, X, GripHorizontal } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function ProductImage() {
   const { id, color } = useParams();
@@ -153,10 +154,10 @@ export default function ProductImage() {
       setDeletedIds([]);
       setChanged(false);
 
-      alert("Lưu thành công!");
+      toast.success("Lưu thành công!");
     } catch (err) {
       console.error(err);
-      alert("Lưu thất bại!");
+      toast.error("Lưu thất bại!");
     } finally {
       setLoading(false);
     }

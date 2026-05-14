@@ -21,7 +21,7 @@ public class AdminOrderController {
     public org.springframework.data.domain.Page<OrderResponse> getAll(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String phone,
-            @org.springframework.data.web.PageableDefault(sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) org.springframework.data.domain.Pageable pageable
+            @org.springframework.data.web.PageableDefault(size = 500, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) org.springframework.data.domain.Pageable pageable
     ) {
         return orderService.getAll(status, phone, pageable);
     }

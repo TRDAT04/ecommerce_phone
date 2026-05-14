@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Layouts
 import UserLayout from "../layouts/ClientLayout";
@@ -30,9 +30,10 @@ import AdminOrderDetail from "../features/order/admin/pages/AdminOrderDetail";
 import MyOrders from "../features/order/client/pages/MyOrders";
 import AdminUsers from "../features/user/admin/pages/AdminUserList.jsx";
 import UserEdit from "../features/user/admin/pages/UserEdit.jsx";
+import AdminReviewList from "../features/review/admin/pages/AdminReviewList.jsx";
 import UserProfile from "../features/user/client/pages/UserProfile.jsx";
 import ChangePassword from "../features/user/client/pages/ChangePassword.jsx";
-
+import NotFound from "../pages/NotFound.jsx";
 export default function AppRouter() {
   return (
     <BrowserRouter>
@@ -65,6 +66,8 @@ export default function AppRouter() {
             </ProtectedRouteAdmin>
           }
         >
+          <Route index element={<Navigate to="dashboard" replace />} />
+
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="products" element={<ProductList />} />
           <Route path="products/create" element={<ProductCreate />} />
@@ -72,10 +75,17 @@ export default function AppRouter() {
           <Route path="products/:id/images/:color" element={<ProductImage />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="orders/:id" element={<AdminOrderDetail />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/users/:id" element={<UserEdit />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="users/:id" element={<UserEdit />} />
+          <Route path="reviews" element={<AdminReviewList />} />
         </Route>
+
+        {/* Page 404 */}
+         <Route path="*" element={<NotFound/>}/>
       </Routes>
+      
+     
+     
     </BrowserRouter>
   );
 }

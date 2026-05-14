@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAdminUserById, updateAdminUser, resetUserPassword } from "../api/adminUserService";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 export const useUserEdit = (id) => {
   const [user, setUser] = useState(null);
@@ -17,7 +19,7 @@ export const useUserEdit = (id) => {
         setUser(res.data);
       } catch (err) {
         console.error(err);
-        alert("Không tải được user");
+        toast.error("Không tải được user");
       }
     };
     fetchUser();
@@ -45,22 +47,35 @@ export const useUserEdit = (id) => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       console.error(err);
-      alert("Cập nhật thất bại");
+      toast.error("Cập nhật thất bại");
     } finally {
       setLoading(false);
     }
   };
 
   const handleResetPassword = async () => {
-    if (!newPassword.trim()) return alert("Nhập mật khẩu mới");
-    if (!window.confirm("Bạn có chắc muốn reset mật khẩu user này?")) return;
+    if (!newPassword.trim()) return toast.error("Nhập mật khẩu mới");
+    
+    const result = await Swal.fire({
+      title: "Xác nhận",
+      text: "Bạn có chắc muốn reset mật khẩu user này?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Có",
+      cancelButtonText: "Không"
+    });
+    
+    if (!result.isConfirmed) return;
+    
     try {
       await resetUserPassword(id, newPassword);
-      alert("Reset mật khẩu thành công!");
+      toast.success("Reset mật khẩu thành công!");
       setNewPassword("");
     } catch (err) {
       console.error(err);
-      alert("Lỗi reset mật khẩu");
+      toast.error("Lỗi reset mật khẩu");
     }
   };
 

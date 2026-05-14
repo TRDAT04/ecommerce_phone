@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getAdminOrderById, updateOrderStatus } from "../api/adminOrderService";
+import toast from "react-hot-toast";
 
 export const useAdminOrderDetail = (id) => {
   const [order, setOrder] = useState(null);
@@ -23,9 +24,10 @@ export const useAdminOrderDetail = (id) => {
       setLoading(true);
       await updateOrderStatus(id, newStatus);
       await fetchOrder();
+      toast.success("Cập nhật thành công");
     } catch (err) {
       console.error("Update failed", err);
-      alert("Cập nhật thất bại");
+      toast.error("Cập nhật thất bại");
     } finally {
       setLoading(false);
     }

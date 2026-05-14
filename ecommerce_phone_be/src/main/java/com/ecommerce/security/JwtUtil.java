@@ -79,7 +79,7 @@ public class JwtUtil {
             final String username = extractUsername(token);
             final String type = extractTokenType(token);
             return username.equals(userDetails.getUsername())
-                    && "access".equals(type)   // ✅ Kiểm tra đúng loại token
+                    && "access".equals(type)   
                     && !isTokenExpired(token);
         } catch (ExpiredJwtException e) {
             log.warn("Access token expired: {}", e.getMessage());
@@ -96,7 +96,7 @@ public class JwtUtil {
             final String username = extractUsername(token);
             final String type = extractTokenType(token);
             return username.equals(user.getEmail())
-                    && "refresh".equals(type)  // ✅ Kiểm tra đúng loại token
+                    && "refresh".equals(type)  
                     && !isTokenExpired(token);
         } catch (ExpiredJwtException e) {
             log.warn("Refresh token expired: {}", e.getMessage());

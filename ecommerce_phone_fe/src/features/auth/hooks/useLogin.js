@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
 import axiosClient from "../../../service/axiosClient";
+import toast from "react-hot-toast";
 
 const validateEmail = (email) => {
   if (!email) return "Email không được để trống";
@@ -71,7 +72,7 @@ export const useLogin = () => {
         accessToken,
         refreshToken,
       });
-
+toast.success("Đăng nhập thành công")
       const role = userRes.data.role;
       if (role === "ROLE_ADMIN" || role === "ROLE_SUPER_ADMIN") {
         navigate("/admin/dashboard");
@@ -80,6 +81,7 @@ export const useLogin = () => {
       }
     } catch (err) {
       console.error(err);
+      toast.error("Sai tài khoản hoặc mật khẩu!");
       setError("Sai tài khoản hoặc mật khẩu!");
     } finally {
       setLoading(false);

@@ -13,6 +13,10 @@ import com.ecommerce.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import com.ecommerce.review.dto.AdminReviewResponse;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -114,5 +118,59 @@ public class ReviewService {
         product.setRating(avg != null ? avg : 0);
 
         productRepo.save(product);
+    }
+
+    // ================= ADMIN GET REVIEWS =================
+    public Page<AdminReviewResponse> getAdminReviews(String keyword, Pageable pageable) {
+        Page<Review> reviews = reviewRepo.searchAdminReviews(keyword, pageable);
+        
+        return reviews.map(r -> {
+            AdminReviewResponse dto = new AdminReviewResponse();
+            dto.setId(r.getId());
+            dto.setRating(r.getRating());
+            dto.setContent(r.getContent());
+            
+            dto.setCreatedAt(r.getCreatedAt().format(
+                    java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+            ));
+            
+            // Product info
+            if (r.getProduct() != null) {
+                dto.setProductId(r.getProduct().getId());
+                dto.setProductName(r.getProduct().getName());
+                dto.setProductImage(r.getProduct().getImageUrl()); // Getting image url
+            }
+            
+            // User info
+            if (r.getUser() != null) {
+                dto.setUserName(r.getUser().getName());
+                dto.setUserEmail(r.getUser().getEmail());
+                dto.setUserAvatar(
+                        r.getUser().getName() != null && !r.getUser().getName().isEmpty()
+                                ? r.getUser().getName().substring(0, 1).toUpperCase()
+                                : "U"
+                );
+            }
+            
+            return dto;
+        });
+    }
+
+    // ================= ADMIN DELETE REVIEW =================
+    public void deleteReview(Long id) {
+        Review review = reviewRepo.findById(id)
+                .orElseThrow(() -> new AppException("Đánh giá không tồn tại"));
+                
+        Long productId = null;
+        if (review.getProduct() != null) {
+            productId = review.getProduct().getId();
+        }
+        
+        reviewRepo.delete(review);
+        
+        // Update product average rating after deletion
+        if (productId != null) {
+            updateProductRating(productId);
+        }
     }
 }

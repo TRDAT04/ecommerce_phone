@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../../../utils/image";
 import axiosClient from "../../../../service/axiosClient";
 import { Plus, Search, Edit, Trash2, Star } from "lucide-react";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -24,14 +26,25 @@ export default function ProductList() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xóa?")) return;
+    const result = await Swal.fire({
+      title: "Xác nhận",
+      text: "Bạn có chắc muốn xóa?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy"
+    });
+    if (!result.isConfirmed) return;
 
     try {
       await axiosClient.delete(`/api/products/${id}`);
 
       setProducts((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Xóa thành công!");
     } catch (err) {
-      alert("Xóa thất bại!");
+      toast.error("Xóa thất bại!");
     }
   };
 

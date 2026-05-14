@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAdminUsers, deleteAdminUser, updateAdminUser } from "../api/adminUserService";
 import { useAuthStore } from "../../../../store/authStore";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 export const useAdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -43,27 +45,51 @@ export const useAdminUsers = () => {
 
   // ================= DELETE =================
   const handleDelete = async (user) => {
-    if (!window.confirm("Bạn có chắc muốn xoá user này?")) return;
+    const result = await Swal.fire({
+      title: "Xác nhận",
+      text: "Bạn có chắc muốn xoá user này?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy"
+    });
+    if (!result.isConfirmed) return;
+    
     try {
       await deleteAdminUser(user.id);
       setUsers((prev) => prev.filter((u) => u.id !== user.id));
+      toast.success("Xóa thành công");
     } catch (err) {
       console.error(err);
-      alert("Xóa thất bại");
+      toast.error("Xóa thất bại");
     }
   };
 
   // ================= CHANGE ROLE =================
   const handleChangeRole = async (user, newRole) => {
-    if (!window.confirm("Bạn có chắc muốn đổi role?")) return;
+    const result = await Swal.fire({
+      title: "Xác nhận",
+      text: "Bạn có chắc muốn đổi role?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Có",
+      cancelButtonText: "Không"
+    });
+    if (!result.isConfirmed) return;
+    
     try {
       await updateAdminUser(user.id, { ...user, role: newRole });
       setUsers((prev) =>
         prev.map((u) => (u.id === user.id ? { ...u, role: newRole } : u))
       );
+      toast.success("Đổi role thành công");
     } catch (err) {
       console.error(err);
-      alert("Không đổi được role");
+      toast.error("Không đổi được role");
     }
   };
 
