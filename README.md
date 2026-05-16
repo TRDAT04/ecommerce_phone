@@ -1,23 +1,26 @@
 # 📱 Phone Commerce - Fullstack E-commerce Platform
-Dự án website bán điện thoại di động hiện đại, được xây dựng với kiến trúc **Frontend-Backend separation**, tập trung vào trải nghiệm người dùng mượt mà và hệ thống quản trị mạnh mẽ.
+
+🔗 **Live Demo:** [Trải nghiệm dự án tại đây](https://ecommerce-phone-one.vercel.app/)
+
+🔑 **Account Admin:** demoadmin@gmail.com | **Password:** 123456 *(Lưu ý: Tài khoản này chỉ có chức năng xem)*
+
 ---
 ## 🚀 Công nghệ sử dụng
 ### Frontend
-- **Framework:** React 19 + Vite
-- **Styling:** Tailwind CSS 4 (Modern UI/UX)
+- **Framework:** React  + Vite
+- **Styling:** Tailwind CSS  (Modern UI/UX)
 - **State Management:** Zustand
-- **Routing:** React Router Dom v7
+- **Routing:** React Router Dom 
 - **UI Components & Icons:** Lucide React, React Icons, SweetAlert2
 - **Notifications:** React Hot Toast
 - **Charts:** Recharts (Dành cho Dashboard quản trị)
 - **Drag & Drop:** @dnd-kit (Sắp xếp hình ảnh/danh mục)
 ### Backend
-- **Core:** Java 17 + Spring Boot 3.5
+- **Core:** Java + Spring Boot 
 - **Security:** Spring Security & JWT (JSON Web Token)
 - **Database:** PostgreSQL
 - **ORM:** Spring Data JPA
 - **Storage:** Cloudinary (Quản lý hình ảnh sản phẩm)
-- **Utils:** Lombok, Apache POI (Xuất/nhập file Excel)
 - **Validation:** Spring Boot Starter Validation
 ---
 ## ✨ Tính năng chính
