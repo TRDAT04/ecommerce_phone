@@ -74,7 +74,7 @@ export const useLogin = () => {
       });
 toast.success("Đăng nhập thành công")
       const role = userRes.data.role;
-      if (role === "ROLE_ADMIN" || role === "ROLE_SUPER_ADMIN") {
+      if (role === "ROLE_ADMIN" || role === "ROLE_SUPER_ADMIN" || role === "ROLE_DEMO_ADMIN") {
         navigate("/admin/dashboard");
       } else {
         navigate("/");

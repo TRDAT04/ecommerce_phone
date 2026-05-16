@@ -5,6 +5,8 @@ import {
   ShoppingBag, Clock3, CheckCircle2,
   Truck, XCircle, ShieldCheck, ArrowRight,
 } from "lucide-react";
+import { usePagination } from "../../../hooks/usePagination";
+import Pagination from "../../../components/common/Pagination";
 
 const STATUS = {
   PENDING: {
@@ -39,10 +41,11 @@ const STATUS = {
   },
 };
 
+const PAGE_SIZE = 5;
+
 const formatDate = (date) => new Date(date).toLocaleString("vi-VN");
 const formatPrice = (price) => price?.toLocaleString("vi-VN") + "₫";
 
-// Avatar color by name initial
 const AVATAR_COLORS = [
   "from-blue-400 to-indigo-500",
   "from-emerald-400 to-green-500",
@@ -55,6 +58,17 @@ export default function RecentOrdersTable() {
   const [orders, setOrders] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  const {
+    paginatedData: paginatedOrders,
+    page,
+    totalPages,
+    setPage,
+    handlePrev,
+    handleNext,
+    getPageNumbers,
+    rangeText,
+  } = usePagination(orders ?? [], PAGE_SIZE);
 
   useEffect(() => {
     getRecentOrders()
@@ -137,7 +151,7 @@ export default function RecentOrdersTable() {
             </tr>
           </thead>
           <tbody>
-            {orders.map((o, idx) => {
+            {paginatedOrders.map((o, idx) => {
               const status = STATUS[o.status] || {
                 label: o.status,
                 color: "bg-gray-100 text-gray-700",
@@ -145,7 +159,8 @@ export default function RecentOrdersTable() {
                 icon: Clock3,
               };
               const StatusIcon = status.icon;
-              const avatarGradient = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+              const globalIdx = (page - 1) * PAGE_SIZE + idx;
+              const avatarGradient = AVATAR_COLORS[globalIdx % AVATAR_COLORS.length];
               const initial = o.customerName?.charAt(0)?.toUpperCase() || "?";
 
               return (
@@ -154,10 +169,8 @@ export default function RecentOrdersTable() {
                   className="group cursor-pointer border-b border-gray-50 transition-all last:border-0 hover:bg-gray-50/80"
                   onClick={() => navigate(`/admin/orders/${o.id}`)}
                 >
-                  {/* ID */}
                   <td className="py-3.5 font-bold text-gray-700">#{o.id}</td>
 
-                  {/* Customer */}
                   <td className="py-3.5">
                     <div className="flex items-center gap-2.5">
                       <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${avatarGradient} text-xs font-bold text-white shadow-sm`}>
@@ -167,10 +180,8 @@ export default function RecentOrdersTable() {
                     </div>
                   </td>
 
-                  {/* Price */}
                   <td className="py-3.5 font-semibold text-gray-800">{formatPrice(o.totalPrice)}</td>
 
-                  {/* Status */}
                   <td className="py-3.5">
                     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${status.color}`}>
                       <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
@@ -179,7 +190,6 @@ export default function RecentOrdersTable() {
                     </span>
                   </td>
 
-                  {/* Date */}
                   <td className="whitespace-nowrap py-3.5 text-xs text-gray-400">
                     {formatDate(o.createdAt)}
                   </td>
@@ -188,6 +198,20 @@ export default function RecentOrdersTable() {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="mt-4">
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          rangeText={rangeText}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          onPageSelect={setPage}
+          getPageNumbers={getPageNumbers}
+          accentColor="blue"
+        />
       </div>
     </div>
   );

@@ -86,7 +86,7 @@ const Navbar = () => {
 
   const finalMenu = !user
     ? guestMenu
-    : role === "ROLE_ADMIN" || role === "ROLE_SUPER_ADMIN"
+    : role === "ROLE_ADMIN" || role === "ROLE_SUPER_ADMIN" || role === "ROLE_DEMO_ADMIN"
       ? adminMenu
       : userMenu;
 

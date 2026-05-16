@@ -5,6 +5,8 @@ import axiosClient from "../../../../service/axiosClient";
 import { Plus, Search, Edit, Trash2, Star } from "lucide-react";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
+import { usePagination } from "../../../../hooks/usePagination";
+import Pagination from "../../../../components/common/Pagination";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -16,7 +18,6 @@ export default function ProductList() {
       try {
         const res = await axiosClient.get("/api/products");
         setProducts(res.data.content);
-
       } catch (err) {
         console.error("Lỗi load products:", err);
       }
@@ -34,13 +35,12 @@ export default function ProductList() {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Xóa",
-      cancelButtonText: "Hủy"
+      cancelButtonText: "Hủy",
     });
     if (!result.isConfirmed) return;
 
     try {
       await axiosClient.delete(`/api/products/${id}`);
-
       setProducts((prev) => prev.filter((p) => p.id !== id));
       toast.success("Xóa thành công!");
     } catch (err) {
@@ -51,10 +51,26 @@ export default function ProductList() {
   const formatPrice = (price) =>
     price ? price.toLocaleString("vi-VN") + "đ" : "0đ";
 
-  // 🔥 filter search
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(keyword.toLowerCase())
   );
+
+  const {
+    paginatedData: paginatedProducts,
+    page,
+    totalPages,
+    setPage,
+    resetPage,
+    handlePrev,
+    handleNext,
+    getPageNumbers,
+    rangeText,
+  } = usePagination(filteredProducts, 10);
+
+  const handleKeywordChange = (e) => {
+    setKeyword(e.target.value);
+    resetPage();
+  };
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto">
@@ -74,7 +90,7 @@ export default function ProductList() {
         </button>
       </div>
 
-      {/* 🔍 SEARCH */}
+      {/* SEARCH */}
       <div className="mb-6 relative max-w-md">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <Search className="h-5 w-5 text-gray-400" />
@@ -83,7 +99,7 @@ export default function ProductList() {
           type="text"
           placeholder="Tìm theo tên sản phẩm..."
           value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          onChange={handleKeywordChange}
           className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
         />
       </div>
@@ -103,7 +119,7 @@ export default function ProductList() {
             </thead>
 
             <tbody className="divide-y divide-gray-100">
-              {filteredProducts.map((p) => (
+              {paginatedProducts.map((p) => (
                 <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
@@ -160,7 +176,7 @@ export default function ProductList() {
                 </tr>
               ))}
 
-              {filteredProducts.length === 0 && (
+              {paginatedProducts.length === 0 && (
                 <tr>
                   <td colSpan="5" className="py-12 text-center text-gray-500">
                     <div className="flex flex-col items-center justify-center">
@@ -173,6 +189,18 @@ export default function ProductList() {
             </tbody>
           </table>
         </div>
+
+        {/* PAGINATION */}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          rangeText={rangeText}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          onPageSelect={setPage}
+          getPageNumbers={getPageNumbers}
+          accentColor="emerald"
+        />
       </div>
     </div>
   );

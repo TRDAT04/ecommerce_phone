@@ -1,5 +1,7 @@
-import { Search, Users, ShieldCheck, Shield, User, Edit, Trash2, Crown } from "lucide-react";
+import { Search, Users, Shield, User, Edit, Trash2, Crown } from "lucide-react";
 import { useAdminUsers } from "../hooks/useAdminUsers";
+import { usePagination } from "../../../../hooks/usePagination";
+import Pagination from "../../../../components/common/Pagination";
 
 const ROLE_MAP = {
   ROLE_SUPER_ADMIN: {
@@ -22,6 +24,13 @@ const ROLE_MAP = {
   },
 };
 
+const ROLE_PRIORITY = {
+  ROLE_SUPER_ADMIN: 1,
+  ROLE_ADMIN: 2,
+  ROLE_DEMO_ADMIN: 3,
+  ROLE_USER: 4,
+};
+
 export default function AdminUserList() {
   const {
     filteredUsers,
@@ -36,10 +45,30 @@ export default function AdminUserList() {
 
   const isSuperAdmin = (u) => u.role === "ROLE_SUPER_ADMIN";
 
+  const sortedUsers = [...filteredUsers].sort(
+    (a, b) => ROLE_PRIORITY[a.role] - ROLE_PRIORITY[b.role]
+  );
+
+  const {
+    paginatedData: paginatedUsers,
+    page,
+    totalPages,
+    resetPage,
+    handlePrev,
+    handleNext,
+    getPageNumbers,
+    rangeText,
+  } = usePagination(sortedUsers, 10);
+
   // Stats
   const total = filteredUsers.length;
   const admins = filteredUsers.filter((u) => u.role === "ROLE_ADMIN").length;
   const supers = filteredUsers.filter((u) => u.role === "ROLE_SUPER_ADMIN").length;
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    resetPage();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50/60 p-6">
@@ -84,13 +113,13 @@ export default function AdminUserList() {
           <Search size={17} className="flex-shrink-0 text-gray-400" />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             placeholder="Tìm theo tên, email, số điện thoại..."
             className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
           />
           {search && (
             <button
-              onClick={() => setSearch("")}
+              onClick={() => { setSearch(""); resetPage(); }}
               className="text-xs text-gray-400 hover:text-gray-600"
             >
               Xoá
@@ -129,12 +158,11 @@ export default function AdminUserList() {
 
             {/* Rows */}
             <div className="divide-y divide-gray-50">
-              {filteredUsers.map((u) => {
+              {paginatedUsers.map((u) => {
                 const targetIsSuper = isSuperAdmin(u);
                 const roleInfo = ROLE_MAP[u.role] || ROLE_MAP.ROLE_USER;
                 const RoleIcon = roleInfo.icon;
 
-                // Avatar initials
                 const initials = (u.name || u.email || "U")
                   .split(" ")
                   .map((w) => w[0])
@@ -145,20 +173,20 @@ export default function AdminUserList() {
                 return (
                   <div
                     key={u.id}
-                    className={`grid items-center gap-4 px-5 py-4 sm:grid-cols-6 ${targetIsSuper ? "bg-rose-50/30" : "hover:bg-gray-50"
-                      }`}
+                    className={`grid items-center gap-4 px-5 py-4 sm:grid-cols-6 ${
+                      targetIsSuper ? "bg-rose-50/30" : "hover:bg-gray-50"
+                    }`}
                   >
-                    {/* ID */}
                     <div className="text-sm font-bold text-gray-500">#{u.id}</div>
 
-                    {/* User info */}
                     <div className="flex items-center gap-3">
-                      <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white ${targetIsSuper
+                      <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white ${
+                        targetIsSuper
                           ? "bg-gradient-to-br from-rose-400 to-red-600"
                           : u.role === "ROLE_ADMIN"
                             ? "bg-gradient-to-br from-blue-400 to-indigo-600"
                             : "bg-gradient-to-br from-gray-400 to-gray-600"
-                        }`}>
+                      }`}>
                         {initials}
                       </div>
                       <div className="min-w-0">
@@ -167,13 +195,9 @@ export default function AdminUserList() {
                       </div>
                     </div>
 
-                    {/* Phone */}
                     <div className="text-sm text-gray-600">{u.phone || "—"}</div>
-
-                    {/* Address */}
                     <div className="max-w-[160px] truncate text-sm text-gray-600">{u.address || "—"}</div>
 
-                    {/* Role */}
                     <div>
                       <div className={`mb-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${roleInfo.color}`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${roleInfo.dot}`} />
@@ -184,49 +208,35 @@ export default function AdminUserList() {
                         value={u.role}
                         disabled={targetIsSuper}
                         onChange={(e) => handleChangeRole(u, e.target.value)}
-                        className={`block w-full rounded-lg border px-2 py-1.5 text-xs outline-none transition focus:ring-2 ${targetIsSuper
+                        className={`block w-full rounded-lg border px-2 py-1.5 text-xs outline-none transition focus:ring-2 ${
+                          targetIsSuper
                             ? "cursor-not-allowed border-rose-200 bg-rose-50 text-rose-600"
                             : "border-gray-200 bg-gray-50 text-gray-700 focus:border-blue-400 focus:ring-blue-100"
-                          }`}
+                        }`}
                       >
+                        {targetIsSuper && <option value="ROLE_SUPER_ADMIN">SUPER ADMIN</option>}
                         <option value="ROLE_USER">USER</option>
                         <option value="ROLE_ADMIN">ADMIN</option>
-                        {(targetIsSuper || isCurrentSuper) && (
-                          <option value="ROLE_SUPER_ADMIN">SUPER ADMIN</option>
-                        )}
                       </select>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex items-center justify-center gap-2">
-                      {/* NÚT SỬA:
-                          - Nếu target là SUPER_ADMIN VÀ người dùng hiện tại KHÔNG phải SUPER_ADMIN → disable (gray)
-                          - Nếu người dùng hiện tại LÀ SUPER_ADMIN → luôn được sửa (amber)
-                          - Các user thường → blue
-                      */}
                       <button
                         disabled={targetIsSuper && !isCurrentSuper}
-                        onClick={() => {
-                          if (isCurrentSuper || !targetIsSuper) navigate(`/admin/users/${u.id}`);
-                        }}
-                        title={
-                          targetIsSuper && !isCurrentSuper
-                            ? "Chỉ Super Admin mới có thể sửa tài khoản này"
-                            : "Chỉnh sửa"
-                        }
+                        onClick={() => { if (isCurrentSuper || !targetIsSuper) navigate(`/admin/users/${u.id}`); }}
+                        title={targetIsSuper && !isCurrentSuper ? "Chỉ Super Admin mới có thể sửa tài khoản này" : "Chỉnh sửa"}
                         className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-all ${
                           targetIsSuper && !isCurrentSuper
                             ? "cursor-not-allowed bg-gray-300 opacity-60"
                             : targetIsSuper && isCurrentSuper
-                            ? "bg-amber-500 hover:bg-amber-600 active:scale-95 shadow-sm shadow-amber-200"
-                            : "bg-blue-500 hover:bg-blue-600 active:scale-95"
+                              ? "bg-amber-500 hover:bg-amber-600 active:scale-95 shadow-sm shadow-amber-200"
+                              : "bg-blue-500 hover:bg-blue-600 active:scale-95"
                         }`}
                       >
                         <Edit size={12} />
                         Sửa
                       </button>
 
-                      {/* NÚT XOÁ: Super Admin luôn không được xoá */}
                       <button
                         disabled={targetIsSuper}
                         onClick={() => { if (!targetIsSuper) handleDelete(u); }}
@@ -245,6 +255,18 @@ export default function AdminUserList() {
                 );
               })}
             </div>
+
+            {/* Pagination */}
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              rangeText={rangeText}
+              onPrev={handlePrev}
+              onNext={handleNext}
+              onPageSelect={(p) => setPage(p)}  // setPage từ usePagination
+              getPageNumbers={getPageNumbers}
+              accentColor="gray"
+            />
           </div>
         )}
       </div>

@@ -6,7 +6,7 @@ export default function ProtectedRouteAdmin({ children }) {
 
   if (!user) return <Navigate to="/login" />;
 
-  if (user.role !== "ROLE_ADMIN" && user.role !== "ROLE_SUPER_ADMIN") return <Navigate to="/" />;
+  if (user.role !== "ROLE_ADMIN" && user.role !== "ROLE_SUPER_ADMIN" && user.role !== "ROLE_DEMO_ADMIN") return <Navigate to="/" />;
 
   return children;
 }

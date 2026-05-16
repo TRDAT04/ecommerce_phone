@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import {
   Package, Search, Clock, Truck, CheckCircle2,
-  XCircle, ChevronRight, Filter,
+  ChevronRight, Filter,
 } from "lucide-react";
 import { useAdminOrders } from "../hooks/useAdminOrders";
+import { usePagination } from "../../../../hooks/usePagination";
+import Pagination from "../../../../components/common/Pagination";
 
 const STATUS_MAP = {
   PENDING: {
@@ -46,12 +48,29 @@ export default function AdminOrders() {
   const { orders, status, setStatus, setPhone, fetchOrders } = useAdminOrders();
   const navigate = useNavigate();
 
+  const {
+    paginatedData: paginatedOrders,
+    page,
+    totalPages,
+    setPage,
+    resetPage,
+    handlePrev,
+    handleNext,
+    getPageNumbers,
+    rangeText,
+  } = usePagination(orders, 10);
+
   // Stats summary
   const stats = {
     total: orders.length,
     pending: orders.filter((o) => o.status === "PENDING").length,
     shipping: orders.filter((o) => o.status === "SHIPPING").length,
     done: orders.filter((o) => o.status === "DONE").length,
+  };
+
+  const handleFetch = () => {
+    resetPage();
+    fetchOrders();
   };
 
   return (
@@ -125,7 +144,7 @@ export default function AdminOrders() {
           </div>
 
           <button
-            onClick={fetchOrders}
+            onClick={handleFetch}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-gray-800 to-gray-900 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-95"
           >
             <Filter size={14} />
@@ -158,7 +177,7 @@ export default function AdminOrders() {
 
           {/* Rows */}
           <div className="divide-y divide-gray-50">
-            {orders.map((o) => {
+            {paginatedOrders.map((o) => {
               const s = STATUS_MAP[o.status] || {
                 text: o.status,
                 color: "bg-gray-100 text-gray-600",
@@ -171,26 +190,21 @@ export default function AdminOrders() {
                   onClick={() => navigate(`/admin/orders/${o.id}`)}
                   className="group grid cursor-pointer items-center gap-4 px-5 py-4 transition-all hover:bg-gray-50 md:grid-cols-5"
                 >
-                  {/* ID */}
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-gray-800">#{o.id}</span>
                   </div>
 
-                  {/* Customer */}
                   <div>
                     <p className="font-medium text-gray-800">{o.customerName}</p>
                     <p className="text-xs text-gray-400">{new Date(o.createdAt).toLocaleString("vi-VN")}</p>
                   </div>
 
-                  {/* Phone */}
                   <div className="text-sm text-gray-600">{o.phone}</div>
 
-                  {/* Total */}
                   <div className="font-bold text-red-500">
                     {(o.totalPrice || 0).toLocaleString()}đ
                   </div>
 
-                  {/* Status */}
                   <div className="flex items-center justify-between">
                     <span className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${s.color}`}>
                       <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
@@ -205,6 +219,18 @@ export default function AdminOrders() {
               );
             })}
           </div>
+
+          {/* Pagination */}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            rangeText={rangeText}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            onPageSelect={setPage}
+            getPageNumbers={getPageNumbers}
+            accentColor="gray"
+          />
         </div>
       </div>
     </div>
