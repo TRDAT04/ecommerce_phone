@@ -26,7 +26,7 @@ export default function Home() {
     refreshRate: [],
     sort: "featured",
     page: 0,
-    size: 20,
+    size: 100,
   });
 
   useEffect(() => {

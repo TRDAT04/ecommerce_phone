@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import ProductCard from "./HomeProductCard";
 import axiosClient from "../../../service/axiosClient";
-import { PackageSearch } from "lucide-react";
+import { PackageSearch, ChevronDown } from "lucide-react";
 
 // =========== Skeleton Card ===========
 const SkeletonCard = () => (
@@ -74,10 +74,13 @@ const paramsSerializer = (params) => {
 const ProductList = ({ filters, onTotalChange }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const INITIAL_LIMIT = 20;
 
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
+      setIsExpanded(false); // Reset expanded state when filters change
 
       const params = buildParams(filters);
       const res = await axiosClient.get("/api/products", {
@@ -103,17 +106,46 @@ const ProductList = ({ filters, onTotalChange }) => {
     return () => clearTimeout(timer);
   }, [loadData]);
 
+  const displayProducts = isExpanded ? products : products.slice(0, INITIAL_LIMIT);
+  const hasMore = products.length > INITIAL_LIMIT;
+
   return (
-    <div>
+    <div className="flex flex-col gap-8">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
         {loading
           ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
-          : products.length > 0
-            ? products.map((item) => (
+          : displayProducts.length > 0
+            ? displayProducts.map((item) => (
                 <ProductCard key={item.id} product={item} />
               ))
             : !loading && <EmptyState keyword={filters?.keyword} />}
       </div>
+
+      {!loading && hasMore && !isExpanded && (
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => setIsExpanded(true)}
+            className="group flex items-center gap-2 rounded-2xl bg-white px-10 py-4 text-sm font-bold text-gray-800 shadow-sm ring-1 ring-black/5 transition-all hover:bg-emerald-50 hover:text-emerald-600 hover:ring-emerald-200 active:scale-95"
+          >
+            Xem tất cả {products.length} sản phẩm
+            <ChevronDown size={18} className="transition-transform group-hover:translate-y-0.5" />
+          </button>
+        </div>
+      )}
+
+      {!loading && isExpanded && (
+        <div className="flex justify-center">
+          <button
+            onClick={() => {
+              setIsExpanded(false);
+              window.scrollTo({ top: 400, behavior: "smooth" });
+            }}
+            className="text-sm font-medium text-gray-400 hover:text-emerald-600 transition-colors"
+          >
+            Thu gọn ↑
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -74,7 +74,7 @@ const ProductCard = ({ product }) => {
 
         {/* PRICE */}
         <div className="mt-3">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col gap-0.5">
             <p className="text-xl font-bold text-red-600">
               {product.minPrice?.toLocaleString("vi-VN")}₫
             </p>
