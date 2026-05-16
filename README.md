@@ -4,10 +4,17 @@
 
 🔑 **Admin Account:** demoadmin@gmail.com | **Password:** 123456  *(Note: This account is view-only)*
 
-
 ---
 
 ## 🚀 Technologies Used
+
+### **Backend**
+- **Core:** Java + Spring Boot
+- **Security:** Spring Security & JWT (JSON Web Token)
+- **Database:** PostgreSQL
+- **ORM:** Spring Data JPA
+- **Storage:** Cloudinary (Product image management)
+- **Validation:** Spring Boot Starter Validation
 
 ### **Frontend**
 - **Framework:** React + Vite
@@ -18,14 +25,6 @@
 - **Notifications:** React Hot Toast
 - **Charts:** Recharts (for Admin Dashboard analytics)
 - **Drag & Drop:** @dnd-kit (for image/category sorting)
-
-### **Backend**
-- **Core:** Java + Spring Boot
-- **Security:** Spring Security & JWT (JSON Web Token)
-- **Database:** PostgreSQL
-- **ORM:** Spring Data JPA
-- **Storage:** Cloudinary (Product image management)
-- **Validation:** Spring Boot Starter Validation
 
 ---
 
