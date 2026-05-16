@@ -88,6 +88,40 @@ toast.success("Đăng nhập thành công")
     }
   };
 
+  const handleGoogleLogin = async (idToken) => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await axiosClient.post("/api/auth/google", { idToken });
+
+      const { accessToken, refreshToken } = res.data;
+      setTokens({ accessToken, refreshToken });
+
+      const userRes = await axiosClient.get("/api/users/me");
+
+      setAuth({
+        user: userRes.data,
+        accessToken,
+        refreshToken,
+      });
+
+      toast.success("Đăng nhập Google thành công");
+      const role = userRes.data.role;
+      if (role === "ROLE_ADMIN" || role === "ROLE_SUPER_ADMIN" || role === "ROLE_DEMO_ADMIN") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Đăng nhập Google thất bại!");
+      setError("Đăng nhập Google thất bại!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     form,
     touched,
@@ -100,5 +134,6 @@ toast.success("Đăng nhập thành công")
     handleBlur,
     toggleShowPass,
     handleSubmit,
+    handleGoogleLogin,
   };
 };

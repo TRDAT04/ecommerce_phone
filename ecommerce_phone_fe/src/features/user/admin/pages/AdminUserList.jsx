@@ -49,16 +49,17 @@ export default function AdminUserList() {
     (a, b) => ROLE_PRIORITY[a.role] - ROLE_PRIORITY[b.role]
   );
 
-  const {
-    paginatedData: paginatedUsers,
-    page,
-    totalPages,
-    resetPage,
-    handlePrev,
-    handleNext,
-    getPageNumbers,
-    rangeText,
-  } = usePagination(sortedUsers, 10);
+ const {
+  paginatedData: paginatedUsers,
+  page,
+  totalPages,
+  resetPage,
+  handlePrev,
+  handleNext,
+  getPageNumbers,
+  rangeText,
+  setPage, 
+} = usePagination(sortedUsers, 10);
 
   // Stats
   const total = filteredUsers.length;

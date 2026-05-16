@@ -1,6 +1,7 @@
 package com.ecommerce.auth.controller;
 
 import com.ecommerce.auth.dto.RefreshTokenRequest;
+import com.ecommerce.auth.dto.GoogleLoginRequest;
 import com.ecommerce.auth.dto.AuthRequest;
 import com.ecommerce.auth.dto.AuthResponse;
 import com.ecommerce.auth.dto.RegisterRequest;
@@ -38,5 +39,10 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestBody RefreshTokenRequest req) {
         return ResponseEntity.ok(authService.refresh(req.getRefreshToken()));
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest req) {
+        return ResponseEntity.ok(authService.loginWithGoogle(req.getIdToken()));
     }
 }

@@ -4,6 +4,7 @@ import {
   Mail, Lock, Eye, EyeOff, Loader2,
   LogIn, AlertCircle, Smartphone,
 } from "lucide-react";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function Login() {
   const {
@@ -17,6 +18,7 @@ export default function Login() {
     handleBlur,
     toggleShowPass,
     handleSubmit,
+    handleGoogleLogin,
   } = useLogin();
   
   const navigate = useNavigate();
@@ -137,6 +139,29 @@ export default function Login() {
                 )}
               </button>
             </form>
+
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-gray-200"></div>
+              <span className="text-xs font-medium text-gray-400">HOẶC</span>
+              <div className="h-px flex-1 bg-gray-200"></div>
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  handleGoogleLogin(credentialResponse.credential);
+                }}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+                useOneTap
+                theme="outline"
+                shape="pill"
+                locale="vi"
+                text="continue_with"
+                width="100%"
+              />
+            </div>
 
             {/* Footer */}
             <div className="mt-6 text-center text-sm text-gray-500">
