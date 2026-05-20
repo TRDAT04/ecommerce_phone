@@ -15,6 +15,7 @@ export const useCheckout = () => {
     phone: "",
     address: "",
     note: "",
+    email: "",
     paymentMethod: "cod",
   });
 
@@ -37,6 +38,7 @@ export const useCheckout = () => {
       customerName: prev.customerName || user.name || user.fullName || "",
       phone: prev.phone || user.phone || "",
       address: prev.address || user.address || "",
+      email: prev.email || user.email || "",
     }));
   }, [user]);
 
@@ -87,5 +89,5 @@ export const useCheckout = () => {
     }
   };
 
-  return { cart, form, setForm, loading, subtotal, shipping, total, handleSubmit };
+  return { cart, form, setForm, loading, subtotal, shipping, total, handleSubmit, user };
 };

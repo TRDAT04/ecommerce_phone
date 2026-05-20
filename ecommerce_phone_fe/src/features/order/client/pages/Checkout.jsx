@@ -1,13 +1,13 @@
 import {
   User, Phone, MapPin, FileText, Wallet,
-  CreditCard, Truck, Package, ShieldCheck, ChevronRight, Tag,
+  CreditCard, Truck, Package, ShieldCheck, ChevronRight, Tag, Mail,
 } from "lucide-react";
 import { getImageUrl } from "../../../../utils/image";
 import { useCheckout } from "../hooks/useCheckout";
 
 export default function Checkout() {
   const {
-    cart, form, setForm, loading, subtotal, shipping, total, handleSubmit,
+    cart, form, setForm, loading, subtotal, shipping, total, handleSubmit, user,
   } = useCheckout();
 
   // ================= EMPTY =================
@@ -113,6 +113,30 @@ export default function Checkout() {
                     className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
                     placeholder="Ghi chú thêm cho đơn hàng (không bắt buộc)"
                   />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="mb-1.5 flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <Mail size={15} className="text-gray-400" />
+                    Email nhận xác nhận đơn hàng
+                    <span className="text-xs font-normal text-gray-400">(tuỳ chọn)</span>
+                  </label>
+                  {user ? (
+                    <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-100 px-4 py-3">
+                      <Mail size={14} className="flex-shrink-0 text-gray-400" />
+                      <span className="text-sm text-gray-600">{form.email}</span>
+                      <span className="ml-auto rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Tài khoản</span>
+                    </div>
+                  ) : (
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
+                      placeholder="example@gmail.com (nhận email xác nhận đơn hàng)"
+                    />
+                  )}
                 </div>
               </div>
             </div>

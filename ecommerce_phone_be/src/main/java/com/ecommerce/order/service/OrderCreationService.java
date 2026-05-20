@@ -1,6 +1,7 @@
 package com.ecommerce.order.service;
 
 import com.ecommerce.common.exception.AppException;
+import com.ecommerce.common.service.EmailService;
 import com.ecommerce.order.dto.request.OrderItemRequest;
 import com.ecommerce.order.dto.request.OrderRequest;
 import com.ecommerce.order.entity.Order;
@@ -27,6 +28,7 @@ public class OrderCreationService {
     private final OrderRepository orderRepository;
     private final ProductVariantRepository variantRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Transactional
     public Order createOrder(OrderRequest req) {
@@ -40,12 +42,18 @@ public class OrderCreationService {
         // USER từ JWT
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = null;
+        String emailToSend = req.getEmail(); // fallback: email khách vãng lai nhập
 
         if (auth != null && auth.isAuthenticated()
                 && !"anonymousUser".equals(auth.getPrincipal())) {
 
             String email = auth.getName();
             user = userRepository.findByEmail(email).orElse(null);
+
+            // Ưu tiên email tài khoản đăng nhập
+            if (user != null && user.getEmail() != null) {
+                emailToSend = user.getEmail();
+            }
         }
 
         order.setUser(user);
@@ -81,6 +89,11 @@ public class OrderCreationService {
         order.setTotalPrice(total);
         order.setOrderDetails(details);
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        // Gửi email xác nhận bất đồng bộ (không ảnh hưởng đến response)
+        emailService.sendOrderConfirmation(savedOrder, emailToSend);
+
+        return savedOrder;
     }
-}
+}
