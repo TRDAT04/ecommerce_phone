@@ -12,3 +12,6 @@ export const getAdminOrderById = (id) =>
 
 export const updateOrderStatus = (id, status) =>
   axiosClient.put(`/api/admin/orders/${id}/status`, { status });
+
+export const deleteAdminOrder = (id) =>
+  axiosClient.delete(`/api/admin/orders/${id}`);

@@ -1,162 +1,129 @@
 import { useNavigate } from "react-router-dom";
-import { Search, Package, Clock, Truck, CheckCircle2, XCircle, ChevronRight, Receipt } from "lucide-react";
+import { Search, Phone, Hash, ArrowRight, XCircle, Loader2, ShieldCheck } from "lucide-react";
 import { useTrackOrder } from "../hooks/useTrackOrder";
 
-const STATUS_MAP = {
-  PENDING: {
-    text: "Chờ xác nhận",
-    color: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-    dot: "bg-amber-400",
-    icon: Clock,
-  },
-  CONFIRMED: {
-    text: "Đã xác nhận",
-    color: "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
-    dot: "bg-blue-400",
-    icon: Package,
-  },
-  SHIPPING: {
-    text: "Đang giao hàng",
-    color: "bg-purple-50 text-purple-700 ring-1 ring-purple-200",
-    dot: "bg-purple-400",
-    icon: Truck,
-  },
-  DONE: {
-    text: "Hoàn thành",
-    color: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-    dot: "bg-emerald-400",
-    icon: CheckCircle2,
-  },
-  CANCELLED: {
-    text: "Đã hủy",
-    color: "bg-red-50 text-red-600 ring-1 ring-red-200",
-    dot: "bg-red-400",
-    icon: XCircle,
-  },
-};
-
 export default function TrackOrder() {
-  const { phone, setPhone, orders, error, setError, handleSearch } = useTrackOrder();
-  const navigate = useNavigate();
+  const { phone, setPhone, orderId, setOrderId, error, setError, loading, handleSearch } =
+    useTrackOrder();
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSearch();
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/60 px-4 py-10">
-      <div className="mx-auto max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 px-4 py-12">
+      <div className="mx-auto max-w-lg">
+
         {/* Header */}
-        <div className="mb-8 text-center">
-          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-200">
-            <Search size={28} className="text-white" />
+        <div className="mb-10 text-center">
+          <div className="mb-5 inline-flex h-18 w-18 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-4 shadow-xl shadow-blue-200/60">
+            <Search size={30} className="text-white" />
           </div>
-          <h1 className="mb-1 text-3xl font-extrabold text-gray-900">Tra cứu đơn hàng</h1>
-          <p className="text-gray-500">Nhập số điện thoại để tìm kiếm đơn hàng của bạn</p>
+          <h1 className="mb-2 text-3xl font-extrabold text-gray-900">Tra cứu đơn hàng</h1>
+          <p className="text-gray-500 text-sm leading-relaxed">
+            Nhập <span className="font-semibold text-gray-700">số điện thoại</span> và{" "}
+            <span className="font-semibold text-gray-700">mã đơn hàng</span> để tra cứu
+          </p>
         </div>
 
-        {/* Search Box */}
-        <div className="mb-3 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100">
-          <div className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50">
-              <Search size={18} className="text-blue-500" />
-            </div>
-            <input
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-                setError("");
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder="Nhập số điện thoại đặt hàng..."
-              className={`flex-1 bg-transparent text-gray-800 outline-none placeholder:text-gray-400 ${
-                error ? "text-red-600" : ""
+        {/* Card */}
+        <div className="overflow-hidden rounded-3xl bg-white shadow-xl shadow-blue-100/40 ring-1 ring-gray-100">
+
+          {/* Input: Số điện thoại */}
+          <div className="px-6 pt-6 pb-4">
+            <label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-400">
+              <Phone size={12} />
+              Số điện thoại
+            </label>
+            <div
+              className={`flex items-center gap-3 rounded-2xl border-2 bg-gray-50/60 px-4 py-3 transition-all focus-within:border-blue-400 focus-within:bg-white focus-within:shadow-md focus-within:shadow-blue-50 ${
+                error && !phone.trim() ? "border-red-300 bg-red-50/40" : "border-gray-100"
               }`}
-            />
-            <button
-              onClick={handleSearch}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-2.5 font-semibold text-white shadow-md shadow-blue-200 transition-all hover:scale-105 active:scale-95"
             >
-              Tra cứu
-            </button>
+              <Phone size={17} className="flex-shrink-0 text-blue-400" />
+              <input
+                value={phone}
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  setError("");
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder="Nhập số điện thoại đặt hàng..."
+                className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
+                inputMode="tel"
+              />
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 px-6 py-1">
+            <div className="h-px flex-1 bg-gray-100" />
+            <span className="text-xs font-semibold text-gray-300">VÀ</span>
+            <div className="h-px flex-1 bg-gray-100" />
+          </div>
+
+          {/* Input: Mã đơn hàng */}
+          <div className="px-6 pt-4 pb-6">
+            <label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-400">
+              <Hash size={12} />
+              Mã đơn hàng
+            </label>
+            <div
+              className={`flex items-center gap-3 rounded-2xl border-2 bg-gray-50/60 px-4 py-3 transition-all focus-within:border-blue-400 focus-within:bg-white focus-within:shadow-md focus-within:shadow-blue-50 ${
+                error && !orderId.trim() ? "border-red-300 bg-red-50/40" : "border-gray-100"
+              }`}
+            >
+              <Hash size={17} className="flex-shrink-0 text-blue-400" />
+              <input
+                value={orderId}
+                onChange={(e) => {
+                  setOrderId(e.target.value);
+                  setError("");
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder="Nhập mã đơn hàng (VD: 123)..."
+                className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
+                inputMode="numeric"
+              />
+            </div>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="border-t border-red-50 bg-red-50 px-4 py-2.5">
-              <p className="flex items-center gap-2 text-sm font-medium text-red-500">
-                <XCircle size={14} />
-                {error}
-              </p>
+            <div className="mx-6 mb-4 flex items-center gap-2.5 rounded-xl border border-red-100 bg-red-50 px-4 py-3">
+              <XCircle size={15} className="flex-shrink-0 text-red-400" />
+              <p className="text-sm font-medium text-red-600">{error}</p>
             </div>
           )}
+
+          {/* Button */}
+          <div className="px-6 pb-6">
+            <button
+              onClick={handleSearch}
+              disabled={loading}
+              className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 py-3.5 font-bold text-white shadow-lg shadow-blue-200 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Đang tra cứu...
+                </>
+              ) : (
+                <>
+                  Tra cứu đơn hàng
+                  <ArrowRight size={18} />
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
-        <p className="mb-6 text-center text-xs text-gray-400">
-          Nhấn Enter hoặc bấm "Tra cứu" để tìm đơn hàng
-        </p>
+        {/* Security note */}
+        <div className="mt-5 flex items-center justify-center gap-2 text-xs text-gray-400">
+          <ShieldCheck size={13} className="text-green-400" />
+          Cần nhập đúng cả hai thông tin để bảo vệ đơn hàng của bạn
+        </div>
 
-        {/* Results */}
-        {orders.length > 0 && (
-          <div>
-            <p className="mb-3 text-sm font-medium text-gray-600">
-              Tìm thấy <span className="font-bold text-blue-600">{orders.length}</span> đơn hàng
-            </p>
-            <div className="space-y-3">
-              {orders.map((o) => {
-                const s = STATUS_MAP[o.status] || {
-                  text: o.status,
-                  color: "bg-gray-100 text-gray-700",
-                  dot: "bg-gray-300",
-                  icon: Package,
-                };
-                const Icon = s.icon;
-
-                return (
-                  <div
-                    key={o.id}
-                    onClick={() => navigate(`/order/${o.id}`)}
-                    className="group cursor-pointer overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-md hover:ring-blue-100"
-                  >
-                    {/* Top */}
-                    <div className="flex items-center justify-between border-b border-gray-50 px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-50 ring-1 ring-gray-100">
-                          <Receipt size={16} className="text-gray-500" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-800">Đơn #{o.id}</p>
-                          <p className="text-xs text-gray-400">
-                            {o.createdAt ? new Date(o.createdAt).toLocaleDateString("vi-VN") : ""}
-                          </p>
-                        </div>
-                      </div>
-                      <span className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${s.color}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
-                        <Icon size={12} />
-                        {s.text}
-                      </span>
-                    </div>
-
-                    {/* Bottom */}
-                    <div className="flex items-center justify-between px-5 py-3">
-                      <span className="text-sm text-gray-500">Tổng tiền</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-red-500">
-                          {o.totalPrice?.toLocaleString()}đ
-                        </span>
-                        <ChevronRight
-                          size={15}
-                          className="text-gray-300 transition-transform group-hover:translate-x-1 group-hover:text-blue-400"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Package, User, MapPin, Phone, Truck,
   CheckCircle, ClipboardList, XCircle, ArrowLeft,
-  Clock, PackageSearch, CheckCircle2, FileText,
+  Clock, PackageSearch, CheckCircle2, FileText, Trash2,
 } from "lucide-react";
 import { useAdminOrderDetail } from "../hooks/useAdminOrderDetail";
 
@@ -68,7 +69,8 @@ const ACTION_BUTTONS = [
 export default function AdminOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { order, loading, handleUpdateStatus, canCancel } = useAdminOrderDetail(id);
+  const { order, loading, handleUpdateStatus, handleDelete, canCancel } = useAdminOrderDetail(id);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   if (!order)
     return (
@@ -181,17 +183,81 @@ export default function AdminOrderDetail() {
             )}
 
             {/* ACTION BUTTONS */}
-            {!isCancelled && (
-              <div className="flex flex-wrap gap-3 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
-                <h2 className="w-full text-sm font-semibold text-gray-600">Hành động</h2>
+            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
+              <h2 className="mb-3 text-sm font-semibold text-gray-600">Hành động</h2>
 
-                {nextAction && (() => {
-                  const ActionIcon = nextAction.icon;
-                  return (
+              {!isCancelled && (
+                <div className="flex flex-wrap gap-3">
+                  {nextAction && (() => {
+                    const ActionIcon = nextAction.icon;
+                    return (
+                      <button
+                        disabled={loading}
+                        onClick={() => handleUpdateStatus(nextAction.toStatus)}
+                        className={`flex items-center gap-2 rounded-xl bg-gradient-to-r ${nextAction.style} px-5 py-2.5 font-semibold text-white shadow-md transition-all hover:scale-105 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100`}
+                      >
+                        {loading ? (
+                          <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : (
+                          <ActionIcon size={16} />
+                        )}
+                        {loading ? "Đang xử lý..." : nextAction.label}
+                      </button>
+                    );
+                  })()}
+
+                  <button
+                    disabled={!canCancel || loading}
+                    onClick={() => canCancel && handleUpdateStatus("CANCELLED")}
+                    className={`flex items-center gap-2 rounded-xl px-5 py-2.5 font-semibold text-white transition-all ${
+                      canCancel
+                        ? "bg-gradient-to-r from-red-500 to-rose-600 shadow-md shadow-red-200 hover:scale-105 hover:shadow-lg active:scale-95"
+                        : "cursor-not-allowed bg-gray-200 text-gray-400"
+                    } disabled:opacity-50`}
+                  >
+                    <XCircle size={16} />
+                    Hủy đơn hàng
+                  </button>
+                </div>
+              )}
+
+              {/* Divider */}
+              {!isCancelled && <div className="my-3 border-t border-gray-100" />}
+
+              {/* Delete section */}
+              {!showDeleteConfirm ? (
+                <button
+                  disabled={loading}
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 py-2.5 font-semibold text-red-600 transition-all hover:bg-red-100 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Trash2 size={15} />
+                  Xóa đơn hàng
+                </button>
+              ) : (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+                  <div className="mb-3 flex items-start gap-2">
+                    <Trash2 size={16} className="mt-0.5 flex-shrink-0 text-red-500" />
+                    <div>
+                      <p className="font-semibold text-red-700">Xác nhận xóa đơn hàng #{id}?</p>
+                      <p className="mt-0.5 text-sm text-red-400">Hành động này không thể hoàn tác. Toàn bộ dữ liệu đơn hàng sẽ bị xóa vĩnh viễn.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
                     <button
+                      onClick={() => setShowDeleteConfirm(false)}
                       disabled={loading}
-                      onClick={() => handleUpdateStatus(nextAction.toStatus)}
-                      className={`flex items-center gap-2 rounded-xl bg-gradient-to-r ${nextAction.style} px-5 py-2.5 font-semibold text-white shadow-md transition-all hover:scale-105 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100`}
+                      className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
+                    >
+                      Hủy bỏ
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      disabled={loading}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-red-200 transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {loading ? (
                         <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -199,27 +265,14 @@ export default function AdminOrderDetail() {
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                         </svg>
                       ) : (
-                        <ActionIcon size={16} />
+                        <Trash2 size={14} />
                       )}
-                      {loading ? "Đang xử lý..." : nextAction.label}
+                      {loading ? "Đang xóa..." : "Xác nhận xóa"}
                     </button>
-                  );
-                })()}
-
-                <button
-                  disabled={!canCancel || loading}
-                  onClick={() => canCancel && handleUpdateStatus("CANCELLED")}
-                  className={`flex items-center gap-2 rounded-xl px-5 py-2.5 font-semibold text-white transition-all ${
-                    canCancel
-                      ? "bg-gradient-to-r from-red-500 to-rose-600 shadow-md shadow-red-200 hover:scale-105 hover:shadow-lg active:scale-95"
-                      : "cursor-not-allowed bg-gray-200 text-gray-400"
-                  } disabled:opacity-50`}
-                >
-                  <XCircle size={16} />
-                  Hủy đơn hàng
-                </button>
-              </div>
-            )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* ITEMS */}
             <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100">

@@ -22,8 +22,6 @@ public class OrderController {
     private final OrderRepository orderRepository;
     private final OrderService orderService;
 
-
-
     @PostMapping
     public Map<String, Object> createOrder(@jakarta.validation.Valid @RequestBody OrderRequest req) {
         Order order = orderService.createOrder(req);
@@ -36,6 +34,13 @@ public class OrderController {
     @GetMapping("/phone/{phone}")
     public List<TrackOrderMiniDTO> getMiniByPhone(@PathVariable String phone) {
         return orderService.getByPhoneMini(phone);
+    }
+
+    @GetMapping("/{id}/track")
+    public TrackOrderMiniDTO trackOrder(
+            @PathVariable Long id,
+            @RequestParam String phone) {
+        return orderService.getByIdAndPhone(id, phone);
     }
 
     @GetMapping("/{id}")

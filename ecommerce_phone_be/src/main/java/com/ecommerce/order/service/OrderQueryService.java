@@ -21,6 +21,11 @@ public class OrderQueryService {
         return orderRepository.findMiniByPhone(phone);
     }
 
+    public TrackOrderMiniDTO getByIdAndPhone(Long id, String phone) {
+        return orderRepository.findMiniByIdAndPhone(id, phone)
+                .orElseThrow(() -> new AppException("Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn và số điện thoại."));
+    }
+
     public OrderResponse getById(Long id) {
 
         Order order = orderRepository.findFullById(id)

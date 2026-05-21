@@ -5,6 +5,7 @@ import com.ecommerce.order.dto.request.OrderRequest;
 import com.ecommerce.order.dto.response.OrderResponse;
 import com.ecommerce.order.dto.response.TrackOrderMiniDTO;
 import com.ecommerce.order.entity.Order;
+import com.ecommerce.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class OrderService {
     private final OrderQueryService queryService;
     private final OrderStatusService statusService;
     private final OrderCancelService cancelService;
+    private final OrderRepository orderRepository;
 
     public Order createOrder(OrderRequest req) {
         return creationService.createOrder(req);
@@ -41,5 +43,13 @@ public class OrderService {
 
     public List<TrackOrderMiniDTO> getByPhoneMini(String phone) {
         return queryService.getByPhoneMini(phone);
+    }
+
+    public TrackOrderMiniDTO getByIdAndPhone(Long id, String phone) {
+        return queryService.getByIdAndPhone(id, phone);
+    }
+
+    public void deleteOrder(Long id) {
+        orderRepository.deleteById(id);
     }
 }

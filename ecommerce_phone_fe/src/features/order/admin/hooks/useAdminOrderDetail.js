@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { getAdminOrderById, updateOrderStatus } from "../api/adminOrderService";
+import { useNavigate } from "react-router-dom";
+import { getAdminOrderById, updateOrderStatus, deleteAdminOrder } from "../api/adminOrderService";
 import toast from "react-hot-toast";
 
 export const useAdminOrderDetail = (id) => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const fetchOrder = async () => {
     try {
@@ -33,10 +35,24 @@ export const useAdminOrderDetail = (id) => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      setLoading(true);
+      await deleteAdminOrder(id);
+      toast.success("Đã xóa đơn hàng thành công");
+      navigate("/admin/orders");
+    } catch {
+      toast.error("Xóa đơn hàng thất bại");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     order,
     loading,
     handleUpdateStatus,
+    handleDelete,
     canCancel: order?.status === "PENDING",
   };
 };

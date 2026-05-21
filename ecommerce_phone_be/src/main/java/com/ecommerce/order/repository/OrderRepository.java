@@ -87,4 +87,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             ORDER BY o.createdAt DESC
             """)
     List<TrackOrderMiniDTO> findMiniByPhone(String phone);
+
+    @Query("""
+            SELECT new com.ecommerce.order.dto.response.TrackOrderMiniDTO(
+                o.id,
+                o.status,
+                o.totalPrice
+            )
+            FROM Order o
+            WHERE o.id = :id AND o.phone = :phone
+            """)
+    Optional<TrackOrderMiniDTO> findMiniByIdAndPhone(Long id, String phone);
 }

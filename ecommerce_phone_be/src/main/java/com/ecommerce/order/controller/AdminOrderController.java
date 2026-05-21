@@ -38,4 +38,9 @@ public class AdminOrderController {
                              @RequestBody Map<String, String> body) {
         orderService.updateStatus(id, body.get("status"));
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteOrder(@PathVariable Long id) {
+        orderService.deleteOrder(id);
+    }
 }

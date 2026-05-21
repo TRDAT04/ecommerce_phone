@@ -67,8 +67,8 @@ public class SecurityConfig {
                         // --- Public ---
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/orders/phone/**", "/api/orders/{id}").permitAll()
-
+                        .requestMatchers(HttpMethod.GET, "/api/orders/phone/**", "/api/orders/{id}", "/api/orders/{id}/track").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/orders/{id}/cancel").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/reviews/**").permitAll()
 
                         // --- User (đã đăng nhập) ---

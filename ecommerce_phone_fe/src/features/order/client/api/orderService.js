@@ -14,3 +14,6 @@ export const cancelOrder = (id) =>
 
 export const getOrdersByPhone = (phone) =>
   axiosClient.get(`/api/orders/phone/${phone}`);
+
+export const trackOrderByIdAndPhone = (id, phone) =>
+  axiosClient.get(`/api/orders/${id}/track`, { params: { phone } });

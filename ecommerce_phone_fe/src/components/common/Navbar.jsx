@@ -47,6 +47,11 @@ const Navbar = () => {
       icon: Package,
     },
     {
+      label: "Tra cứu đơn khác",
+      path: "/track-order",
+      icon: Package,
+    },
+    {
       label: "Thông tin tài khoản",
       path: "/profile",
       icon: User,
