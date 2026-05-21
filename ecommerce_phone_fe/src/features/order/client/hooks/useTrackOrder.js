@@ -1,23 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { trackOrderByIdAndPhone } from "../api/orderService";
+import { trackOrderByCodeAndPhone } from "../api/orderService";
 
 export const useTrackOrder = () => {
   const [phone, setPhone] = useState("");
-  const [orderId, setOrderId] = useState("");
+  const [orderCode, setOrderCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSearch = async () => {
     if (!phone.trim()) return setError("Vui lòng nhập số điện thoại");
-    if (!orderId.trim()) return setError("Vui lòng nhập mã đơn hàng");
+    if (!orderCode.trim()) return setError("Vui lòng nhập mã đơn hàng");
 
     try {
       setLoading(true);
       setError("");
-      await trackOrderByIdAndPhone(orderId.trim(), phone.trim());
-      navigate(`/order/${orderId.trim()}`);
+      await trackOrderByCodeAndPhone(orderCode.trim(), phone.trim());
+      navigate(`/order/${orderCode.trim()}`);
     } catch {
       setError("Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn và số điện thoại.");
     } finally {
@@ -25,5 +25,5 @@ export const useTrackOrder = () => {
     }
   };
 
-  return { phone, setPhone, orderId, setOrderId, error, setError, loading, handleSearch };
+  return { phone, setPhone, orderCode, setOrderCode, error, setError, loading, handleSearch };
 };

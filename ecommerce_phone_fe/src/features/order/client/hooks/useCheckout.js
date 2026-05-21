@@ -80,7 +80,7 @@ export const useCheckout = () => {
         window.dispatchEvent(new Event("cartUpdated"));
       }
 
-      navigate(`/success/${res.data.orderId}`);
+      navigate(`/success/${res.data.orderCode}`);
     } catch (err) {
       console.error(err);
       toast.error("Có lỗi xảy ra khi tạo đơn hàng!");

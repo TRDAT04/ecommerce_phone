@@ -3,7 +3,7 @@ import { Search, Phone, Hash, ArrowRight, XCircle, Loader2, ShieldCheck } from "
 import { useTrackOrder } from "../hooks/useTrackOrder";
 
 export default function TrackOrder() {
-  const { phone, setPhone, orderId, setOrderId, error, setError, loading, handleSearch } =
+  const { phone, setPhone, orderCode, setOrderCode, error, setError, loading, handleSearch } =
     useTrackOrder();
 
   const handleKeyDown = (e) => {
@@ -70,20 +70,20 @@ export default function TrackOrder() {
             </label>
             <div
               className={`flex items-center gap-3 rounded-2xl border-2 bg-gray-50/60 px-4 py-3 transition-all focus-within:border-blue-400 focus-within:bg-white focus-within:shadow-md focus-within:shadow-blue-50 ${
-                error && !orderId.trim() ? "border-red-300 bg-red-50/40" : "border-gray-100"
+                error && !orderCode.trim() ? "border-red-300 bg-red-50/40" : "border-gray-100"
               }`}
             >
               <Hash size={17} className="flex-shrink-0 text-blue-400" />
               <input
-                value={orderId}
+                value={orderCode}
                 onChange={(e) => {
-                  setOrderId(e.target.value);
+                  setOrderCode(e.target.value);
                   setError("");
                 }}
                 onKeyDown={handleKeyDown}
-                placeholder="Nhập mã đơn hàng (VD: 123)..."
+                placeholder="Nhập mã đơn hàng (VD: ORD-M3G7K)..."
                 className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
-                inputMode="numeric"
+                inputMode="text"
               />
             </div>
           </div>

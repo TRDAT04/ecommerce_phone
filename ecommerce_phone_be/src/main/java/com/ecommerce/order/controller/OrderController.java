@@ -27,7 +27,7 @@ public class OrderController {
         Order order = orderService.createOrder(req);
 
         return Map.of(
-                "orderId", order.getId()
+                "orderCode", order.getOrderCode()
         );
     }
 
@@ -36,21 +36,22 @@ public class OrderController {
         return orderService.getByPhoneMini(phone);
     }
 
-    @GetMapping("/{id}/track")
+    @GetMapping("/{orderCode}/track")
     public TrackOrderMiniDTO trackOrder(
-            @PathVariable Long id,
+            @PathVariable String orderCode,
             @RequestParam String phone) {
-        return orderService.getByIdAndPhone(id, phone);
+        return orderService.getByOrderCodeAndPhone(orderCode, phone);
     }
 
-    @GetMapping("/{id}")
-    public OrderResponse getById(@PathVariable Long id) {
-        return orderService.getById(id);
+    @GetMapping("/{orderCode}")
+    public OrderResponse getByOrderCode(@PathVariable String orderCode) {
+        return orderService.getByOrderCode(orderCode);
     }
 
-    @PutMapping("/{id}/cancel")
-    public void cancelOrder(@PathVariable Long id) {
-        orderService.cancelOrderForUser(id);
+    @PutMapping("/{orderCode}/cancel")
+    public void cancelOrder(@PathVariable String orderCode) {
+        OrderResponse res = orderService.getByOrderCode(orderCode);
+        orderService.cancelOrderForUser(res.getId());
     }
 
     @GetMapping("/user/me")

@@ -84,7 +84,7 @@ public class EmailTemplateBuilder {
                               <tr>
                                 <td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;">
                                   <span style="color:#888;font-size:13px;">Mã đơn hàng</span>
-                                  <div style="font-weight:700;color:#1a1a1a;font-size:16px;margin-top:2px;">#%d</div>
+                                  <div style="font-weight:700;color:#1a1a1a;font-size:16px;margin-top:2px;">#%s</div>
                                 </td>
                                 <td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;text-align:right;">
                                   <span style="color:#888;font-size:13px;">Thời gian đặt</span>
@@ -191,7 +191,7 @@ public class EmailTemplateBuilder {
                 </body>
                 </html>
                 """.formatted(
-                order.getId(),
+                order.getOrderCode(),
                 orderDate,
                 order.getCustomerName(),
                 order.getPhone(),

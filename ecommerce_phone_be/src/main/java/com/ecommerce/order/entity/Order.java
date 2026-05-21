@@ -33,6 +33,9 @@ public class Order {
 
     private LocalDateTime createdAt;
 
+    @Column(unique = true, updatable = false)
+    private String orderCode;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -47,6 +50,15 @@ public class Order {
         this.createdAt = LocalDateTime.now();
         if (this.status == null) {
             this.status = "PENDING";
+        }
+        if (this.orderCode == null) {
+            String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            StringBuilder sb = new StringBuilder("ORD-");
+            java.util.Random rnd = new java.util.Random();
+            for (int i = 0; i < 8; i++) {
+                sb.append(chars.charAt(rnd.nextInt(chars.length())));
+            }
+            this.orderCode = sb.toString();
         }
     }
 }

@@ -45,8 +45,12 @@ public class OrderService {
         return queryService.getByPhoneMini(phone);
     }
 
-    public TrackOrderMiniDTO getByIdAndPhone(Long id, String phone) {
-        return queryService.getByIdAndPhone(id, phone);
+    public TrackOrderMiniDTO getByOrderCodeAndPhone(String orderCode, String phone) {
+        return queryService.getByOrderCodeAndPhone(orderCode, phone);
+    }
+
+    public OrderResponse getByOrderCode(String orderCode) {
+        return queryService.getByOrderCode(orderCode);
     }
 
     public void deleteOrder(Long id) {

@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByPhone(String phone);
 
+    boolean existsByOrderCode(String orderCode);
+
     @Query("""
                 SELECT o FROM Order o
                 LEFT JOIN FETCH o.orderDetails od
@@ -30,6 +32,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("""
                 SELECT new com.ecommerce.order.dto.response.MyOrderDTO(
                     o.id,
+                    o.orderCode,
                     o.status,
                     o.totalPrice,
                     o.createdAt
@@ -79,6 +82,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("""
             SELECT new com.ecommerce.order.dto.response.TrackOrderMiniDTO(
                 o.id,
+                o.orderCode,
                 o.status,
                 o.totalPrice
             )
@@ -91,11 +95,22 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("""
             SELECT new com.ecommerce.order.dto.response.TrackOrderMiniDTO(
                 o.id,
+                o.orderCode,
                 o.status,
                 o.totalPrice
             )
             FROM Order o
-            WHERE o.id = :id AND o.phone = :phone
+            WHERE o.orderCode = :orderCode AND o.phone = :phone
             """)
-    Optional<TrackOrderMiniDTO> findMiniByIdAndPhone(Long id, String phone);
+    Optional<TrackOrderMiniDTO> findMiniByOrderCodeAndPhone(String orderCode, String phone);
+
+    @Query("""
+                SELECT o FROM Order o
+                LEFT JOIN FETCH o.orderDetails od
+                LEFT JOIN FETCH od.variant v
+                LEFT JOIN FETCH v.product p
+                LEFT JOIN FETCH v.color c
+                WHERE o.orderCode = :orderCode
+            """)
+    Optional<Order> findFullByOrderCode(String orderCode);
 }

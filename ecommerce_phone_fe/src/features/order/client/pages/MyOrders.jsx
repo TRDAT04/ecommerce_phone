@@ -140,7 +140,7 @@ export default function MyOrders() {
             return (
               <div
                 key={o.id}
-                onClick={() => navigate(`/order/${o.id}`)}
+                onClick={() => navigate(`/order/${o.orderCode}`)}
                 className="group cursor-pointer overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-md hover:ring-red-100"
               >
                 {/* Card Top */}
@@ -150,7 +150,7 @@ export default function MyOrders() {
                       <Receipt size={16} className="text-gray-500" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-800">Đơn #{o.id}</p>
+                      <p className="font-semibold text-gray-800">Đơn #{o.orderCode}</p>
                       <p className="text-xs text-gray-400">{new Date(o.createdAt).toLocaleString("vi-VN")}</p>
                     </div>
                   </div>

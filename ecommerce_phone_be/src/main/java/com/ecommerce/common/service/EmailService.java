@@ -22,7 +22,7 @@ public class EmailService {
     public void sendOrderConfirmation(Order order, String toEmail) {
         if (toEmail == null || toEmail.isBlank() || !toEmail.contains("@")) {
             log.warn("Không gửi email xác nhận đơn hàng #{}: email không hợp lệ hoặc trống ({})",
-                    order.getId(), toEmail);
+                    order.getOrderCode(), toEmail);
             return;
         }
 
@@ -31,16 +31,16 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(toEmail);
-            helper.setSubject("✅ Xác nhận đơn hàng #" + order.getId() + " - Phone Store");
+            helper.setSubject("✅ Xác nhận đơn hàng #" + order.getOrderCode() + " - Phone Store");
             helper.setText(emailTemplateBuilder.buildOrderConfirmationHtml(order), true);
 
             mailSender.send(message);
-            log.info("Đã gửi email xác nhận đơn hàng #{} đến {}", order.getId(), toEmail);
+            log.info("Đã gửi email xác nhận đơn hàng #{} đến {}", order.getOrderCode(), toEmail);
 
         } catch (MessagingException e) {
-            log.error("Lỗi gửi email xác nhận đơn hàng #{}: {}", order.getId(), e.getMessage());
+            log.error("Lỗi gửi email xác nhận đơn hàng #{}: {}", order.getOrderCode(), e.getMessage());
         } catch (Exception e) {
-            log.error("Lỗi không xác định khi gửi email đơn hàng #{}: {}", order.getId(), e.getMessage());
+            log.error("Lỗi không xác định khi gửi email đơn hàng #{}: {}", order.getOrderCode(), e.getMessage());
         }
     }
 }

@@ -42,9 +42,9 @@ const STEPS = [
 ];
 
 export default function OrderDetail() {
-  const { id } = useParams();
+  const { id: orderCode } = useParams();
   const navigate = useNavigate();
-  const { order, loading, handleCancel, canCancel } = useOrderDetail(id);
+  const { order, loading, handleCancel, canCancel } = useOrderDetail(orderCode);
 
   if (loading && !order)
     return (
@@ -100,7 +100,7 @@ export default function OrderDetail() {
                   <FileText size={13} />
                   {new Date(order.createdAt).toLocaleString("vi-VN")}
                 </p>
-                <h1 className="text-xl font-bold text-white">Đơn hàng #{order.id}</h1>
+                <h1 className="text-xl font-bold text-white">Đơn hàng #{order.orderCode}</h1>
               </div>
               <span className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold ${status.color}`}>
                 <StatusIcon size={14} />

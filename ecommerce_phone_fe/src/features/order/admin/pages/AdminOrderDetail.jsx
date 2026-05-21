@@ -115,7 +115,7 @@ export default function AdminOrderDetail() {
                 <p className="mb-1 text-xs text-gray-400">
                   {new Date(order.createdAt).toLocaleString("vi-VN")}
                 </p>
-                <h1 className="text-xl font-bold text-white">Đơn hàng #{order.id}</h1>
+                <h1 className="text-xl font-bold text-white">Đơn hàng #{order.orderCode}</h1>
               </div>
               <span className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold ${status.color}`}>
                 <StatusIcon size={14} />
@@ -242,7 +242,7 @@ export default function AdminOrderDetail() {
                   <div className="mb-3 flex items-start gap-2">
                     <Trash2 size={16} className="mt-0.5 flex-shrink-0 text-red-500" />
                     <div>
-                      <p className="font-semibold text-red-700">Xác nhận xóa đơn hàng #{id}?</p>
+                      <p className="font-semibold text-red-700">Xác nhận xóa đơn hàng #{order.orderCode}?</p>
                       <p className="mt-0.5 text-sm text-red-400">Hành động này không thể hoàn tác. Toàn bộ dữ liệu đơn hàng sẽ bị xóa vĩnh viễn.</p>
                     </div>
                   </div>

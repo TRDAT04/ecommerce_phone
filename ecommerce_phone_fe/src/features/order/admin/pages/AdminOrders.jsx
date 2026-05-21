@@ -191,7 +191,7 @@ export default function AdminOrders() {
                   className="group grid cursor-pointer items-center gap-4 px-5 py-4 transition-all hover:bg-gray-50 md:grid-cols-5"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-gray-800">#{o.id}</span>
+                    <span className="font-bold text-gray-800">#{o.orderCode}</span>
                   </div>
 
                   <div>

@@ -21,8 +21,8 @@ public class OrderQueryService {
         return orderRepository.findMiniByPhone(phone);
     }
 
-    public TrackOrderMiniDTO getByIdAndPhone(Long id, String phone) {
-        return orderRepository.findMiniByIdAndPhone(id, phone)
+    public TrackOrderMiniDTO getByOrderCodeAndPhone(String orderCode, String phone) {
+        return orderRepository.findMiniByOrderCodeAndPhone(orderCode, phone)
                 .orElseThrow(() -> new AppException("Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn và số điện thoại."));
     }
 
@@ -33,6 +33,40 @@ public class OrderQueryService {
 
         OrderResponse res = new OrderResponse();
         res.setId(order.getId());
+        res.setOrderCode(order.getOrderCode());
+        res.setCustomerName(order.getCustomerName());
+        res.setPhone(order.getPhone());
+        res.setAddress(order.getAddress());
+        res.setStatus(order.getStatus());
+        res.setTotalPrice(order.getTotalPrice());
+        res.setCreatedAt(order.getCreatedAt());
+
+        List<OrderItemResponse> items = order.getOrderDetails().stream().map(d -> {
+            OrderItemResponse i = new OrderItemResponse();
+
+            i.setProductName(d.getVariant().getProduct().getName());
+            i.setImage(d.getVariant().getProduct().getImageUrl());
+            i.setColor(d.getVariant().getColor().getName());
+            i.setStorage(d.getVariant().getStorage());
+            i.setPrice(d.getPrice());
+            i.setQuantity(d.getQuantity());
+
+            return i;
+        }).toList();
+
+        res.setItems(items);
+
+        return res;
+    }
+
+    public OrderResponse getByOrderCode(String orderCode) {
+
+        Order order = orderRepository.findFullByOrderCode(orderCode)
+                .orElseThrow(() -> new AppException("Order not found"));
+
+        OrderResponse res = new OrderResponse();
+        res.setId(order.getId());
+        res.setOrderCode(order.getOrderCode());
         res.setCustomerName(order.getCustomerName());
         res.setPhone(order.getPhone());
         res.setAddress(order.getAddress());
@@ -77,6 +111,7 @@ public class OrderQueryService {
         OrderResponse res = new OrderResponse();
 
         res.setId(order.getId());
+        res.setOrderCode(order.getOrderCode());
         res.setCustomerName(order.getCustomerName());
         res.setPhone(order.getPhone());
         res.setAddress(order.getAddress());

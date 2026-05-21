@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { CheckCircle, ShoppingBag, Receipt, ArrowRight } from "lucide-react";
 
 export default function Success() {
-  const { id } = useParams();
+  const { id: orderCode } = useParams();
   const navigate = useNavigate();
 
   return (
@@ -34,7 +34,7 @@ export default function Success() {
           <div className="px-5 py-4">
             <div className="flex items-center justify-center gap-2">
               <Receipt size={20} className="text-gray-400" />
-              <span className="text-2xl font-extrabold tracking-wider text-red-500">#{id}</span>
+              <span className="text-2xl font-extrabold tracking-wider text-red-500">#{orderCode}</span>
             </div>
             <p className="mt-2 text-xs text-gray-400">
               Lưu mã đơn để tra cứu hoặc liên hệ hỗ trợ
