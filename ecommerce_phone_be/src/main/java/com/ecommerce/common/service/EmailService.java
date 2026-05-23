@@ -16,7 +16,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class EmailService {
 
-    // Inject API Key của Brevo cấu hình trong file application.properties
     @Value("${brevo.api-key}")
     private String apiKey;
 
@@ -34,34 +33,34 @@ public class EmailService {
         String url = "https://api.brevo.com/v3/smtp/email";
 
         try {
-            // 1. Thiết lập Header chứa API Key của Brevo
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("api-key", apiKey);
 
-            // 2. Xây dựng cấu trúc body JSON đúng định dạng của Brevo
+
             Map<String, Object> body = new HashMap<>();
 
-            // Người gửi (Thay thế bằng email thật bạn đăng ký với Brevo)
+
             Map<String, String> sender = new HashMap<>();
             sender.put("name", "NextMobile");
             sender.put("email", "ttuongdat@gmail.com");
             body.put("sender", sender);
 
-            // Người nhận (Khách hàng)
+
             Map<String, String> to = new HashMap<>();
             to.put("email", toEmail);
             to.put("name", order.getCustomerName());
             body.put("to", Collections.singletonList(to));
 
-            // Tiêu đề Email
+
             body.put("subject", "✅ Xác nhận đơn hàng #" + order.getOrderCode() + " - Next Mobile");
 
-            // Lấy toàn bộ giao diện HTML tuyệt đẹp từ Builder của bạn truyền vào đây
+
             String htmlContent = emailTemplateBuilder.buildOrderConfirmationHtml(order);
             body.put("htmlContent", htmlContent);
 
-            // 3. Thực hiện gọi HTTP POST API gửi dữ liệu đi
+
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
