@@ -63,7 +63,7 @@ public class EmailTemplateBuilder {
                         <tr>
                           <td style="background:linear-gradient(135deg,#1a1a2e 0%%,#16213e 50%%,#0f3460 100%%);padding:36px 40px;text-align:center;">
                             <div style="font-size:32px;margin-bottom:8px;">📱</div>
-                            <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:0.5px;">Phone Store</h1>
+                            <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:0.5px;">NextMobile</h1>
                             <p style="margin:8px 0 0;color:rgba(255,255,255,0.75);font-size:14px;">Cảm ơn bạn đã mua hàng!</p>
                           </td>
                         </tr>
@@ -180,7 +180,7 @@ public class EmailTemplateBuilder {
                         <tr>
                           <td style="background:#1a1a2e;padding:20px 40px;text-align:center;">
                             <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;">
-                              © 2025 Phone Store. Email này được gửi tự động, vui lòng không reply.
+                              © 2025 NextMobile. Email này được gửi tự động, vui lòng không reply.
                             </p>
                           </td>
                         </tr>

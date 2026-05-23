@@ -59,7 +59,6 @@ public class ProductController {
         productService.deleteProduct(id);
     }
 
-
     @GetMapping("/suggest")
     public List<ProductSuggestionDTO> suggest(@RequestParam String keyword) {
         return productService.suggestProducts(keyword);
