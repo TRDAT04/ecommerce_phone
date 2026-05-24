@@ -2,7 +2,7 @@
 
 🔗 **Live Demo:** [Experience the project here](https://ecommerce-phone-one.vercel.app/)
 
-🔑 **Admin Demo Account:** `demoadmin@gmail.com` | **Password:** `123456`  *(Note: View-only access)*
+🔑 **Admin Demo Account:** demoadmin@gmail.com | **Password:** 123456  *(Note: View-only access)*
 ---
 
 ## 📸 Project Preview
@@ -13,8 +13,8 @@
 </div>
 
 <div align="center">
-   <img src="[link-anh-mobile-view.png](https://res.cloudinary.com/dcvkq98gc/image/upload/v1779608142/Screenshot_271_jntpgh.png)" width="48%">
-  <img src="[link-anh-gio-hang.png](https://res.cloudinary.com/dcvkq98gc/image/upload/v1779608306/Screenshot_273_anurhw.png)" width="48%">
+  <img src="https://res.cloudinary.com/dcvkq98gc/image/upload/v1779608142/Screenshot_271_jntpgh.png" width="48%">
+  <img src="https://res.cloudinary.com/dcvkq98gc/image/upload/v1779608306/Screenshot_273_anurhw.png" width="48%">
 </div>
 ---
 
