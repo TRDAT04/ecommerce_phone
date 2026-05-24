@@ -2,8 +2,8 @@
 
 🔗 **Live Demo:** [Experience the project here](https://ecommerce-phone-one.vercel.app/)
 
-🔑 **Admin Demo Account:** demoadmin@gmail.com | **Password:** 123456  *(Note: View-only access)*
----
+> 🔑 **Admin Demo:** `demoadmin@gmail.com` | **Password:** `123456` *(View-only)*
+
 
 ## 📸 Project Preview
 
