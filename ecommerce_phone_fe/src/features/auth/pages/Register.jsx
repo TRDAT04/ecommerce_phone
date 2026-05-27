@@ -10,7 +10,7 @@ const FIELDS = [
   { name: "name",            label: "Họ và tên",        icon: User,   placeholder: "Nguyễn Văn A",         type: "text" },
   { name: "email",           label: "Email",             icon: Mail,   placeholder: "example@email.com",    type: "email" },
   { name: "phone",           label: "Số điện thoại",     icon: Phone,  placeholder: "0912 345 678",         type: "tel" },
-  { name: "address",        label: "Địa chỉ",           icon: MapPin, placeholder: "Số nhà, đường, phường...", type: "text" },
+ 
 ];
 
 export default function Register() {

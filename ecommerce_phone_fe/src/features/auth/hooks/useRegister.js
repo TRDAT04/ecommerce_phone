@@ -19,11 +19,7 @@ const VALIDATORS = {
       return "Số điện thoại không hợp lệ (VD: 0912345678)";
     return "";
   },
-  address: (v) => {
-    if (!v.trim()) return "Địa chỉ không được để trống";
-    if (v.trim().length < 5) return "Địa chỉ tối thiểu 5 ký tự";
-    return "";
-  },
+  
   password: (v) => {
     if (!v) return "Mật khẩu không được để trống";
     if (v.length < 6) return "Mật khẩu tối thiểu 6 ký tự";

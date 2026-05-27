@@ -7,6 +7,9 @@ import com.ecommerce.product.dto.response.ProductHomeDTO;
 import com.ecommerce.product.mapper.ProductBasicMapper;
 import com.ecommerce.product.repository.ProductRepository;
 import com.ecommerce.product.spec.ProductSpecs;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +17,12 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class ProductSearchService {
 
     private final ProductRepository productRepository;
     private final ProductBasicMapper basicMapper;
 
-    public ProductSearchService(ProductRepository productRepository,
-                                ProductBasicMapper basicMapper) {
-        this.productRepository = productRepository;
-        this.basicMapper = basicMapper;
-    }
 
     public List<ProductSuggestionDTO> suggest(String keyword) {
         return productRepository

@@ -63,6 +63,17 @@ export const useProductDetail = (id) => {
     };
   }, [id]);
 
+  // ================= PAGE TITLE =================
+  useEffect(() => {
+    if (product?.name) {
+      document.title = `${product.name} | Nextmobile`;
+    }
+    // Khi rời trang sản phẩm, reset về mặc định
+    return () => {
+      document.title = "Nextmobile";
+    };
+  }, [product?.name]);
+
   // ================= RESET IMAGE =================
   useEffect(() => {
     setImageIndex(0);

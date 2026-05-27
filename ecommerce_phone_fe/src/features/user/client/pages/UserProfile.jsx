@@ -145,20 +145,7 @@ export default function UserProfile() {
                 />
               </div>
 
-              {/* Address */}
-              <div>
-                <label className="mb-1.5 flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <MapPin size={14} className="text-gray-400" />
-                  Địa chỉ
-                </label>
-                <input
-                  name="address"
-                  value={user.address || ""}
-                  onChange={handleChange}
-                  placeholder="Số nhà, đường, phường/xã..."
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
-                />
-              </div>
+          
             </div>
 
             {/* Footer Buttons */}

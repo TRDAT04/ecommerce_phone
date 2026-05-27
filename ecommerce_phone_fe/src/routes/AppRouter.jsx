@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import TitleUpdater from "./TitleUpdater";
 
 // Layouts
 import UserLayout from "../layouts/ClientLayout";
@@ -37,6 +38,7 @@ import NotFound from "../pages/NotFound.jsx";
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <TitleUpdater />
       <Routes>
         {/* ==== LOGIN ==== */}
         <Route path="/login" element={<Login />} />

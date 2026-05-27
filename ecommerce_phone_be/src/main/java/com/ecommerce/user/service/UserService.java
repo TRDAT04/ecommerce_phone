@@ -57,7 +57,7 @@ public class UserService {
 
         user.setName(updated.getName());
         user.setPhone(updated.getPhone());
-        user.setAddress(updated.getAddress());
+       
         user.setRole(updated.getRole());
 
         return userRepo.save(user);
@@ -91,7 +91,7 @@ public class UserService {
 
         user.setName(updated.getName());
         user.setPhone(updated.getPhone());
-        user.setAddress(updated.getAddress());
+
 
         return userRepo.save(user);
     }

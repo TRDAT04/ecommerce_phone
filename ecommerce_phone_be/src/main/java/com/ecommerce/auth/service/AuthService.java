@@ -64,7 +64,6 @@ public class AuthService {
         user.setEmail(req.getEmail());
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setPhone(req.getPhone());
-        user.setAddress(req.getAddress());
         user.setRole(RoleEnum.ROLE_USER);
 
         userRepo.save(user);
@@ -113,7 +112,7 @@ public class AuthService {
             User newUser = new User();
             newUser.setName(name != null ? name : email.split("@")[0]);
             newUser.setEmail(email);
-            newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString())); 
+            newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             newUser.setRole(RoleEnum.ROLE_USER);
             return userRepo.save(newUser);
         });
