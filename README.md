@@ -9,7 +9,7 @@
 
 <div align="center">
   <img src="https://res.cloudinary.com/dcvkq98gc/image/upload/v1779608142/Screenshot_269_c8a9wg.png" width="48%">
-  <img src="https://res.cloudinary.com/dcvkq98gc/image/upload/v1779608142/Screenshot_277_okhmfz.png" width="48%">
+  <img src="https://res.cloudinary.com/dcvkq98gc/image/upload/v1779892454/Screenshot_285_apuuaw.png" width="48%">
 </div>
 
 <div align="center">

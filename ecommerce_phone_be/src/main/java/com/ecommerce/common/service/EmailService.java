@@ -76,4 +76,92 @@ public class EmailService {
                     order.getOrderCode(), e.getMessage());
         }
     }
+
+    @Async
+    public void sendAdminConfirmed(Order order, String toEmail) {
+        if (toEmail == null || toEmail.isBlank() || !toEmail.contains("@")) {
+            log.warn("Không gửi email xác nhận admin đơn #{}: email không hợp lệ ({})",
+                    order.getOrderCode(), toEmail);
+            return;
+        }
+
+        String url = "https://api.brevo.com/v3/smtp/email";
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", apiKey);
+
+            Map<String, Object> body = new HashMap<>();
+
+            Map<String, String> sender = new HashMap<>();
+            sender.put("name", "NextMobile");
+            sender.put("email", "ttuongdat@gmail.com");
+            body.put("sender", sender);
+
+            Map<String, String> to = new HashMap<>();
+            to.put("email", toEmail);
+            to.put("name", order.getCustomerName());
+            body.put("to", Collections.singletonList(to));
+
+            body.put("subject", "🎉 Đơn hàng #" + order.getOrderCode() + " đã được xác nhận - Next Mobile");
+
+            String htmlContent = emailTemplateBuilder.buildAdminConfirmedHtml(order);
+            body.put("htmlContent", htmlContent);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+            if (response.getStatusCode() == HttpStatus.CREATED || response.getStatusCode() == HttpStatus.OK) {
+                log.info("Đã gửi email xác nhận admin đơn #{} đến {} thành công!", order.getOrderCode(), toEmail);
+            } else {
+                log.error("Brevo trả về mã không mong muốn khi gửi mail xác nhận admin: {}", response.getStatusCode());
+            }
+        } catch (Exception e) {
+            log.error("Lỗi khi gửi email xác nhận admin đơn #{}: {}", order.getOrderCode(), e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendCancelled(Order order, String toEmail) {
+        if (toEmail == null || toEmail.isBlank() || !toEmail.contains("@")) {
+            log.warn("Không gửi email hủy đơn #{}: email không hợp lệ ({})",
+                    order.getOrderCode(), toEmail);
+            return;
+        }
+
+        String url = "https://api.brevo.com/v3/smtp/email";
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", apiKey);
+
+            Map<String, Object> body = new HashMap<>();
+
+            Map<String, String> sender = new HashMap<>();
+            sender.put("name", "NextMobile");
+            sender.put("email", "ttuongdat@gmail.com");
+            body.put("sender", sender);
+
+            Map<String, String> to = new HashMap<>();
+            to.put("email", toEmail);
+            to.put("name", order.getCustomerName());
+            body.put("to", Collections.singletonList(to));
+
+            body.put("subject", "❌ Đơn hàng #" + order.getOrderCode() + " đã bị hủy - Next Mobile");
+
+            String htmlContent = emailTemplateBuilder.buildCancelledHtml(order);
+            body.put("htmlContent", htmlContent);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+            if (response.getStatusCode() == HttpStatus.CREATED || response.getStatusCode() == HttpStatus.OK) {
+                log.info("Đã gửi email hủy đơn #{} đến {} thành công!", order.getOrderCode(), toEmail);
+            } else {
+                log.error("Brevo trả về mã không mong muốn khi gửi mail hủy đơn: {}", response.getStatusCode());
+            }
+        } catch (Exception e) {
+            log.error("Lỗi khi gửi email hủy đơn #{}: {}", order.getOrderCode(), e.getMessage());
+        }
+    }
 }

@@ -31,7 +31,7 @@ export default function AdminLayout() {
     .toUpperCase();
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col">
+    <div className="sticky top-0 flex h-full flex-col">
       {/* Logo */}
       <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
         <Link
@@ -93,32 +93,13 @@ export default function AdminLayout() {
         })}
       </nav>
 
-      {/* User Footer */}
-      <div className="border-t border-white/10 px-4 py-4">
-        <div className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-2.5">
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-green-600 text-xs font-bold text-white shadow">
-            {initials}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-semibold text-gray-200">{user?.name || "Admin"}</p>
-            <p className="truncate text-[10px] text-gray-500">{user?.email}</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex-shrink-0 rounded-lg p-1.5 text-gray-500 transition hover:bg-red-500/20 hover:text-red-400"
-            title="Đăng xuất"
-          >
-            <LogOut size={14} />
-          </button>
-        </div>
-      </div>
     </div>
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-50/80">
+    <div className="flex h-screen overflow-hidden bg-gray-50/80">
       {/* === DESKTOP SIDEBAR === */}
-      <aside className="hidden w-60 flex-shrink-0 flex-col overflow-hidden bg-gray-950 lg:flex">
+     <aside className="hidden h-screen w-60 flex-shrink-0 flex-col bg-gray-950 lg:flex">
         <SidebarContent />
       </aside>
 
