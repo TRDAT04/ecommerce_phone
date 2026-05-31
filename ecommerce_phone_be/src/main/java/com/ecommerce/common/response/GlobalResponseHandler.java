@@ -2,6 +2,7 @@ package com.ecommerce.common.response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -10,10 +11,11 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+@RequiredArgsConstructor
 @RestControllerAdvice(basePackages = "com.ecommerce")
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -31,7 +33,12 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
             return body;
         }
 
-        // Nếu body là chuỗi String, phải parse ra json string để tránh lỗi ClassCastException của Spring
+        // Không bọc lại nếu body đã là ApiResponse (tránh double-wrap khi trả ResponseEntity<ApiResponse<T>>)
+        if (body instanceof ApiResponse) {
+            return body;
+        }
+
+        // Nếu body là chuỗi String, phải serialize ra json string để tránh lỗi ClassCastException của Spring
         if (body instanceof String) {
             try {
                 return objectMapper.writeValueAsString(ApiResponse.builder()

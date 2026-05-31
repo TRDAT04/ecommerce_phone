@@ -1,6 +1,7 @@
 package com.ecommerce.order.service;
 
 import com.ecommerce.common.exception.AppException;
+import org.springframework.http.HttpStatus;
 import com.ecommerce.common.service.EmailService;
 import com.ecommerce.order.entity.Order;
 import com.ecommerce.order.entity.OrderDetail;
@@ -23,7 +24,7 @@ public class OrderStatusService {
     public void updateStatus(Long id, String newStatus) {
 
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new AppException("Order not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Order not found"));
 
         String current = order.getStatus();
 
@@ -73,7 +74,7 @@ public class OrderStatusService {
             }
 
         } else {
-            throw new AppException("Invalid status flow");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid status flow");
         }
     }
 }

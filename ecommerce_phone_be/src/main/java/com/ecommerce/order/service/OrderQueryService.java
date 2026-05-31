@@ -1,6 +1,7 @@
 package com.ecommerce.order.service;
 
 import com.ecommerce.common.exception.AppException;
+import org.springframework.http.HttpStatus;
 import com.ecommerce.order.dto.response.OrderItemResponse;
 import com.ecommerce.order.dto.response.OrderResponse;
 import com.ecommerce.order.dto.response.TrackOrderMiniDTO;
@@ -23,13 +24,13 @@ public class OrderQueryService {
 
     public TrackOrderMiniDTO getByOrderCodeAndPhone(String orderCode, String phone) {
         return orderRepository.findMiniByOrderCodeAndPhone(orderCode, phone)
-                .orElseThrow(() -> new AppException("Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn và số điện thoại."));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn và số điện thoại."));
     }
 
     public OrderResponse getById(Long id) {
 
         Order order = orderRepository.findFullById(id)
-                .orElseThrow(() -> new AppException("Order not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Order not found"));
 
         OrderResponse res = new OrderResponse();
         res.setId(order.getId());
@@ -62,7 +63,7 @@ public class OrderQueryService {
     public OrderResponse getByOrderCode(String orderCode) {
 
         Order order = orderRepository.findFullByOrderCode(orderCode)
-                .orElseThrow(() -> new AppException("Order not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Order not found"));
 
         OrderResponse res = new OrderResponse();
         res.setId(order.getId());

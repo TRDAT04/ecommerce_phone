@@ -1,6 +1,7 @@
 package com.ecommerce.product.mapper;
 
 import com.ecommerce.common.exception.AppException;
+import org.springframework.http.HttpStatus;
 import com.ecommerce.product.dto.common.VariantDTO;
 import com.ecommerce.product.entity.Product;
 import com.ecommerce.product.entity.ProductColor;
@@ -67,7 +68,7 @@ public class ProductVariantMapper {
 
     private ProductVariant createVariant(Product product, String colorKey, String storage, Map<String, ProductColor> colorMap) {
         ProductColor pc = Optional.ofNullable(colorMap.get(colorKey))
-                .orElseThrow(() -> new AppException("COLOR_NOT_FOUND", "Màu không tồn tại: " + colorKey));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Màu không tồn tại: " + colorKey));
 
         ProductVariant variant = new ProductVariant();
         variant.setProduct(product);

@@ -1,6 +1,7 @@
 package com.ecommerce.product.service.query;
 
 import com.ecommerce.common.exception.AppException;
+import org.springframework.http.HttpStatus;
 import com.ecommerce.product.dto.response.ProductDetailDTO;
 
 import com.ecommerce.product.entity.Product;
@@ -25,7 +26,7 @@ public class ProductDetailService {
 
     public ProductDetailDTO getProductDetail(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException("Product not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Product not found"));
         return productDetailBuilder.build(product);
     }
 }

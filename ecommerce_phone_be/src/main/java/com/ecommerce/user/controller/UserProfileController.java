@@ -2,11 +2,14 @@ package com.ecommerce.user.controller;
 
 
 import com.ecommerce.common.exception.AppException;
+import com.ecommerce.common.response.ApiResponse;
 import com.ecommerce.user.dto.ChangePasswordRequest;
 import com.ecommerce.user.entity.User;
 import com.ecommerce.user.repository.UserRepository;
 import com.ecommerce.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -25,7 +28,7 @@ public class UserProfileController {
         String email = principal.getName();
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException("User not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     // ================= UPDATE PROFILE =================
@@ -37,7 +40,7 @@ public class UserProfileController {
 
     // ================= CHANGE PASSWORD =================
     @PutMapping("/change-password")
-    public void changePassword(@RequestBody ChangePasswordRequest req, Principal principal) {
+    public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody ChangePasswordRequest req, Principal principal) {
         String email = principal.getName();
 
         userService.changePassword(
@@ -45,5 +48,10 @@ public class UserProfileController {
                 req.getOldPassword(),
                 req.getNewPassword()
         );
+
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .status(200)
+                .message("Đổi mật khẩu thành công")
+                .build());
     }
 }

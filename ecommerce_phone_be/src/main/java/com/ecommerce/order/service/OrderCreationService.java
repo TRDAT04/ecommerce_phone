@@ -1,6 +1,7 @@
 package com.ecommerce.order.service;
 
 import com.ecommerce.common.exception.AppException;
+import org.springframework.http.HttpStatus;
 import com.ecommerce.common.service.EmailService;
 import com.ecommerce.order.dto.request.OrderItemRequest;
 import com.ecommerce.order.dto.request.OrderRequest;
@@ -66,10 +67,10 @@ public class OrderCreationService {
         for (OrderItemRequest item : req.getItems()) {
 
             ProductVariant variant = variantRepository.findById(item.getVariantId())
-                    .orElseThrow(() -> new AppException("Variant not found"));
+                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Variant not found"));
 
             if (variant.getStock() < item.getQuantity()) {
-                throw new AppException("Sản phẩm không đủ hàng");
+                throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Sản phẩm không đủ hàng");
             }
 
             OrderDetail detail = new OrderDetail();

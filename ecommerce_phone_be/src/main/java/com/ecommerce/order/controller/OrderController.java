@@ -7,7 +7,9 @@ import com.ecommerce.order.dto.response.TrackOrderMiniDTO;
 import com.ecommerce.order.entity.Order;
 import com.ecommerce.order.repository.OrderRepository;
 import com.ecommerce.order.service.OrderService;
+import com.ecommerce.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,9 +51,13 @@ public class OrderController {
     }
 
     @PutMapping("/{orderCode}/cancel")
-    public void cancelOrder(@PathVariable String orderCode) {
+    public ResponseEntity<ApiResponse<Void>> cancelOrder(@PathVariable String orderCode) {
         OrderResponse res = orderService.getByOrderCode(orderCode);
         orderService.cancelOrderForUser(res.getId());
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .status(200)
+                .message("Đơn hàng đã được hủy thành công")
+                .build());
     }
 
     @GetMapping("/user/me")

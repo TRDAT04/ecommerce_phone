@@ -2,7 +2,9 @@ package com.ecommerce.order.controller;
 
 import com.ecommerce.order.dto.response.OrderResponse;
 import com.ecommerce.order.service.OrderService;
+import com.ecommerce.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -34,13 +36,21 @@ public class AdminOrderController {
 
 
     @PutMapping("/{id}/status")
-    public void updateStatus(@PathVariable Long id,
+    public ResponseEntity<ApiResponse<Void>> updateStatus(@PathVariable Long id,
                              @RequestBody Map<String, String> body) {
         orderService.updateStatus(id, body.get("status"));
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .status(200)
+                .message("Cập nhật trạng thái thành công")
+                .build());
     }
 
     @DeleteMapping("/{id}")
-    public void deleteOrder(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .status(200)
+                .message("Đã xóa đơn hàng thành công")
+                .build());
     }
 }

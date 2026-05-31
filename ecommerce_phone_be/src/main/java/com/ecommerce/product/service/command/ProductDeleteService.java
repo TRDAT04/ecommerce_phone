@@ -3,6 +3,7 @@ package com.ecommerce.product.service.command;
 import com.ecommerce.common.exception.AppException;
 import com.ecommerce.product.entity.Product;
 import com.ecommerce.product.repository.ProductRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,10 +19,10 @@ public class ProductDeleteService {
 
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException("Product not found " + id));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Product not found: " + id));
 
         if (orderDetailRepository.existsByProductId(id)) {
-            throw new AppException("Không thể xóa sản phẩm đã có lịch sử đơn hàng");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Không thể xóa sản phẩm đã có lịch sử đơn hàng");
         }
 
         productRepository.delete(product);

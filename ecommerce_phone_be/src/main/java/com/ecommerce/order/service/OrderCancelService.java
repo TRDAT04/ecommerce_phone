@@ -1,6 +1,7 @@
 package com.ecommerce.order.service;
 
 import com.ecommerce.common.exception.AppException;
+import org.springframework.http.HttpStatus;
 import com.ecommerce.common.service.EmailService;
 import com.ecommerce.order.entity.Order;
 import com.ecommerce.order.repository.OrderRepository;
@@ -21,10 +22,10 @@ public class OrderCancelService {
     public void cancelOrderForUser(Long id) {
 
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new AppException("Not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Order not found"));
 
         if (!order.getStatus().equals("PENDING")) {
-            throw new AppException("Cannot cancel this order");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Cannot cancel this order");
         }
 
         for (com.ecommerce.order.entity.OrderDetail d : order.getOrderDetails()) {

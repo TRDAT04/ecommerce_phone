@@ -1,24 +1,22 @@
 package com.ecommerce.common.exception;
 
-
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public class AppException extends RuntimeException {
 
-    private final String code;
+    private final HttpStatus status;
 
+    // Constructor mặc định → 400 Bad Request (backward compatible)
     public AppException(String message) {
         super(message);
-        this.code = "BAD_REQUEST";
+        this.status = HttpStatus.BAD_REQUEST;
     }
 
-    public AppException(String code, String message) {
+    // Constructor với HTTP status cụ thể
+    public AppException(HttpStatus status, String message) {
         super(message);
-        this.code = code;
+        this.status = status;
     }
-
-    public String getCode() {
-        return code;
-    }
-}
+}

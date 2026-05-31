@@ -4,6 +4,7 @@ import com.ecommerce.auth.dto.AuthRequest;
 import com.ecommerce.auth.dto.RegisterRequest;
 import com.ecommerce.auth.dto.AuthResponse;
 import com.ecommerce.common.exception.AppException;
+import org.springframework.http.HttpStatus;
 import com.ecommerce.security.JwtUtil;
 import com.ecommerce.user.entity.RoleEnum;
 import com.ecommerce.user.entity.User;
@@ -38,7 +39,7 @@ public class AuthService {
         );
         // Lấy user
         User user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AppException("User not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
 
         // Tạo token
         String access = jwtUtil.generateToken(user);
@@ -56,7 +57,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest req) {
 
         if (userRepo.findByEmail(req.getEmail()).isPresent()) {
-            throw new AppException("Email already exists");
+            throw new AppException(HttpStatus.CONFLICT, "Email already exists");
         }
         // Tạo user mới
         User user = new User();
@@ -85,7 +86,7 @@ public class AuthService {
         String email = jwtUtil.extractUsername(refreshToken);
 
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new AppException("User not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
 
         if (!jwtUtil.isRefreshTokenValid(refreshToken, user)) {
             throw new AppException("Invalid refresh token");

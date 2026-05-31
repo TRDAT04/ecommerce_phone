@@ -1,6 +1,7 @@
 package com.ecommerce.product.service.image;
 
 import com.ecommerce.common.exception.AppException;
+import org.springframework.http.HttpStatus;
 import com.ecommerce.product.entity.Product;
 import com.ecommerce.product.entity.ProductColor;
 import com.ecommerce.product.entity.ProductImage;
@@ -93,19 +94,19 @@ public class ProductImageCommandService {
 
     private Product findProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new AppException("Product not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Product not found"));
     }
 
     private ProductImage findImageById(Long id) {
         return productImageRepository.findById(id)
-                .orElseThrow(() -> new AppException("Image not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Image not found"));
     }
 
     private ProductColor findProductColor(Product product, String colorKey) {
         return product.getColors().stream()
                 .filter(c -> c.getColorKey().equalsIgnoreCase(colorKey))
                 .findFirst()
-                .orElseThrow(() -> new AppException("Color not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Color not found"));
     }
 
     private String normalizeColor(String color) {

@@ -7,7 +7,9 @@ import com.ecommerce.product.dto.response.ProductDetailDTO;
 import com.ecommerce.product.dto.response.ProductHomeDTO;
 import com.ecommerce.product.dto.response.ProductSuggestionDTO;
 import com.ecommerce.product.service.ProductService;
+import com.ecommerce.common.response.ApiResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -55,8 +57,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .status(200)
+                .message("Đã xóa sản phẩm thành công")
+                .build());
     }
 
     @GetMapping("/suggest")

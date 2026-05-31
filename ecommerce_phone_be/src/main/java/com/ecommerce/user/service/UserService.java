@@ -5,6 +5,7 @@ import com.ecommerce.user.entity.RoleEnum;
 import com.ecommerce.user.entity.User;
 import com.ecommerce.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepo.findById(id)
-                .orElseThrow(() -> new AppException("User not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
 
@@ -35,23 +36,23 @@ public class UserService {
         // Lấy user đang đăng nhập
         String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepo.findByEmail(currentEmail)
-                .orElseThrow(() -> new AppException("Current user not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Current user not found"));
 
         // Lấy user bị update
         User user = userRepo.findById(id)
-                .orElseThrow(() -> new AppException("User not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
 
         if (currentUser.getId().equals(user.getId()) &&
                 !updated.getRole().equals(currentUser.getRole())) {
 
-            throw new AppException("Không thể tự thay đổi role của chính mình");
+            throw new AppException(HttpStatus.FORBIDDEN, "Không thể tự thay đổi role của chính mình");
         }
 
 
         if (user.getRole() == RoleEnum.ROLE_SUPER_ADMIN &&
                 currentUser.getRole() != RoleEnum.ROLE_SUPER_ADMIN) {
 
-            throw new AppException("Bạn không có quyền sửa SUPER_ADMIN");
+            throw new AppException(HttpStatus.FORBIDDEN, "Bạn không có quyền sửa SUPER_ADMIN");
         }
 
 
@@ -77,7 +78,7 @@ public class UserService {
             throw new AppException("Password phải ít nhất 6 ký tự");
         }
         User user = userRepo.findById(id)
-                .orElseThrow(() -> new AppException("User not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepo.save(user);
@@ -87,7 +88,7 @@ public class UserService {
 
     public User updateProfile(String email, User updated) {
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new AppException("User not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
 
         user.setName(updated.getName());
         user.setPhone(updated.getPhone());
@@ -98,7 +99,7 @@ public class UserService {
 
     public void changePassword(String email, String oldPassword, String newPassword) {
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new AppException("User not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new AppException("Sai mật khẩu cũ");

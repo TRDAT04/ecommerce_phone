@@ -1,6 +1,7 @@
 package com.ecommerce.review.service;
 
 import com.ecommerce.common.exception.AppException;
+import org.springframework.http.HttpStatus;
 import com.ecommerce.product.entity.Product;
 import com.ecommerce.product.repository.ProductRepository;
 import com.ecommerce.review.dto.ReviewRequest;
@@ -34,11 +35,11 @@ public class ReviewService {
 
         // 1. user
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new AppException("User không tồn tại"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User không tồn tại"));
 
         // 2. product
         Product product = productRepo.findById(req.getProductId())
-                .orElseThrow(() -> new AppException("Sản phẩm không tồn tại"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Sản phẩm không tồn tại"));
 
         // 3. CHECK ĐÃ
         boolean hasBought = orderRepo.existsOrderDoneByUserAndProduct(
@@ -47,7 +48,7 @@ public class ReviewService {
         );
 
         if (!hasBought) {
-            throw new AppException("Bạn chưa mua sản phẩm này");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Bạn chưa mua sản phẩm này");
         }
 
         // 4. CHECK ĐÃ REVIEW
@@ -57,7 +58,7 @@ public class ReviewService {
         );
 
         if (alreadyReviewed) {
-            throw new AppException("Bạn đã đánh giá sản phẩm này rồi");
+            throw new AppException(HttpStatus.CONFLICT, "Bạn đã đánh giá sản phẩm này rồi");
         }
 
         // 5. CREATE
@@ -159,7 +160,7 @@ public class ReviewService {
     // ================= ADMIN DELETE REVIEW =================
     public void deleteReview(Long id) {
         Review review = reviewRepo.findById(id)
-                .orElseThrow(() -> new AppException("Đánh giá không tồn tại"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Đánh giá không tồn tại"));
                 
         Long productId = null;
         if (review.getProduct() != null) {

@@ -1,6 +1,7 @@
 package com.ecommerce.product.service.command;
 
 import com.ecommerce.common.exception.AppException;
+import org.springframework.http.HttpStatus;
 import com.ecommerce.product.dto.common.*;
 import com.ecommerce.product.dto.request.UpdateProductDTO;
 import com.ecommerce.product.dto.response.ProductDetailDTO;
@@ -49,7 +50,7 @@ public class ProductUpdateService {
 
     private Product findOrThrow(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new AppException("Product not found: " + id));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Product not found: " + id));
 
     }
 
