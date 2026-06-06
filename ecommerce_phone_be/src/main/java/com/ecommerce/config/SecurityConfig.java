@@ -44,7 +44,7 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "https://ecommerce-phone-one.vercel.app"
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS","HEAD"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);           // cache preflight 1 giờ, giảm OPTIONS request
@@ -70,7 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/orders/phone/**", "/api/orders/{orderCode}", "/api/orders/{orderCode}/track").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/orders/{orderCode}/cancel").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/reviews/**").permitAll()
-
+                        .requestMatchers(HttpMethod.HEAD, "/api/products/**").permitAll()  
                         // --- User (đã đăng nhập) ---
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated()
