@@ -56,14 +56,14 @@ export default function SearchPage() {
         {/* OVERLAY for Mobile */}
         {showFilter && (
           <div 
-            className="fixed inset-0 z-40 bg-black/50 md:hidden transition-opacity" 
+            className="fixed inset-0 z-[150] bg-black/50 md:hidden transition-opacity" 
             onClick={() => setShowFilter(false)}
           />
         )}
 
         {/* SIDEBAR */}
         <div 
-          className={`fixed inset-y-0 right-0 z-50 w-[280px] bg-white shadow-2xl transition-transform duration-300 md:static md:col-span-3 md:block md:w-auto md:bg-transparent md:shadow-none md:translate-x-0 ${
+          className={`fixed inset-y-0 right-0 z-[200] w-[280px] bg-white shadow-2xl transition-transform duration-300 md:static md:z-auto md:col-span-3 md:block md:w-auto md:bg-transparent md:shadow-none md:translate-x-0 ${
             showFilter ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
