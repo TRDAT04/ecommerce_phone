@@ -6,6 +6,7 @@ import com.ecommerce.auth.dto.AuthResponse;
 import com.ecommerce.common.exception.AppException;
 import org.springframework.http.HttpStatus;
 import com.ecommerce.security.JwtUtil;
+import com.ecommerce.security.TokenBlacklistService;
 import com.ecommerce.user.entity.RoleEnum;
 import com.ecommerce.user.entity.User;
 import com.ecommerce.user.repository.UserRepository;
@@ -28,6 +29,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authManager;
     private final GoogleAuthService googleAuthService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     // ===================== LOGIN =====================
 
@@ -128,6 +130,20 @@ public class AuthService {
                 user.getEmail(),
                 user.getRole().name()
         );
+    }
+
+    // ===================== LOGOUT =====================
+    public void logout(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Missing or invalid Authorization header");
+        }
+        String token = authHeader.substring(7);
+        try {
+            long remainingTtl = jwtUtil.getRemainingExpiration(token);
+            tokenBlacklistService.blacklist(token, remainingTtl);
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            // Token đã hết hạn rồi → không cần blacklist, coi như logout thành công
+        }
     }
 
 }

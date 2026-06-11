@@ -110,4 +110,11 @@ public class JwtUtil {
     private boolean isTokenExpired(String token) {
         return getClaims(token).getExpiration().before(new Date());
     }
-}
+
+    // ===== REMAINING TTL (dùng cho Redis blacklist) =====
+    public long getRemainingExpiration(String token) {
+        Date expiration = getClaims(token).getExpiration();
+        long remaining = expiration.getTime() - System.currentTimeMillis();
+        return Math.max(remaining, 0);
+    }
+}

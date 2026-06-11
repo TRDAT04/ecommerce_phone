@@ -104,6 +104,12 @@
             <version>2.2.0</version>
         </dependency>
 
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
         <!-- Dotenv - tự động load file .env -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>

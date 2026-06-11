@@ -5,8 +5,7 @@ import com.ecommerce.auth.dto.GoogleLoginRequest;
 import com.ecommerce.auth.dto.AuthRequest;
 import com.ecommerce.auth.dto.AuthResponse;
 import com.ecommerce.auth.dto.RegisterRequest;
-
-
+import com.ecommerce.common.response.ApiResponse;
 import com.ecommerce.auth.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
@@ -44,5 +43,15 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest req) {
         return ResponseEntity.ok(authService.loginWithGoogle(req.getIdToken()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<?>> logout(
+            @RequestHeader("Authorization") String authHeader) {
+        authService.logout(authHeader);
+        return ResponseEntity.ok(ApiResponse.builder()
+                .status(200)
+                .message("Logged out successfully")
+                .build());
     }
 }

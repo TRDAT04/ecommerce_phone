@@ -24,11 +24,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
-
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService,
+                                   TokenBlacklistService tokenBlacklistService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @Override
@@ -43,9 +45,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Bỏ qua các endpoint auth
+        // Bỏ qua các endpoint auth (nhưng không bỏ qua logout)
         String path = request.getServletPath();
-        if (path.startsWith("/api/auth")) {
+        if (path.startsWith("/api/auth") && !path.equals("/api/auth/logout")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -59,6 +61,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
+
+        // Kiểm tra token có trong blacklist (đã logout) không
+        if (tokenBlacklistService.isBlacklisted(token)) {
+            log.warn("Token has been revoked (blacklisted)");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"status\":401,\"message\":\"Token has been revoked\"}");
+            return;
+        }
+
         String email = null;
 
         try {
