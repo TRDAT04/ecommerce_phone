@@ -160,7 +160,7 @@ const Navbar = () => {
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center gap-5" ref={menuRef}>
+          <div className="flex items-center gap-5">
             {/* ORDER */}
             <button
               onClick={() => navigate(user ? "/my-orders" : "/track-order")}
@@ -185,23 +185,24 @@ const Navbar = () => {
               )}
             </button>
 
-            {/* ACCOUNT */}
-            <button
-              onClick={() => setOpen(!open)}
-              className="flex h-11 items-center gap-2 rounded-xl bg-neutral-100 px-3 transition hover:bg-emerald-50"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
-                <User className="h-4 w-4" />
-              </div>
+            {/* ACCOUNT + DROPDOWN */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setOpen(!open)}
+                className="flex h-11 items-center gap-2 rounded-xl bg-neutral-100 px-3 transition hover:bg-emerald-50"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+                  <User className="h-4 w-4" />
+                </div>
 
-              <span className="hidden text-sm font-medium sm:block">
-                {user ? user.name : "Tài khoản"}
-              </span>
-            </button>
+                <span className="hidden text-sm font-medium sm:block">
+                  {user ? user.name : "Tài khoản"}
+                </span>
+              </button>
 
-            {/* DROPDOWN */}
-            {open && (
-              <div className="animate-in fade-in zoom-in-95 absolute top-16 right-4 z-50 w-64 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-2xl duration-200">
+              {/* DROPDOWN */}
+              {open && (
+                <div className="animate-in fade-in zoom-in-95 absolute top-full mt-2 right-0 z-50 w-64 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-2xl duration-200">
                 <div className="border-b bg-neutral-50 p-4">
                   <p className="font-semibold text-gray-800">
                     {user ? `Xin chào, ${user.name}` : "Tài khoản"}
@@ -244,8 +245,10 @@ const Navbar = () => {
                 </div>
               </div>
             )}
+            </div>{/* end relative wrapper */}
           </div>
-        </div>
+
+        </div>{/* end flex h-16 */}
 
         {/* MOBILE SEARCH & FILTER */}
         <div className="pb-3 md:hidden flex gap-3 px-1">

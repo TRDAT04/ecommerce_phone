@@ -3,13 +3,14 @@ export default function SpecsEditor({
   SPEC_OPTIONS,
   updateSpec,
   addSpec,
+  removeSpec,
 }) {
   return (
     <div className="bg-white p-4 rounded-xl shadow space-y-4 ">
       <h2>Specifications</h2>
 
       {specs.map((s, i) => (
-        <div key={i} className="flex gap-2">
+        <div key={i} className="flex gap-2 items-start">
           {/* Chọn spec */}
           <select
             className="border px-2"
@@ -39,6 +40,16 @@ export default function SpecsEditor({
             }}
             rows={1}
           />
+
+          {/* Nút xóa spec */}
+          <button
+            type="button"
+            onClick={() => removeSpec(i)}
+            className="text-red-500 hover:text-red-700 font-bold text-lg leading-none px-1"
+            title="Xóa thông số này"
+          >
+            ✕
+          </button>
         </div>
       ))}
 

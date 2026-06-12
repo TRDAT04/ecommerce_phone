@@ -26,6 +26,7 @@ export default function ProductCreatePage() {
 
     addSpec,
     updateSpec,
+    removeSpec,
 
     handleSave,
     setErrors,
@@ -67,6 +68,7 @@ export default function ProductCreatePage() {
         SPEC_OPTIONS={SPEC_OPTIONS}
         updateSpec={updateSpec}
         addSpec={addSpec}
+        removeSpec={removeSpec}
       />
 
       <div className="pt-6 border-t border-gray-100">
