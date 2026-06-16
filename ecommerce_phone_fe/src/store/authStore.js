@@ -6,29 +6,22 @@ export const useAuthStore = create(
     (set) => ({
       user: null,
       accessToken: null,
-      refreshToken: null,
 
-      // lưu toàn bộ khi login
-      setAuth: ({ user, accessToken, refreshToken }) =>
-        set({
-          user,
-          accessToken,
-          refreshToken,
-        }),
+      // Lưu toàn bộ khi login (không có refreshToken - đã chuyển sang HttpOnly Cookie)
+      setAuth: ({ user, accessToken }) =>
+        set({ user, accessToken }),
 
-      // chỉ cập nhật token khi refresh
-      setTokens: ({ accessToken, refreshToken }) =>
+      // Chỉ cập nhật accessToken khi silent refresh
+      setTokens: ({ accessToken }) =>
         set((state) => ({
-          user: state.user, // giữ user cũ
+          user: state.user,
           accessToken,
-          refreshToken,
         })),
 
       logout: () =>
         set({
           user: null,
           accessToken: null,
-          refreshToken: null,
         }),
     }),
     {
@@ -36,7 +29,6 @@ export const useAuthStore = create(
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
       }),
     }
   )

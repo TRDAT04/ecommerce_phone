@@ -62,15 +62,14 @@ export const useLogin = () => {
         password: form.password,
       });
 
-      const { accessToken, refreshToken } = res.data;
-      setTokens({ accessToken, refreshToken });
+      const { accessToken } = res.data;
+      setTokens({ accessToken });
 
       const userRes = await axiosClient.get("/api/users/me");
       
       setAuth({
         user: userRes.data,
         accessToken,
-        refreshToken,
       });
 toast.success("Đăng nhập thành công")
       const role = userRes.data.role;
@@ -95,15 +94,14 @@ toast.success("Đăng nhập thành công")
 
       const res = await axiosClient.post("/api/auth/google", { idToken });
 
-      const { accessToken, refreshToken } = res.data;
-      setTokens({ accessToken, refreshToken });
+      const { accessToken } = res.data;
+      setTokens({ accessToken });
 
       const userRes = await axiosClient.get("/api/users/me");
 
       setAuth({
         user: userRes.data,
         accessToken,
-        refreshToken,
       });
 
       toast.success("Đăng nhập Google thành công");

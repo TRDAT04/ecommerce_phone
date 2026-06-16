@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,18 +21,13 @@ import java.io.IOException;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService,
-                                   TokenBlacklistService tokenBlacklistService) {
-        this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
-        this.tokenBlacklistService = tokenBlacklistService;
-    }
 
     @Override
     protected void doFilterInternal(
@@ -39,15 +35,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        // Bỏ qua OPTIONS request (CORS preflight)
-        if (request.getMethod().equals("OPTIONS")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // Bỏ qua các endpoint auth (nhưng không bỏ qua logout)
         String path = request.getServletPath();
-        if (path.startsWith("/api/auth") && !path.equals("/api/auth/logout")) {
+
+        if ("OPTIONS".equals(request.getMethod())
+                || (path.startsWith("/api/auth")
+                && !"/api/auth/logout".equals(path))) {
+
             filterChain.doFilter(request, response);
             return;
         }
@@ -76,12 +69,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             email = jwtUtil.extractUsername(token);
         } catch (ExpiredJwtException e) {
-
             log.warn("Token expired: {}", e.getMessage());
             filterChain.doFilter(request, response);
             return;
         } catch (JwtException e) {
-
             log.warn("Invalid token: {}", e.getMessage());
             filterChain.doFilter(request, response);
             return;
@@ -89,7 +80,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Xác thực
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
             if (jwtUtil.validateAccessToken(token, userDetails)) {
@@ -104,7 +94,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
-
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }

@@ -44,21 +44,18 @@ public class UserService {
 
         if (currentUser.getId().equals(user.getId()) &&
                 !updated.getRole().equals(currentUser.getRole())) {
-
             throw new AppException(HttpStatus.FORBIDDEN, "Không thể tự thay đổi role của chính mình");
         }
 
 
         if (user.getRole() == RoleEnum.ROLE_SUPER_ADMIN &&
                 currentUser.getRole() != RoleEnum.ROLE_SUPER_ADMIN) {
-
             throw new AppException(HttpStatus.FORBIDDEN, "Bạn không có quyền sửa SUPER_ADMIN");
         }
 
 
         user.setName(updated.getName());
         user.setPhone(updated.getPhone());
-       
         user.setRole(updated.getRole());
 
         return userRepo.save(user);
@@ -92,8 +89,6 @@ public class UserService {
 
         user.setName(updated.getName());
         user.setPhone(updated.getPhone());
-
-
         return userRepo.save(user);
     }
 

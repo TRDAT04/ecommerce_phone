@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, LogOut, Bell, Menu, X, ChevronRight, Home } from "lucide-react";
 import { adminMenu } from "../config/adminMenu";
 import { useAuthStore } from "../store/authStore";
+import { logoutApi } from "../features/auth/api/authService";
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -12,8 +13,9 @@ export default function AdminLayout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logoutApi(); // Gọi BE: blacklist access token + xóa refresh cookie
+    logout();          // Clear Zustand store + localStorage
     navigate("/login");
   };
 

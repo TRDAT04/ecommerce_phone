@@ -3,12 +3,13 @@ import { useAuthStore } from "../store/authStore";
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true, // Bắt buộc để trình duyệt tự gửi HttpOnly Cookie (refresh_token)
 });
 
 // ================= REQUEST =================
 axiosClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
-  
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -58,33 +59,28 @@ axiosClient.interceptors.response.use(
       });
     }
 
-    // Nếu chưa retry → bắt đầu refresh
+    // Nếu chưa retry → bắt đầu silent refresh
     if (!originalRequest._retry) {
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        const refreshRes = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/refresh`, {
-          refreshToken: store.refreshToken
-        });
-        const data = refreshRes.data.data ? refreshRes.data.data : refreshRes.data;
-        
+        // Không cần gửi body - trình duyệt tự gửi HttpOnly Cookie refresh_token
+        const refreshRes = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+
+        const data = refreshRes.data?.data ?? refreshRes.data;
         const newAccessToken = data.accessToken;
-        const newRefreshToken = data.refreshToken;
 
-        // Lưu token mới
-        useAuthStore.getState().setTokens({
-          accessToken: newAccessToken,
-          refreshToken: newRefreshToken,
-        });
+        // Chỉ cập nhật accessToken (refreshToken nằm trong cookie, không cần lưu)
+        store.setTokens({ accessToken: newAccessToken });
 
-        // Giải quyết queue
         processQueue(null, newAccessToken);
 
-        // Gắn token mới vào request bị lỗi
-        originalRequest.headers.Authorization =
-          "Bearer " + newAccessToken;
-
+        originalRequest.headers.Authorization = "Bearer " + newAccessToken;
         return axiosClient(originalRequest);
       } catch (err) {
         processQueue(err, null);

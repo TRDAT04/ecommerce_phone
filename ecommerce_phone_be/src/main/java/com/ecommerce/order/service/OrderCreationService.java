@@ -65,7 +65,6 @@ public class OrderCreationService {
         double total = 0;
 
         for (OrderItemRequest item : req.getItems()) {
-
             ProductVariant variant = variantRepository.findById(item.getVariantId())
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Variant not found"));
 
@@ -97,4 +96,4 @@ public class OrderCreationService {
 
         return savedOrder;
     }
-}
+}

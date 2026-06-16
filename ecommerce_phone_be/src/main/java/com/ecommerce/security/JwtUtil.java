@@ -5,16 +5,20 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.HexFormat;
 
 @Slf4j
 @Component
 public class JwtUtil {
-
 
     @Value("${jwt.secret}")
     private String SECRET;
@@ -24,6 +28,11 @@ public class JwtUtil {
 
     @Value("${jwt.refresh-expiration}")
     private long REFRESH_EXPIRATION;
+
+    @Value("${app.cookie.secure:false}")
+    private boolean COOKIE_SECURE;
+
+    private static final String COOKIE_NAME = "refresh_token";
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
@@ -50,6 +59,39 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    // ===== COOKIE: tạo cookie chứa refresh token =====
+    public ResponseCookie buildRefreshCookie(String token) {
+        return ResponseCookie.from(COOKIE_NAME, token)
+                .httpOnly(true)
+                .secure(COOKIE_SECURE)
+                .sameSite(COOKIE_SECURE ? "None" : "Lax")
+                .path("/api/auth")
+                .maxAge(REFRESH_EXPIRATION / 1000) // milliseconds → seconds
+                .build();
+    }
+
+    // ===== COOKIE: cookie rỗng để xóa (logout) =====
+    public ResponseCookie buildClearRefreshCookie() {
+        return ResponseCookie.from(COOKIE_NAME, "")
+                .httpOnly(true)
+                .secure(COOKIE_SECURE)
+                .sameSite(COOKIE_SECURE ? "None" : "Lax")
+                .path("/api/auth")
+                .maxAge(0)
+                .build();
+    }
+
+    // ===== HASH token → dùng làm Redis key =====
+    public String hashToken(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 not available", e);
+        }
     }
 
     // ===== EXTRACT =====
@@ -79,7 +121,7 @@ public class JwtUtil {
             final String username = extractUsername(token);
             final String type = extractTokenType(token);
             return username.equals(userDetails.getUsername())
-                    && "access".equals(type)   
+                    && "access".equals(type)
                     && !isTokenExpired(token);
         } catch (ExpiredJwtException e) {
             log.warn("Access token expired: {}", e.getMessage());
@@ -90,19 +132,17 @@ public class JwtUtil {
         }
     }
 
-    // ===== VALIDATE REFRESH TOKEN =====
-    public boolean isRefreshTokenValid(String token, User user) {
+    // ===== VALIDATE REFRESH TOKEN (chữ ký + type + hết hạn chưa) =====
+    // Dùng để kiểm tra tính hợp lệ của JWT trước khi tra Redis
+    public boolean isRefreshTokenValid(String token) {
         try {
-            final String username = extractUsername(token);
-            final String type = extractTokenType(token);
-            return username.equals(user.getEmail())
-                    && "refresh".equals(type)  
-                    && !isTokenExpired(token);
+            String type = extractTokenType(token);
+            return "refresh".equals(type) && !isTokenExpired(token);
         } catch (ExpiredJwtException e) {
             log.warn("Refresh token expired: {}", e.getMessage());
             return false;
         } catch (JwtException e) {
-            log.warn("Invalid refresh token: {}", e.getMessage());
+            log.warn("Invalid refresh token signature: {}", e.getMessage());
             return false;
         }
     }
@@ -111,10 +151,10 @@ public class JwtUtil {
         return getClaims(token).getExpiration().before(new Date());
     }
 
-    // ===== REMAINING TTL (dùng cho Redis blacklist) =====
+    // ===== REMAINING TTL (dùng cho access token blacklist) =====
     public long getRemainingExpiration(String token) {
         Date expiration = getClaims(token).getExpiration();
         long remaining = expiration.getTime() - System.currentTimeMillis();
         return Math.max(remaining, 0);
     }
-}
+}

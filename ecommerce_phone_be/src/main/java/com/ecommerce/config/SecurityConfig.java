@@ -64,7 +64,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint))
                 .authorizeHttpRequests(auth -> auth
 
-                        // --- Public ---
+                        // --- Public ---   
                         .requestMatchers("/api/auth/logout").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()

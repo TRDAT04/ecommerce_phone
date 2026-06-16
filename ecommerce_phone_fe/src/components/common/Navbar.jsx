@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { logoutApi } from "../../features/auth/api/authService";
 import SearchBar from "../../features/search/components/SearchBar";
 import {
   Search,
@@ -96,8 +97,9 @@ const Navbar = () => {
       : userMenu;
 
   // ================= LOGOUT =================
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logoutApi(); // Gọi BE: blacklist access token + xóa refresh cookie
+    logout();          // Clear Zustand store + localStorage
     setOpen(false);
     navigate("/");
   };
