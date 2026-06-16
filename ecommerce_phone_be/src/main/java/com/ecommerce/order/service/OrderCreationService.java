@@ -68,8 +68,9 @@ public class OrderCreationService {
             ProductVariant variant = variantRepository.findById(item.getVariantId())
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Variant not found"));
 
-            if (variant.getStock() < item.getQuantity()) {
-                throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Sản phẩm không đủ hàng");
+            int rowsUpdated = variantRepository.decreaseStock(variant.getId(), item.getQuantity());
+            if (rowsUpdated == 0) {
+                throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Sản phẩm " + variant.getProduct().getName() + " đã hết hàng");
             }
 
             OrderDetail detail = new OrderDetail();
@@ -80,8 +81,6 @@ public class OrderCreationService {
             detail.setPrice(variant.getPrice());
 
             total += variant.getPrice() * item.getQuantity();
-
-            variant.setStock(variant.getStock() - item.getQuantity());
 
             details.add(detail);
         }

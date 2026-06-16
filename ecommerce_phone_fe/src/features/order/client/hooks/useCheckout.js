@@ -133,7 +133,8 @@ export const useCheckout = () => {
       navigate(`/success/${res.data.orderCode}`);
     } catch (err) {
       console.error(err);
-      toast.error("Có lỗi xảy ra khi tạo đơn hàng!");
+      const errMsg = err.response?.data?.message || "Có lỗi xảy ra khi tạo đơn hàng!";
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
