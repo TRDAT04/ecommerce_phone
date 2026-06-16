@@ -6,10 +6,13 @@ import com.ecommerce.order.entity.Order;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByPhone(String phone);
 
@@ -56,21 +59,53 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     //Dashboard
     @Query("""
-                SELECT SUM(o.totalPrice) 
-                FROM Order o 
+                SELECT SUM(o.totalPrice)
+                FROM Order o
                 WHERE o.status = 'DONE'
             """)
     Double sumTotalRevenue();
 
+    // Revenue theo tháng, lọc theo năm — trả về [month, revenue, orderCount]
     @Query(value = """
                 SELECT TO_CHAR(o.created_at, 'YYYY-MM') AS month,
-                       SUM(o.total_price) AS revenue
+                       SUM(o.total_price)               AS revenue,
+                       COUNT(o.id)                      AS order_count
                 FROM orders o
                 WHERE o.status = 'DONE'
+                  AND EXTRACT(YEAR FROM o.created_at) = :year
                 GROUP BY TO_CHAR(o.created_at, 'YYYY-MM')
                 ORDER BY month
             """, nativeQuery = true)
-    List<Object[]> revenueByMonth();
+    List<Object[]> revenueByMonth(@Param("year") int year);
+
+
+    // Tổng doanh thu DONE theo năm (dùng cho summary + tăng trưởng YoY)
+    @Query(value = """
+                SELECT COALESCE(SUM(o.total_price), 0)
+                FROM orders o
+                WHERE o.status = 'DONE'
+                  AND EXTRACT(YEAR FROM o.created_at) = :year
+            """, nativeQuery = true)
+    Double sumRevenueByYear(@Param("year") int year);
+
+    // Tổng số đơn DONE theo năm
+    @Query(value = """
+                SELECT COUNT(o.id)
+                FROM orders o
+                WHERE o.status = 'DONE'
+                  AND EXTRACT(YEAR FROM o.created_at) = :year
+            """, nativeQuery = true)
+    Long countOrdersByYear(@Param("year") int year);
+
+    // Tổng doanh thu DONE theo năm + tháng cụ thể (dùng cho MoM% ở OverviewCard)
+    @Query(value = """
+                SELECT COALESCE(SUM(o.total_price), 0)
+                FROM orders o
+                WHERE o.status = 'DONE'
+                  AND EXTRACT(YEAR  FROM o.created_at) = :year
+                  AND EXTRACT(MONTH FROM o.created_at) = :month
+            """, nativeQuery = true)
+    Double sumRevenueByYearMonth(@Param("year") int year, @Param("month") int month);
 
     @Query("""
                 SELECT o 

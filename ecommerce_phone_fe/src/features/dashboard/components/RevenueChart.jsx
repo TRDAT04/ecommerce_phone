@@ -1,160 +1,166 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { ResponsiveContainer } from "recharts";
+import { TrendingUp, ChevronDown } from "lucide-react";
+
+import { getRevenue, getRevenueSummary } from "../api/dashboardService";
 import {
-  AreaChart, Area, XAxis, YAxis,
-  Tooltip, ResponsiveContainer, CartesianGrid,
-} from "recharts";
-import { TrendingUp, Wallet, BarChart2 } from "lucide-react";
-import { getRevenue } from "../api/dashboardService";
+  THIS_YEAR, YEARS, MONTH_KEYS, MONTH_LABELS, CHART_TYPES,
+} from "./revenue/revenueConstants";
+import RevenueKPIChips          from "./revenue/RevenueKPIChips";
+import RevenueChartRenderer     from "./revenue/RevenueChartRenderer";
 
-const FULL_MONTHS = [
-  "2026-01","2026-02","2026-03","2026-04","2026-05","2026-06",
-  "2026-07","2026-08","2026-09","2026-10","2026-11","2026-12",
-];
-
-const MONTH_LABELS = ["T1","T2","T3","T4","T5","T6","T7","T8","T9","T10","T11","T12"];
-
-// Custom tooltip
-function CustomTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) return null;
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function RevenueChartSkeleton() {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-xl">
-      <p className="mb-1 text-xs font-semibold text-gray-500">Tháng {label}</p>
-      <p className="text-base font-bold text-emerald-600">
-        {payload[0].value.toLocaleString("vi-VN")}₫
-      </p>
+    <div className="animate-pulse">
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <div className="h-5 w-32 rounded-full bg-gray-200" />
+          <div className="mt-2 h-3 w-20 rounded-full bg-gray-100" />
+        </div>
+        <div className="flex gap-2">
+          <div className="h-8 w-20 rounded-xl bg-gray-200" />
+          <div className="h-8 w-24 rounded-xl bg-gray-200" />
+        </div>
+      </div>
+      <div className="mb-4 flex gap-2">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-10 w-28 rounded-xl bg-gray-100" />
+        ))}
+      </div>
+      <div className="h-72 w-full rounded-2xl bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100" />
     </div>
   );
 }
 
+// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function RevenueChart() {
-  const [revenue, setRevenue] = useState(null);
+  const [year,       setYear]       = useState(THIS_YEAR);
+  const [chartType,  setChartType]  = useState("area");
+  const [revenue,    setRevenue]    = useState(null);
+  const [summary,    setSummary]    = useState(null);
 
+  // Fetch khi năm thay đổi
   useEffect(() => {
-    getRevenue().then((res) => setRevenue(res.data));
-  }, []);
+    setRevenue(null);
+    setSummary(null);
+    Promise.all([getRevenue(year), getRevenueSummary(year)]).then(
+      ([revRes, sumRes]) => {
+        setRevenue(revRes.data);
+        setSummary(sumRes.data);
+      }
+    );
+  }, [year]);
 
+  // Build 12 tháng chart data
   const data = useMemo(() => {
     if (!revenue) return [];
-    return FULL_MONTHS.map((m, i) => {
-      const found = revenue.find((r) => r.month === m);
+    return MONTH_KEYS.map((key, i) => {
+      const found = revenue.find((r) => r.month === `${year}-${key}`);
       return {
-        month: MONTH_LABELS[i],
-        revenue: found ? found.revenue : 0,
+        month:         MONTH_LABELS[i],
+        monthIndex:    i,
+        revenue:       found?.revenue       ?? 0,
+        orderCount:    found?.orderCount    ?? 0,
+        avgOrderValue: found?.avgOrderValue ?? 0,
       };
     });
-  }, [revenue]);
+  }, [revenue, year]);
 
-  const totalRevenue = useMemo(
-    () => data.reduce((sum, item) => sum + item.revenue, 0),
-    [data]
-  );
+  // MoM growth (tháng hiện tại vs tháng trước)
+  const currentMonthIdx = new Date().getMonth();
+  const momGrowth = useMemo(() => {
+    if (data.length < 2) return null;
+    const cur  = data[currentMonthIdx]?.revenue     ?? 0;
+    const prev = data[currentMonthIdx - 1]?.revenue ?? 0;
+    if (prev <= 0) return null;
+    return ((cur - prev) / prev) * 100;
+  }, [data, currentMonthIdx]);
 
-  const peakMonth = useMemo(() => {
-    if (!data.length) return null;
-    return data.reduce((best, item) => (item.revenue > best.revenue ? item : best), data[0]);
-  }, [data]);
+  if (!revenue) return <RevenueChartSkeleton />;
 
-  if (!revenue) {
-    return (
-      <div className="animate-pulse">
-        <div className="mb-6 flex items-start justify-between">
-          <div>
-            <div className="h-5 w-28 rounded-full bg-gray-200" />
-            <div className="mt-2 h-3.5 w-20 rounded-full bg-gray-100" />
-          </div>
-          <div className="h-8 w-32 rounded-xl bg-gray-200" />
-        </div>
-        <div className="h-72 w-full rounded-2xl bg-gradient-to-r from-gray-100 via-gray-150 to-gray-100" />
-      </div>
-    );
-  }
+  const commonProps = {
+    margin: { top: 4, right: 4, left: 0, bottom: 0 },
+  };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+    <>
+      {/* ── Header ── */}
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-sm">
             <TrendingUp size={17} className="text-white" />
           </div>
           <div>
             <h2 className="font-semibold text-gray-800">Doanh thu theo tháng</h2>
-            <p className="text-xs text-gray-400">Biểu đồ cả năm 2026</p>
+            <p className="text-xs text-gray-400">
+              Tổng quan biểu đồ năm {year}
+            </p>
           </div>
         </div>
 
-        {/* Stats chips */}
-        <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-1.5 ring-1 ring-emerald-100">
-            <Wallet size={13} className="text-emerald-600" />
-            <div>
-              <p className="text-[10px] text-emerald-600 font-medium">Tổng năm</p>
-              <p className="text-xs font-bold text-emerald-700">{totalRevenue.toLocaleString("vi-VN")}₫</p>
-            </div>
+        {/* Controls */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Year selector */}
+          <div className="relative">
+            <select
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+              className="appearance-none rounded-xl border border-gray-200 bg-white py-1.5 pl-3 pr-7 text-xs font-semibold text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 cursor-pointer"
+            >
+              {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+            <ChevronDown
+              size={12}
+              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+            />
           </div>
-          {peakMonth && peakMonth.revenue > 0 && (
-            <div className="flex items-center gap-1.5 rounded-xl bg-blue-50 px-3 py-1.5 ring-1 ring-blue-100">
-              <BarChart2 size={13} className="text-blue-600" />
-              <div>
-                <p className="text-[10px] text-blue-600 font-medium">Tháng cao nhất</p>
-                <p className="text-xs font-bold text-blue-700">Tháng {peakMonth.month}</p>
-              </div>
-            </div>
-          )}
+
+          {/* Chart type toggle */}
+          <div className="flex rounded-xl border border-gray-200 bg-gray-50 p-0.5 gap-0.5">
+            {CHART_TYPES.map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                onClick={() => setChartType(id)}
+                title={label}
+                className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150 ${
+                  chartType === id
+                    ? "bg-white shadow-sm text-emerald-700 ring-1 ring-gray-200"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                <Icon size={12} />
+                <span className="hidden sm:inline">{label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Chart */}
+      {/* ── KPI Chips ── */}
+      <RevenueKPIChips summary={summary} year={year} momGrowth={momGrowth} />
+
+      {/* ── Chart ── */}
       <div className="h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
-              </linearGradient>
-            </defs>
-
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-
-            <XAxis
-              dataKey="month"
-              tick={{ fontSize: 11, fill: "#94a3b8" }}
-              tickLine={false}
-              axisLine={false}
-            />
-
-            <YAxis
-              tickFormatter={(v) => v >= 1_000_000 ? (v / 1_000_000).toFixed(0) + "M" : v / 1000 + "K"}
-              tick={{ fontSize: 11, fill: "#94a3b8" }}
-              tickLine={false}
-              axisLine={false}
-              width={40}
-            />
-
-            <Tooltip content={<CustomTooltip />} />
-
-            <Area
-              type="monotone"
-              dataKey="revenue"
-              stroke="#10b981"
-              strokeWidth={2.5}
-              fill="url(#revenueGrad)"
-              dot={{ r: 3, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }}
-              activeDot={{ r: 6, fill: "#059669", stroke: "#fff", strokeWidth: 2 }}
-            />
-          </AreaChart>
+          <RevenueChartRenderer
+            chartType={chartType}
+            data={data}
+            commonProps={commonProps}
+          />
         </ResponsiveContainer>
       </div>
 
-      {/* Footer */}
+      {/* ── Footer ── */}
       <div className="mt-3 flex items-center justify-between text-xs text-gray-400">
         <span className="flex items-center gap-1">
           <TrendingUp size={12} className="text-emerald-500" />
-          Cập nhật realtime
+          Biểu đồ hiển thị doanh thu các đơn hàng thành công
         </span>
-        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-gray-500">2026</span>
+        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-gray-500">
+          {year}
+        </span>
       </div>
-    </div>
+    </>
   );
 }
