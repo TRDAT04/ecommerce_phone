@@ -4,6 +4,7 @@ package com.ecommerce.user.controller;
 import com.ecommerce.common.exception.AppException;
 import com.ecommerce.common.response.ApiResponse;
 import com.ecommerce.user.dto.ChangePasswordRequest;
+import com.ecommerce.user.dto.UserProfileResponse;
 import com.ecommerce.user.entity.User;
 import com.ecommerce.user.repository.UserRepository;
 import com.ecommerce.user.service.UserService;
@@ -24,11 +25,8 @@ public class UserProfileController {
 
     // ================= GET PROFILE =================
     @GetMapping("/me")
-    public User getCurrentUser(Principal principal) {
-        String email = principal.getName();
-
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
+    public UserProfileResponse getCurrentUser(Principal principal) {
+        return userService.getCurrentUser(principal.getName());
     }
 
     // ================= UPDATE PROFILE =================

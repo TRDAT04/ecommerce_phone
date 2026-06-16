@@ -1,6 +1,7 @@
 package com.ecommerce.user.service;
 
 import com.ecommerce.common.exception.AppException;
+import com.ecommerce.user.dto.UserProfileResponse;
 import com.ecommerce.user.entity.RoleEnum;
 import com.ecommerce.user.entity.User;
 import com.ecommerce.user.repository.UserRepository;
@@ -18,11 +19,25 @@ public class UserService {
 
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
-
+    private final UserRepository userRepository;
     // ================= ADMIN =================
 
     public List<User> getAllUsers() {
         return userRepo.findAll();
+    }
+
+    public UserProfileResponse getCurrentUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new AppException(HttpStatus.NOT_FOUND, "User not found"));
+
+        return new UserProfileResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getRole().name()
+        );
     }
 
     public User getUserById(Long id) {
