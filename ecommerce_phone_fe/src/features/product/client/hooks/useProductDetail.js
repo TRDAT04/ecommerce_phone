@@ -35,14 +35,16 @@ export const useProductDetail = (id) => {
 
         setSelectedStorage(initStorage);
 
-        const initVariant = data?.variants?.find(
-          (v) => v.storage === initStorage && v.stock > 0
+        const initVariants = data?.variants?.filter(
+          (v) => v.storage === initStorage
         );
 
-        if (!initVariant) {
+        if (!initVariants || initVariants.length === 0) {
           setVariant(null);
           return;
         }
+
+        const initVariant = initVariants.find((v) => v.stock > 0) || initVariants[0];
 
         setSelectedColor(initVariant.colorKey);
         setVariant(
@@ -85,7 +87,7 @@ export const useProductDetail = (id) => {
 
     return (
       product.variants
-        ?.filter((v) => v.storage === selectedStorage && v.stock > 0)
+        ?.filter((v) => v.storage === selectedStorage)
         ?.map((v) => ({
           name: v.colorName,
           key: v.colorKey,
@@ -100,7 +102,7 @@ export const useProductDetail = (id) => {
     setSelectedStorage(storage);
 
     const variants = product.variants.filter(
-      (v) => v.storage === storage && v.stock > 0
+      (v) => v.storage === storage
     );
 
     if (variants.length === 0) {
@@ -108,12 +110,17 @@ export const useProductDetail = (id) => {
       return;
     }
 
-    let newColor = selectedColor;
+    let targetVariant = variants.find(
+      (v) => v.colorKey === selectedColor && v.stock > 0
+    ) || variants.find(
+      (v) => v.colorKey === selectedColor
+    );
 
-    if (!variants.some((v) => v.colorKey === selectedColor)) {
-      newColor = variants[0].colorKey;
+    if (!targetVariant) {
+      targetVariant = variants.find((v) => v.stock > 0) || variants[0];
     }
 
+    const newColor = targetVariant.colorKey;
     setSelectedColor(newColor);
     setVariant(product.variantMap?.[`${storage}|${newColor}`] || null);
   };

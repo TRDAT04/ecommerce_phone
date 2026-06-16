@@ -1,4 +1,4 @@
-import { ShoppingCart, CreditCard, BadgePercent, Check } from "lucide-react";
+import { ShoppingCart, CreditCard, BadgePercent, Check, PackageX } from "lucide-react";
 
 import { getImageUrl } from "../../../../utils/image";
 
@@ -13,6 +13,8 @@ export default function ProductInfo({
   addToCart,
   handleBuyNow,
 }) {
+  const isOutOfStock = (variant?.stock ?? 0) === 0;
+
   return (
     <div className=" ">
       {/* PRICE */}
@@ -106,26 +108,42 @@ export default function ProductInfo({
       </div>
 
       {/* STOCK */}
-      <p className="mt-3 text-sm text-gray-500">
-        Còn <span className="font-semibold">{variant?.stock ?? 0}</span> sản
-        phẩm
-      </p>
+      {isOutOfStock ? (
+        <div className="mt-3 flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-500">
+          <PackageX size={16} className="shrink-0" />
+          <span>Phiên bản này hiện <span className="font-semibold text-gray-700">đã hết hàng</span></span>
+        </div>
+      ) : (
+        <p className="mt-3 text-sm text-gray-500">
+          Còn <span className="font-semibold text-green-600">{variant?.stock}</span> sản phẩm
+        </p>
+      )}
 
       {/* ACTIONS */}
       <div className="mt-6 flex flex-col gap-3">
         <div className="flex gap-3">
           <button
-            className="flex items-center justify-center rounded-lg border border-gray-300 px-4 py-3 transition hover:bg-gray-100"
-            onClick={addToCart}
+            disabled={isOutOfStock}
+            className={`flex items-center justify-center rounded-lg border px-4 py-3 transition ${
+              isOutOfStock
+                ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+                : "border-gray-300 hover:bg-gray-100"
+            }`}
+            onClick={isOutOfStock ? undefined : addToCart}
           >
             <ShoppingCart size={20} />
           </button>
 
           <button
-            onClick={handleBuyNow}
-            className="flex-7 rounded-lg bg-red-500 py-3 font-semibold text-white transition hover:bg-red-600"
+            disabled={isOutOfStock}
+            onClick={isOutOfStock ? undefined : handleBuyNow}
+            className={`flex-7 rounded-lg py-3 font-semibold text-white transition ${
+              isOutOfStock
+                ? "cursor-not-allowed bg-gray-300"
+                : "bg-red-500 hover:bg-red-600"
+            }`}
           >
-            MUA NGAY
+            {isOutOfStock ? "HẾT HÀNG" : "MUA NGAY"}
           </button>
         </div>
 

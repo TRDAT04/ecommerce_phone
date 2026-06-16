@@ -30,8 +30,12 @@ public class ProductBasicMapper {
         dto.setScreen(product.getScreenSize());
         dto.setRam(product.getRam());
         dto.setBattery(product.getBattery());
-
         dto.setStorages(extractStorages(product));
+        dto.setTotalStock(
+            product.getVariants().stream()
+                .mapToInt(v -> v.getStock() != null ? v.getStock() : 0)
+                .sum()
+        );
 
         return dto;
     }

@@ -18,7 +18,7 @@ const ROUTE_TITLES = {
   "/success/": "Đặt hàng thành công ",
   "/order/": "Chi tiết đơn hàng ",
   // Admin
-  "/admin/dashboard": "Dashboard n",
+  "/admin/dashboard": "Dashboard",
   "/admin/products": "Quản lý sản phẩm ",
   "/admin/products/create": "Thêm sản phẩm ",
   "/admin/orders": "Quản lý đơn hàng ",

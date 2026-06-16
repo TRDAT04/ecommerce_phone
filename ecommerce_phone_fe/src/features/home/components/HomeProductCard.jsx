@@ -9,6 +9,7 @@ const ProductCard = ({ product }) => {
   const [liked, setLiked] = useState(false);
 
   const storage = product.storages?.[0];
+  const isOutOfStock = product.totalStock === 0; // chỉ true khi BE trả về đúng số 0
 
   const discountPercent =
     product.minOriginalPrice && product.minPrice
@@ -19,23 +20,32 @@ const ProductCard = ({ product }) => {
       )
       : 0;
 
+  const handleCardClick = () => {
+    window.scrollTo(0, 0);
+    navigate(`/product/${product.id}`);
+  };
+
   return (
     <div
-      onClick={() => {
-        window.scrollTo(0, 0);
-
-        navigate(`/product/${product.id}`);
-      }}
-      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-black/5 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+      onClick={handleCardClick}
+      className={`group flex h-full flex-col overflow-hidden rounded-2xl border border-black/5 bg-white transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-lg ${
+        isOutOfStock
+          ? "opacity-70"
+          : ""
+      }`}
     >
       {/* IMAGE */}
       <div className="relative flex h-52 items-center justify-center bg-neutral-50 p-5">
-        {/* DISCOUNT */}
-        {discountPercent > 0 && (
+        {/* HẾT HÀNG BADGE */}
+        {isOutOfStock ? (
+          <div className="absolute top-3 left-3 z-10 rounded-lg bg-gray-500 px-2 py-1 text-xs font-semibold text-white">
+            Hết hàng
+          </div>
+        ) : discountPercent > 0 ? (
           <div className="absolute top-3 left-3 z-10 rounded-lg bg-red-500 px-2 py-1 text-xs font-semibold text-white">
             -{discountPercent}%
           </div>
-        )}
+        ) : null}
 
         {/* FAVORITE */}
         <button
@@ -58,7 +68,9 @@ const ProductCard = ({ product }) => {
               : "/placeholder.png"
           }
           alt={product.name}
-          className="max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+          className={`max-h-full object-contain transition-transform duration-300 ${
+            isOutOfStock ? "grayscale" : "group-hover:scale-105"
+          }`}
         />
       </div>
 
@@ -75,7 +87,7 @@ const ProductCard = ({ product }) => {
         {/* PRICE */}
         <div className="mt-3">
           <div className="flex flex-col gap-0.5">
-            <p className="text-xl font-bold text-red-600">
+            <p className={`text-xl font-bold ${isOutOfStock ? "text-gray-400" : "text-red-600"}`}>
               {product.minPrice?.toLocaleString("vi-VN")}₫
             </p>
 
@@ -89,7 +101,7 @@ const ProductCard = ({ product }) => {
           {/* SPECS */}
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="rounded-md bg-neutral-100 px-2 py-1 text-xs text-gray-700">
-              {product.screen}”
+              {product.screen}"
             </span>
 
             <span className="rounded-md bg-neutral-100 px-2 py-1 text-xs text-gray-700">
@@ -114,19 +126,24 @@ const ProductCard = ({ product }) => {
           </div>
 
           {/* BUTTON */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-
-              window.scrollTo(0, 0);
-
-              navigate(`/product/${product.id}`);
-            }}
-            className="flex h-9 items-center gap-2 rounded-xl bg-emerald-500 px-3 text-sm font-medium text-white transition hover:bg-emerald-600"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Mua
-          </button>
+          {isOutOfStock ? (
+            <div className="flex h-9 items-center gap-2 rounded-xl bg-gray-200 px-3 text-sm font-medium text-gray-500 cursor-not-allowed select-none">
+              <ShoppingCart className="h-4 w-4" />
+              Hết hàng
+            </div>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.scrollTo(0, 0);
+                navigate(`/product/${product.id}`);
+              }}
+              className="flex h-9 items-center gap-2 rounded-xl bg-emerald-500 px-3 text-sm font-medium text-white transition hover:bg-emerald-600"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Mua
+            </button>
+          )}
         </div>
       </div>
     </div>

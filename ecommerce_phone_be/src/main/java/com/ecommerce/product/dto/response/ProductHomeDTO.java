@@ -24,4 +24,6 @@ public class ProductHomeDTO {
     private Integer ram;
     private Double screen;
     private Integer battery;
+
+    private Integer totalStock; // Tổng tồn kho tất cả variants → 0 = hết hàng
 }
