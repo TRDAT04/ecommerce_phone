@@ -1,4 +1,4 @@
-package com.ecommerce.product.service.query;
+package com.ecommerce.product.service.helper;
 
 import com.ecommerce.product.dto.common.ColorDTO;
 import com.ecommerce.product.dto.common.SpecDTO;
