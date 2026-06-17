@@ -1,4 +1,4 @@
-package com.ecommerce.product.service.storage;
+package com.ecommerce.product.service.helper;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

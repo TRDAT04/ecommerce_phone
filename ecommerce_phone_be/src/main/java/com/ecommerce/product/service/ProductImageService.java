@@ -1,4 +1,4 @@
-package com.ecommerce.product.service.image;
+package com.ecommerce.product.service;
 
 import com.ecommerce.common.exception.AppException;
 import org.springframework.http.HttpStatus;
@@ -8,13 +8,13 @@ import com.ecommerce.product.entity.ProductImage;
 import com.ecommerce.product.repository.ProductImageRepository;
 import com.ecommerce.product.repository.ProductRepository;
 import com.ecommerce.product.service.helper.SlugService;
-import com.ecommerce.product.service.storage.ImageStorageService;
+import com.ecommerce.product.service.helper.ImageStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -23,17 +23,27 @@ import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
-public class ProductImageCommandService {
+public class ProductImageService {
 
     private final ProductRepository productRepository;
     private final ImageStorageService imageStorageService;
     private final SlugService slugService;
     private final ProductImageRepository productImageRepository;
 
+    // ================= QUERY =================
+    public List<ProductImage> getImages(Long productId, String color) {
+        Product product = findProductById(productId);
+        String colorKey = normalizeColor(color);
+
+        return product.getImages().stream()
+                .filter(img -> hasColor(img, colorKey))
+                .sorted(Comparator.comparingInt(ProductImage::getSortOrder))
+                .toList();
+    }
+
     // ================= UPLOAD =================
     @Transactional
     public List<ProductImage> uploadImages(Long productId, String color, MultipartFile[] files) {
-
         Product product = findProductById(productId);
         String colorKey = normalizeColor(color);
         ProductColor pc = findProductColor(product, colorKey);
@@ -61,7 +71,6 @@ public class ProductImageCommandService {
     // ================= DELETE =================
     @Transactional
     public void deleteImage(Long imageId) {
-
         ProductImage img = findImageById(imageId);
 
         if (hasValidUrl(img)) {
@@ -75,7 +84,6 @@ public class ProductImageCommandService {
     // ================= SORT =================
     @Transactional
     public void updateSortOrder(Long productId, String color, List<Long> imageIds) {
-
         Product product = findProductById(productId);
         String colorKey = normalizeColor(color);
 

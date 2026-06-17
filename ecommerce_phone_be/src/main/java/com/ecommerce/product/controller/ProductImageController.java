@@ -1,8 +1,7 @@
 package com.ecommerce.product.controller;
 
 import com.ecommerce.product.entity.ProductImage;
-import com.ecommerce.product.service.image.ProductImageCommandService;
-import com.ecommerce.product.service.image.ProductImageQueryService;
+import com.ecommerce.product.service.ProductImageService;
 import com.ecommerce.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +14,10 @@ import java.util.*;
 @CrossOrigin("*")
 public class ProductImageController {
 
-    private final ProductImageQueryService queryService;
-    private final ProductImageCommandService commandService;
+    private final ProductImageService imageService;
 
-    public ProductImageController(ProductImageQueryService queryService,
-                                  ProductImageCommandService commandService) {
-        this.queryService = queryService;
-        this.commandService = commandService;
+    public ProductImageController(ProductImageService imageService) {
+        this.imageService = imageService;
     }
 
     @GetMapping
@@ -29,7 +25,7 @@ public class ProductImageController {
             @RequestParam Long productId,
             @RequestParam String color
     ) {
-        return queryService.getImages(productId, color);
+        return imageService.getImages(productId, color);
     }
 
     @PostMapping
@@ -38,12 +34,12 @@ public class ProductImageController {
             @RequestParam String color,
             @RequestParam MultipartFile[] files
     ) {
-        return commandService.uploadImages(productId, color, files);
+        return imageService.uploadImages(productId, color, files);
     }
 
     @DeleteMapping("/{imageId}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long imageId) {
-        commandService.deleteImage(imageId);
+        imageService.deleteImage(imageId);
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .status(200)
                 .message("Đã xóa ảnh thành công")
@@ -56,7 +52,7 @@ public class ProductImageController {
             @RequestParam String color,
             @RequestBody List<Long> imageIds
     ) {
-        commandService.updateSortOrder(productId, color, imageIds);
+        imageService.updateSortOrder(productId, color, imageIds);
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .status(200)
                 .message("Cập nhật thứ tự ảnh thành công")

@@ -1,11 +1,9 @@
-package com.ecommerce.product.service.image;
+package com.ecommerce.product.service.helper;
 
 import com.ecommerce.product.dto.request.CreateProductDTO;
 import com.ecommerce.product.entity.Product;
 import com.ecommerce.product.entity.ProductColor;
 import com.ecommerce.product.entity.ProductImage;
-import com.ecommerce.product.service.helper.SlugService;
-import com.ecommerce.product.service.storage.ImageStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

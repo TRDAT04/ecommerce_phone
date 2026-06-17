@@ -22,7 +22,7 @@ import com.ecommerce.product.service.helper.JsonParserService;
 import com.ecommerce.product.service.helper.ProductCalculationService;
 import com.ecommerce.product.service.helper.ProductDetailBuilder;
 import com.ecommerce.product.service.helper.SlugService;
-import com.ecommerce.product.service.image.ProductImageAssembler;
+import com.ecommerce.product.service.helper.ProductImageAssembler;
 import com.ecommerce.product.spec.ProductSpecs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
